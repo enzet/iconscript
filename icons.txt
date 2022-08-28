@@ -11,7 +11,8 @@ verticalLine2 = 9,11 9,3
 shape
     l @flag
 shape
-    lf @flag
+    l @flag
+    lf 1,11 1,3 13,3 13,11
 shape
     l @flag
     l @rightTriangle

@@ -121,7 +121,7 @@ function parse() {
 
             var filled = (parts[0] == "lf");
             console.log(filled);
-            var fill = new Path({insert: true});
+            var fill = new Path({insert: false});
             fill.fillColor = "black";
             fill.opacity = opacity;
             
@@ -139,6 +139,9 @@ function parse() {
                     segment = addLine(last, coordinates);
                     lastPath = lastPath.unite(point);
                     lastPath = lastPath.unite(segment);
+                    if (filled) {
+                        lastPath = lastPath.unite(fill);
+                    }
                 } else {
                     lastPath = point;
                 }
