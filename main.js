@@ -38,9 +38,8 @@ function addPoint(position) {
     return new Path.Circle({
         center: toCoordinates(position),
         radius: scale / 2,
-        fillColor: 'white',
-        opacity: 0,
-        insert: true,
+        fillColor: "red",
+        opacity: 0.2
     });
 }
 
@@ -60,8 +59,8 @@ function addLine(start, end) {
     v = v / v.length * scale / 2.0;
 
     var path = new Path({insert: true});
-    path.fillColor = 'white';
-    path.opacity = 0;
+    path.fillColor = 'red';
+    path.opacity = 0.2;
     path.add(from + v, to + v, to - v, from - v);
 
     return path;
@@ -71,6 +70,8 @@ function addLine(start, end) {
  * Parse shape description file line by line.
  */
 function parse() {
+
+    var current = new Path.Circle([0, 0], 10);
 
     shift = new Point(0.5 * scale, 0.5 * scale);
 
@@ -88,8 +89,12 @@ function parse() {
         var parts = line.split(" ");
 
         if (parts[0] == "shape" && shape) {
-            shape.fillColor = "black";
-            shape.opacity = opacity;
+
+            fakeShape = new Path({insert: true});
+            fakeShape.opacity = 1;
+            fakeShape.fillColor = "blue";
+            fakeShape = fakeShape.unite(shape);
+
             shift += new Point(scale * size, 0);
             if (shift.x > scale * columns * size) {
                 shift += new Point(0, scale * size);
@@ -113,45 +118,40 @@ function parse() {
                 }
             }
             parts = newParts;
-            console.log(parts);
         }
 
         // `L` means simple one pixel width line. `LF` means `L` but filled.
         if (parts[0] == "l" || parts[0] == "lf") {
 
             var filled = (parts[0] == "lf");
-            console.log(filled);
-            var fill = new Path({insert: false});
-            fill.fillColor = "black";
-            fill.opacity = opacity;
+            var fill = new Path({insert: true});
+            fill.fillColor = "red";
+            fill.opacity = 0.2;
             
             var last = null;
-            var lastPath = null;
 
             for (var j = 1; j < parts.length; j++) {
+
                 coordinates = parts[j].split(",");
                 point = addPoint(coordinates);
+                console.log("add");
+
+                if (!shape) {
+                    shape = new Path({fillColor: "blue", insert: false})
+                }
+                shape = shape.unite(point, insert=false);
 
                 if (filled) {
                     fill.add(toCoordinates(coordinates));
                 }
                 if (last) {
                     segment = addLine(last, coordinates);
-                    lastPath = lastPath.unite(point);
-                    lastPath = lastPath.unite(segment);
+                    shape = shape.unite(segment);
                     if (filled) {
-                        lastPath = lastPath.unite(fill);
+                        // shape = shape.unite(filled);
                     }
-                } else {
-                    lastPath = point;
                 }
                 last = coordinates;
-            }
-
-            if (shape) {
-                shape = shape.unite(lastPath);
-            } else {
-                shape = lastPath;
             }
         }
     }
