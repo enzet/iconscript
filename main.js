@@ -7,7 +7,9 @@
  */
 
 var scale = 7.0;
-var size = 16.0;
+var size = 16.0; // Icons are 14 × 14 pixels, and this is size of icon with
+                 // 1 pixel margin.
+var opacity = 0.5;
 var shift = new Point(0.5 * scale, 0.5 * scale);
 var rows = 10;   // Number of rows (icons in a column).
 var columns = 6; // Number of columns (icons in a row).
@@ -117,7 +119,7 @@ function parse() {
             console.log(filled);
             var fill = new Path({insert: true});
             fill.fillColor = "black";
-            fill.opacity = 1;
+            fill.opacity = opacity;
             
             var last = null;
             var lastPath = null;
@@ -139,7 +141,7 @@ function parse() {
                 last = coordinates;
             }
             lastPath.fillColor = "black";
-            lastPath.opacity = 1;
+            lastPath.opacity = opacity;
         }
     }
 }
