@@ -1,4 +1,3 @@
-
 flag = 1,13 1,3 13,3 13,11 1,11
 rightTriangle = 1,3 7,7 1,11
 leftTriangle = 13,3 7,7 13,11
@@ -9,64 +8,65 @@ verticalLine = 7,3 7,11
 verticalLine1 = 5,3 5,11
 verticalLine2 = 9,11 9,3
 
-L @flag
-#
-LF @flag
-#
-L @flag
-L @rightTriangle
-#
-L @flag
-LF @rightTriangle
-#
-L @flag
-L @leftTriangle
-#
-L @flag
-LF @leftTriangle
-#
-L @flag
-L @horizontalLine
-#
-L @flag
-LF @horizontalLine1 @horizontalLine2
-#
-L @flag
-L @verticalLine
-#
-L @flag
-LF @verticalLine1 @verticalLine2
-#
-L @flag
-L @horizontalLine
-L @verticalLine
-#
-L @flag
-LF @horizontalLine1 @horizontalLine2
-LF 6,3 6,11 8,11 8,3
+shape
+    l @flag
+shape
+    lf @flag
+shape
+    l @flag
+    l @rightTriangle
+shape
+    l @flag
+    lf @rightTriangle
+shape
+    l @flag
+    l @leftTriangle
+shape
+    l @flag
+    lf @leftTriangle
+shape
+    l @flag
+    l @horizontalLine
+shape
+    l @flag
+    lf @horizontalLine1 @horizontalLine2
+shape
+    l @flag
+    l @verticalLine
+shape
+    l @flag
+    lf @verticalLine1 @verticalLine2
+shape
+    l @flag
+    l @horizontalLine
+    l @verticalLine
+shape
+    l @flag
+    lf @horizontalLine1 @horizontalLine2
+    lf 6,3 6,11 8,11 8,3
 
 bend = 1,3 13,11
 bendSinister = 1,11 13,3
 bendWide = 2,3 13,10 12,11 1,4
 bendSinisterWide = 1,10 12,3 13,4 2,11
 
-#
-L @flag
-L @bend
-#
-L @flag
-L @bendSinister
-#
-L @flag
-L @bend
-L @bendSinister
-#
-L @flag
-LF @bendWide
-#
-L @flag
-LF @bendSinisterWide
-#
-L @flag
-LF @bendWide
-LF @bendSinisterWide
+shape
+    l @flag
+    l @bend
+shape
+    l @flag
+    l @bendSinister
+shape
+    l @flag
+    l @bend
+    l @bendSinister
+shape
+    l @flag
+    lf @bendWide
+shape
+    l @flag
+    lf @bendSinisterWide
+shape
+    l @flag
+    lf @bendWide
+    lf @bendSinisterWide

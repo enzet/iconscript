@@ -79,21 +79,25 @@ function parse() {
 
     var lines = area.value.split("\n");
     var variables = {};
+    var shape = null;
 
     for (var i = 0; i < lines.length; i++) {
 
-        var line = lines[i];
+        var line = lines[i].trim();
 
-        if (line[0] == "#") {
+        var parts = line.split(" ");
+
+        if (parts[0] == "shape" && shape) {
+            shape.fillColor = "black";
+            shape.opacity = opacity;
             shift += new Point(scale * size, 0);
             if (shift.x > scale * columns * size) {
                 shift += new Point(0, scale * size);
                 shift.x = 0.5 * scale;
             }
+            shape = null;
             continue;
         }
-
-        var parts = line.split(" ");
 
         if (parts[1] == "=") {
             variables[parts[0]] = parts.slice(2);
@@ -113,9 +117,9 @@ function parse() {
         }
 
         // `L` means simple one pixel width line. `LF` means `L` but filled.
-        if (parts[0] == "L" || parts[0] == "LF") {
+        if (parts[0] == "l" || parts[0] == "lf") {
 
-            var filled = (parts[0] == "LF");
+            var filled = (parts[0] == "lf");
             console.log(filled);
             var fill = new Path({insert: true});
             fill.fillColor = "black";
@@ -140,8 +144,12 @@ function parse() {
                 }
                 last = coordinates;
             }
-            lastPath.fillColor = "black";
-            lastPath.opacity = opacity;
+
+            if (shape) {
+                shape = shape.unite(lastPath);
+            } else {
+                shape = lastPath;
+            }
         }
     }
 }
