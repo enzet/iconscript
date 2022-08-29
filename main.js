@@ -6,18 +6,20 @@
  * @see https://github.com/enzet/Roentgen
  */
 
-var scale = 7.0;
+var scale = 4.2;
 var size = 16.0; // Icons are 14 × 14 pixels, and this is size of icon with
                  // 1 pixel margin.
 var shift = new Point(0.5 * scale, 0.5 * scale);
 var rows = 10;   // Number of rows (icons in a column).
 var columns = 6; // Number of columns (icons in a row).
 
+var width = 1.0;
+
 var sketchOpacity = 0.2;
 var sketchColor = new Color(0, 0, 0);
 
 var finalOpacity = 1;
-var finalColor = new Color(0, 0, 1);
+var finalColor = new Color(0, 0, 0);
 
 /**
  * Convert position in icon shape coordinates to shifted and scaled coordinates
@@ -42,7 +44,7 @@ function addPoint(position) {
 
     return new Path.Circle({
         center: toCoordinates(position),
-        radius: scale / 2,
+        radius: scale * width * 0.5,
         fillColor: sketchColor,
         opacity: sketchOpacity
     });
@@ -61,7 +63,7 @@ function addLine(start, end) {
     var to = toCoordinates(end);
     var v = to - from;
     v.angle += 90.0;
-    v = v / v.length * scale / 2.0;
+    v = v / v.length * scale * width * 0.5;
 
     var path = new Path({insert: true});
     path.fillColor = sketchColor;
@@ -87,13 +89,32 @@ function parse() {
     var variables = {};
     var shape = null;
 
+    var lexemes = []
+
     for (var i = 0; i < lines.length; i++) {
+        parts = lines[i].trim().split(" ");
+        if (parts[1] == "=") {
+            variables[parts[0]] = parts.slice(2);
+        } else {
+            for (var j = 0; j < parts.length; j++) {
+                part = parts[j];
+                if (part[0] == "@") {
+                    lexemes = lexemes.concat(variables[part.slice(1)]);
+                } else {
+                    lexemes.push(part);
+                }
+            }
+        }
+    }
 
-        var line = lines[i].trim();
+    var filled = false;
+    var fill = null;
 
-        var parts = line.split(" ");
+    for (var i = 0; i < lexemes.length; i++) {
 
-        if (parts[0] == "shape" && shape) {
+        var lexeme = lexemes[i];
+
+        if (lexeme == "}" && shape) {
 
             fakeShape = new Path({insert: true});
             fakeShape = fakeShape.unite(shape);
@@ -110,55 +131,38 @@ function parse() {
             continue;
         }
 
-        if (parts[1] == "=") {
-            variables[parts[0]] = parts.slice(2);
-            continue;
-        } else {
-            newParts = [];
-            for (j = 0; j < parts.length; j++) {
-                part = parts[j];
-                if (part[0] == "@") {
-                    newParts = newParts.concat(variables[part.slice(1)]);
-                } else {
-                    newParts.push(part);
-                }
-            }
-            parts = newParts;
-        }
-
         // `L` means simple one pixel width line. `LF` means `L` but filled.
-        if (parts[0] == "l" || parts[0] == "lf") {
+        if (lexeme == "l" || lexeme == "lf") {
 
-            var filled = (parts[0] == "lf");
-            var fill = new Path({insert: true});
+            filled = (lexeme == "lf");
+            fill = new Path({insert: true});
             fill.fillColor = sketchColor;
             fill.opacity = sketchOpacity;
             
             var last = null;
+        }
 
-            for (var j = 1; j < parts.length; j++) {
+        if (lexeme.includes(",")) {
 
-                coordinates = parts[j].split(",");
-                point = addPoint(coordinates);
-                console.log("add");
+            coordinates = lexeme.split(",");
+            point = addPoint(coordinates);
 
-                if (!shape) {
-                    shape = new Path({fillColor: "blue", insert: false})
-                }
-                shape = shape.unite(point, insert=false);
-
-                if (filled) {
-                    fill.add(toCoordinates(coordinates));
-                }
-                if (last) {
-                    segment = addLine(last, coordinates);
-                    shape = shape.unite(segment);
-                    if (filled) {
-                        shape = shape.unite(fill);
-                    }
-                }
-                last = coordinates;
+            if (!shape) {
+                shape = new Path({fillColor: "blue", insert: false})
             }
+            shape = shape.unite(point, insert=false);
+
+            if (filled) {
+                fill.add(toCoordinates(coordinates));
+            }
+            if (last) {
+                segment = addLine(last, coordinates);
+                shape = shape.unite(segment);
+                if (filled) {
+                    shape = shape.unite(fill);
+                }
+            }
+            last = coordinates;
         }
     }
 }

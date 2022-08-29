@@ -8,148 +8,76 @@ verticalLine = 7,3 7,11
 verticalLine1 = 5,3 5,11
 verticalLine2 = 9,11 9,3
 
-
-shape
-    l @flag
-
-shape
-    l @flag
-    lf 1,11 1,3 13,3 13,11
-
-shape
-    l @flag
-    l @rightTriangle
-
-shape
-    l @flag
-    lf @rightTriangle
-
-shape
-    l @flag
-    l @leftTriangle
-
-shape
-    l @flag
-    lf @leftTriangle
-
-shape
-    l @flag
-    l @horizontalLine
-
-shape
-    l @flag
-    lf @horizontalLine1 @horizontalLine2
-
-shape
-    l @flag
-    l @verticalLine
-
-shape
-    l @flag
-    lf @verticalLine1 @verticalLine2
-
-shape
-    l @flag
-    l @horizontalLine
-    l @verticalLine
-
-shape
-    l @flag
-    lf @horizontalLine1 @horizontalLine2
-    lf 6,3 6,11 8,11 8,3
+shape { l @flag }
+shape { l @flag lf 1,11 1,3 13,3 13,11 }
+shape { l @flag l @rightTriangle }
+shape { l @flag lf @rightTriangle }
+shape { l @flag l @leftTriangle }
+shape { l @flag lf @leftTriangle }
+shape { l @flag l @horizontalLine }
+shape { l @flag lf @horizontalLine1 @horizontalLine2 }
+shape { l @flag l @verticalLine }
+shape { l @flag lf @verticalLine1 @verticalLine2 }
+shape { l @flag l @horizontalLine l @verticalLine }
+shape { l @flag lf @horizontalLine1 @horizontalLine2 lf 6,3 6,11 8,11 8,3 }
 
 bend = 1,3 13,11
 bendSinister = 1,11 13,3
 bendWide = 2,3 13,10 12,11 1,4
 bendSinisterWide = 1,10 12,3 13,4 2,11
 
-shape
-    l @flag
-    l @bend
-
-shape
-    l @flag
-    l @bendSinister
-
-shape
-    l @flag
-    l @bend
-    l @bendSinister
-
-shape
-    l @flag
-    lf @bendWide
-
-shape
-    l @flag
-    lf @bendSinisterWide
-
-shape
-    l @flag
-    lf @bendWide
-    lf @bendSinisterWide
+shape { l @flag l @bend }
+shape { l @flag l @bendSinister }
+shape { l @flag l @bend l @bendSinister }
+shape { l @flag lf @bendWide }
+shape { l @flag lf @bendSinisterWide }
+shape { l @flag lf @bendWide lf @bendSinisterWide }
+shape { l @flag l @bend }
+shape { l @flag l 5,6 l 7,5 l 9,6 l 5,8 l 9,8 l 7,9 }
 
 pole = 7,2 7,14 8,14 8,2 7,2
 poleLine = 2,3 13,3
 conductors = l 2,4.5 2,5.5 l 13,4.5 13,5.5
 
-
-shape
-    lf @pole
-    l @poleLine
-    p 2,3
-    l 2,4.5 2,5.5
-    l 13,4.5 13,5.5
-
-shape
-    lf @pole
-    l @poleLine
-    l 2,5 13,5
-    l 2,6.5 2,7.5
-    l 13,6.5 13,7.5
-
-shape
-    lf @pole
-    l @poleLine
-    l 2,5 13,5
-    l 2,7 13,7
-    l 2,8.5 2,9.5
-    l 13,8.5 13,9.5
-
-shape
+shape { lf @pole l @poleLine p 2,3 l 2,4.5 2,5.5 l 13,4.5 13,5.5 }
+shape { lf @pole l @poleLine l 2,5 13,5 l 2,6.5 2,7.5 l 13,6.5 13,7.5 }
+shape { lf @pole l @poleLine l 2,5 13,5 l 2,7 13,7 l 2,8.5 2,9.5 l 13,8.5 13,9.5 }
+shape { lf @pole l 2,2 13,2 l 2,4 13,4 l 2,6 13,6 l 2,8 13,8 l 2,9.5 2,10.5 l 13,9.5 13,10.5 }
+shape {
     lf @pole
     l 2,2 13,2
     l 2,4 13,4
     l 2,6 13,6
     l 2,8 13,8
-    l 2,9.5 2,10.5
-    l 13,9.5 13,10.5
+    l 2,10 13,10
+    l 2,11.5 2,12.5
+    l 13,11.5 13,12.5
+}
 
 tower = 4,14 6,10 6,2 8,2 8,10 10,14
 towerLine = 4.5,13 9.5,13
 
-shape
+shape {
     l @tower
     l @towerLine
     l 2.5,5 6,2 8,2 11.5,5 2.5,5
     l 2.5,10 6,7 8,7 11.5,10 2.5,10
-
-shape
+}
+shape {
     l @tower
     l @towerLine
     l 3,5 6,2 8,2 11,5 3,5
     l 2,10 6,7 8,7 12,10 2,10
-
-shape
+}
+shape {
     l @tower
     l @towerLine
     l 2,5 6,2 8,2 12,5 2,5
     l 3,10 6,7 8,7 11,10 3,10
-
-shape billboard
+}
+shape { billboard
     lf 2,2 13,2 13,8 2,8 2,2
     lf 7,13 8,13 8,8 7,8 7,13
     l 3,10 4,10
     l 11,10 12,10
-
-shape
+}
