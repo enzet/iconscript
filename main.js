@@ -96,10 +96,10 @@ function parse() {
         if (parts[0] == "shape" && shape) {
 
             fakeShape = new Path({insert: true});
-            fakeShape.opacity = finalOpacity;
-            fakeShape.fillColor = finalColor;
             fakeShape = fakeShape.unite(shape);
             fakeShape.translate([0, scale * size])
+            fakeShape.opacity = finalOpacity;
+            fakeShape.fillColor = finalColor;
 
             shift += new Point(scale * size, 0);
             if (shift.x > scale * columns * size) {
