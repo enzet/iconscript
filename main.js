@@ -9,9 +9,11 @@
 var scale = 4.2;
 var size = 16.0; // Icons are 14 × 14 pixels, and this is size of icon with
                  // 1 pixel margin.
-var shift = new Point(0.5 * scale, 0.5 * scale);
 var rows = 10;   // Number of rows (icons in a column).
 var columns = 6; // Number of columns (icons in a row).
+
+var shift = new Point(0.5 * scale, 0.5 * scale);
+var current = new Point(0, 0);
 
 var width = 1.0;
 
@@ -29,9 +31,17 @@ var finalColor = new Color(0, 0, 0);
  * @returns point on the canvas
  */
 function toCoordinates(position) {
-    return new Point(
-        [Number(position[0]), Number(position[1])]
-    ) * scale + shift;
+
+    if (position[0] == "+") {
+        position = position.slice(1).split(",");
+        p = new Point([Number(position[0]), Number(position[1])]);
+        current = current + p;
+    } else {
+        position = position.split(",");
+        p = new Point([Number(position[0]), Number(position[1])]);
+        current = p;
+    }
+    return current * scale + shift;
 }
 
 /**
@@ -43,7 +53,7 @@ function toCoordinates(position) {
 function addPoint(position) {
 
     return new Path.Circle({
-        center: toCoordinates(position),
+        center: position,
         radius: scale * width * 0.5,
         fillColor: sketchColor,
         opacity: sketchOpacity
@@ -57,10 +67,8 @@ function addPoint(position) {
  * @param {vector} end ending point
  * @returns created rectangle
  */
-function addLine(start, end) {
+function addLine(from, to) {
 
-    var from = toCoordinates(start);
-    var to = toCoordinates(end);
     var v = to - from;
     v.angle += 90.0;
     v = v / v.length * scale * width * 0.5;
@@ -94,7 +102,15 @@ function parse() {
     for (var i = 0; i < lines.length; i++) {
         parts = lines[i].trim().split(" ");
         if (parts[1] == "=") {
-            variables[parts[0]] = parts.slice(2);
+            variables[parts[0]] = []; // parts.slice(2);
+            for (var j = 2; j < parts.length; j++) {
+                part = parts[j];
+                if (part[0] == "@") {
+                    variables[parts[0]] = variables[parts[0]].concat(variables[part.slice(1)]);
+                } else {
+                    variables[parts[0]].push(part);
+                }
+            }
         } else {
             for (var j = 0; j < parts.length; j++) {
                 part = parts[j];
@@ -109,6 +125,7 @@ function parse() {
 
     var filled = false;
     var fill = null;
+    var mode = null;
 
     for (var i = 0; i < lexemes.length; i++) {
 
@@ -140,29 +157,44 @@ function parse() {
             fill.opacity = sketchOpacity;
             
             var last = null;
+
+            mode = "line";
+            continue;
+        }
+
+        if (lexeme == "p") {
+            mode = "point";
+            continue;
         }
 
         if (lexeme.includes(",")) {
 
-            coordinates = lexeme.split(",");
-            point = addPoint(coordinates);
+            coordinates = toCoordinates(lexeme);
 
-            if (!shape) {
-                shape = new Path({fillColor: "blue", insert: false})
+            if (mode == "point") {
+                current = coordinates;
             }
-            shape = shape.unite(point, insert=false);
 
-            if (filled) {
-                fill.add(toCoordinates(coordinates));
-            }
-            if (last) {
-                segment = addLine(last, coordinates);
-                shape = shape.unite(segment);
-                if (filled) {
-                    shape = shape.unite(fill);
+            if (mode == "line") {
+                point = addPoint(coordinates);
+
+                if (!shape) {
+                    shape = new Path({fillColor: "blue", insert: false})
                 }
+                shape = shape.unite(point, insert=false);
+
+                if (filled) {
+                    fill.add(coordinates);
+                }
+                if (last) {
+                    segment = addLine(last, coordinates);
+                    shape = shape.unite(segment);
+                    if (filled) {
+                        shape = shape.unite(fill);
+                    }
+                }
+                last = coordinates;
             }
-            last = coordinates;
         }
     }
 }
