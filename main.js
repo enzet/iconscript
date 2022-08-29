@@ -9,10 +9,12 @@
 var scale = 7.0;
 var size = 16.0; // Icons are 14 × 14 pixels, and this is size of icon with
                  // 1 pixel margin.
-var opacity = 0.5;
 var shift = new Point(0.5 * scale, 0.5 * scale);
 var rows = 10;   // Number of rows (icons in a column).
 var columns = 6; // Number of columns (icons in a row).
+
+var sketchOpacity = 0.2;
+var sketchColor = new Color(0, 0, 0);
 
 /**
  * Convert position in icon shape coordinates to shifted and scaled coordinates
@@ -38,8 +40,8 @@ function addPoint(position) {
     return new Path.Circle({
         center: toCoordinates(position),
         radius: scale / 2,
-        fillColor: "red",
-        opacity: 0.2
+        fillColor: sketchColor,
+        opacity: sketchOpacity
     });
 }
 
@@ -55,12 +57,12 @@ function addLine(start, end) {
     var from = toCoordinates(start);
     var to = toCoordinates(end);
     var v = to - from;
-    v.angle += 90;
+    v.angle += 90.0;
     v = v / v.length * scale / 2.0;
 
     var path = new Path({insert: true});
-    path.fillColor = 'red';
-    path.opacity = 0.2;
+    path.fillColor = sketchColor;
+    path.opacity = sketchOpacity;
     path.add(from + v, to + v, to - v, from - v);
 
     return path;
@@ -94,10 +96,11 @@ function parse() {
             fakeShape.opacity = 1;
             fakeShape.fillColor = "blue";
             fakeShape = fakeShape.unite(shape);
+            fakeShape.translate([0, scale * size])
 
             shift += new Point(scale * size, 0);
             if (shift.x > scale * columns * size) {
-                shift += new Point(0, scale * size);
+                shift += new Point(0, scale * size * 2);
                 shift.x = 0.5 * scale;
             }
             shape = null;
@@ -125,8 +128,8 @@ function parse() {
 
             var filled = (parts[0] == "lf");
             var fill = new Path({insert: true});
-            fill.fillColor = "red";
-            fill.opacity = 0.2;
+            fill.fillColor = sketchColor;
+            fill.opacity = sketchOpacity;
             
             var last = null;
 
@@ -162,7 +165,7 @@ function parse() {
  */
 function addGridLine(x1, y1, x2, y2) {
     var path = new Path();
-    path.strokeColor = 'black';
+    path.strokeColor = "black";
     path.strokeWidth = 0.2;
     path.opacity = 0.4;
     path.add(new Point(x1, y1) * scale, new Point(x2, y2) * scale);
@@ -181,7 +184,7 @@ function addGrid() {
 }
 
 var area = document.getElementById("code");
-area.addEventListener('input', parse, false);
+area.addEventListener("input", parse, false);
 var canvas = document.getElementById("canvas");
 
 parse();
