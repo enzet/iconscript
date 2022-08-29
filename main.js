@@ -16,6 +16,9 @@ var columns = 6; // Number of columns (icons in a row).
 var sketchOpacity = 0.2;
 var sketchColor = new Color(0, 0, 0);
 
+var finalOpacity = 1;
+var finalColor = new Color(0, 0, 1);
+
 /**
  * Convert position in icon shape coordinates to shifted and scaled coordinates
  * of the canvas.
@@ -93,8 +96,8 @@ function parse() {
         if (parts[0] == "shape" && shape) {
 
             fakeShape = new Path({insert: true});
-            fakeShape.opacity = 1;
-            fakeShape.fillColor = "blue";
+            fakeShape.opacity = finalOpacity;
+            fakeShape.fillColor = finalColor;
             fakeShape = fakeShape.unite(shape);
             fakeShape.translate([0, scale * size])
 
@@ -151,7 +154,7 @@ function parse() {
                     segment = addLine(last, coordinates);
                     shape = shape.unite(segment);
                     if (filled) {
-                        // shape = shape.unite(filled);
+                        shape = shape.unite(fill);
                     }
                 }
                 last = coordinates;
