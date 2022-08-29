@@ -90,26 +90,66 @@ shape
     lf @bendSinisterWide
 
 pole = 7,2 7,14 8,14 8,2 7,2
+poleLine = 2,3 13,3
+conductors = l 2,4.5 2,5.5 l 13,4.5 13,5.5
+
 
 shape
     lf @pole
-    l 2,3 13,3
+    l @poleLine
+    p 2,3
     l 2,4.5 2,5.5
     l 13,4.5 13,5.5
 
 shape
     lf @pole
-    l 2,3 13,3
+    l @poleLine
     l 2,5 13,5
     l 2,6.5 2,7.5
     l 13,6.5 13,7.5
 
 shape
     lf @pole
-    l 2,3 13,3
+    l @poleLine
     l 2,5 13,5
     l 2,7 13,7
     l 2,8.5 2,9.5
     l 13,8.5 13,9.5
+
+shape
+    lf @pole
+    l 2,2 13,2
+    l 2,4 13,4
+    l 2,6 13,6
+    l 2,8 13,8
+    l 2,9.5 2,10.5
+    l 13,9.5 13,10.5
+
+tower = 4,14 6,10 6,2 8,2 8,10 10,14
+towerLine = 4.5,13 9.5,13
+
+shape
+    l @tower
+    l @towerLine
+    l 2.5,5 6,2 8,2 11.5,5 2.5,5
+    l 2.5,10 6,7 8,7 11.5,10 2.5,10
+
+shape
+    l @tower
+    l @towerLine
+    l 3,5 6,2 8,2 11,5 3,5
+    l 2,10 6,7 8,7 12,10 2,10
+
+shape
+    l @tower
+    l @towerLine
+    l 2,5 6,2 8,2 12,5 2,5
+    l 3,10 6,7 8,7 11,10 3,10
+
+shape billboard
+    lf 2,2 13,2 13,8 2,8 2,2
+    lf 7,13 8,13 8,8 7,8 7,13
+    l 3,10 4,10
+    l 11,10 12,10
 
 shape
