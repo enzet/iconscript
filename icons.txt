@@ -44,22 +44,39 @@ conductors = l +-11,1.5 +0,1 l +11,-1 +0,1
 { lf @pole p 13,1 l @line @line @line @line @conductors }
 { lf @pole p 13,0 l @line @line @line @line @line @conductors }
 
-tower = 4,14 6,10 6,2 8,2 8,10 10,14
-line = 4.5,13 9.5,13
+line = l 4.5,13 9.5,13
+tower = l 4,14 +2,-4 +0,-8 +2,0 +0,8 +2,4 @line
+tower_1 = l 4,14 +2,-4 +0,-9 +2,0 +0,9 +2,4 @line
+tower_2 = l 4,14 +2,-4 +0,-6 +1,-3 +1,3 +0,6 +2,4 @line
+arm = l +0,0 +2,0 +3.5,3 +-9,0 +3.5,-3
+arm_r = l +2,0 +3.5,3 +-5,0
+arm_l = l +0,0 +-3.5,3 +5,0
+arm_s = l +0,0 +2,0 +3,3 +-8,0 +3,-3
+arm_w = l +0,0 +2,0 +4,3 +-10,0 +4,-3
 
 {
-    l @tower l @line
-    l 2.5,5 6,2 8,2 11.5,5 2.5,5
-    l 2.5,10 6,7 8,7 11.5,10 2.5,10
+    @tower p 6,2 @arm p 6,7 @arm
 } {
-    l @tower l @line
-    l 3,5 6,2 8,2 11,5 3,5
-    l 2,10 6,7 8,7 12,10 2,10
+    @tower p 6,2 @arm_s p 6,7 @arm_w
 } {
-    l @tower l @line
-    l 2,5 6,2 8,2 12,5 2,5
-    l 3,10 6,7 8,7 11,10 3,10
+    @tower p 6,2 @arm_w p 6,7 @arm_s
 } {
+    @tower_1 p 6,1 @arm p 6,4 @arm p 6,7 @arm
+} {
+    @tower_1 p 6,1 @arm_s p 6,4 @arm_w p 6,7 @arm_s
+} {
+    @tower p 6,2 @arm_l p 6,7 @arm
+} {
+    @tower_1 p 6,1 @arm_l p 6,4 @arm_r p 6,7 @arm_l
+} {
+    @tower_2 l 6,10 +2,0 p 6,4 @arm
+} {
+    @tower_2 l 6,10 +2,0 l 8,4 +-5,0 l 8,7 +-5,0 l 8,10 +-5,0
+} {
+    @tower_2 l 6,10 +2,0 l 11,4 +-8,0 l 11,6 +-8,0 l 11,8 +-8,0 l 11,10 +-8,0
+}
+
+{
     %billboard
     lf 2,2 13,2 13,8 2,8 2,2
     lf 7,13 8,13 8,8 7,8 7,13
@@ -153,10 +170,7 @@ bench_base = l +1,1 +0,2 l +9,-2 +0,2
     l 11,3 +0,5
 } {
     %bowling_ball
-    c 7,7 9
-    r c 7,6 1.3
-    c 5,5 1.3
-    c 7,4 1.3 a
+    c 7,7 9   r c 7,6 1.3 c 5,5 1.3 c 7,4 1.3 a
 } {
     %cupboard
     lf 3,2 +9,0 +0,10 +-9,0 +0,-10
@@ -171,12 +185,12 @@ bench_base = l +1,1 +0,2 l +9,-2 +0,2
     %cliff
     lf 2,3 +8,0 +3,2 +-1,7 +-1,-5 +-2,-1 +-2,6 +-5,0 +0,-9
 }
+
 stone = lf 3,4 +8,-1 +2,5 +-2,3 +-7,0 +-2,-4 +1,-3
+
 { %stone @stone }
-{ 
-    %stone_with_inscription @stone
-    r l 5,6 +5,0 l 5,8 +5,0 a
-} {
+{ %stone_with_inscription @stone r l 5,6 +5,0 l 5,8 +5,0 a }
+{
     %tyre
     w 2 lf 4.5,2.5 +5,0 +0,9 +-5,0 +0,-9 w 1
     r
