@@ -1,77 +1,190 @@
 flag = 1,13 1,3 13,3 13,11 1,11
-rightTriangle = 1,3 7,7 1,11
-leftTriangle = 13,3 7,7 13,11
-horizontalLine =  1,7   +12,0
-horizontalLine1 = 1,6   +12,0
-horizontalLine2 = 13,8  +-12,0
-verticalLine =    7,3   +0,8
-verticalLine1 =   5,3   +0,8
-verticalLine2 =   9,11  +0,-8
+triangle_r = 1,3 7,7 1,11
+triangle_l = 13,3 7,7 13,11
+line_h =  1,7  +12,0
+line_h1 = 1,6  +12,0
+line_h2 = 13,8 +-12,0
+line_v =  7,3  +0,8
+line_v1 = 5,3  +0,8
+line_v2 = 9,11 +0,-8
 
-shape { l @flag }
-shape { l @flag lf 1,11 1,3 13,3 13,11 }
-shape { l @flag l @rightTriangle }
-shape { l @flag lf @rightTriangle }
-shape { l @flag l @leftTriangle }
-shape { l @flag lf @leftTriangle }
-shape { l @flag l @horizontalLine }
-shape { l @flag lf @horizontalLine1 @horizontalLine2 }
-shape { l @flag l @verticalLine }
-shape { l @flag lf @verticalLine1 @verticalLine2 }
-shape { l @flag l @horizontalLine l @verticalLine }
-shape { l @flag lf @horizontalLine1 @horizontalLine2 lf 6,3 6,11 8,11 8,3 }
+{ l @flag }
+{ l @flag lf 1,11 1,3 13,3 13,11 }
+{ l @flag l @triangle_r }
+{ l @flag lf @triangle_r }
+{ l @flag l @triangle_l }
+{ l @flag lf @triangle_l }
+{ l @flag l @line_h }
+{ l @flag lf @line_h1 @line_h2 }
+{ l @flag l @line_v }
+{ l @flag lf @line_v1 @line_v2 }
+{ l @flag l @line_h l @line_v }
+{ l @flag lf @line_h1 @line_h2 lf 6,3 6,11 8,11 8,3 }
 
 bend = 1,3 13,11
-bendSinister = 1,11 13,3
-bendWide = 2,3 13,10 12,11 1,4
-bendSinisterWide = 1,10 12,3 13,4 2,11
+bend_s = 1,11 13,3
+bend_w = 2,3 13,10 12,11 1,4
+bend_sw = 1,10 12,3 13,4 2,11
 
-shape { l @flag l @bend }
-shape { l @flag l @bendSinister }
-shape { l @flag l @bend l @bendSinister }
-shape { l @flag lf @bendWide }
-shape { l @flag lf @bendSinisterWide }
-shape { l @flag lf @bendWide lf @bendSinisterWide }
-shape { l @flag l @bend }
-shape { l @flag l 5,6 l 7,5 l 9,6 l 5,8 l 9,8 l 7,9 }
-
-# Poles
+{ l @flag l @bend }
+{ l @flag l @bend_s }
+{ l @flag l @bend l @bend_s }
+{ l @flag lf @bend_w }
+{ l @flag lf @bend_sw }
+{ l @flag lf @bend_w lf @bend_sw }
+{ l @flag l 7,5 l +2,1 l +0,2 l +-2,1 l +-2,-1 l +0,-2 }
 
 pole = 7,2 7,14 8,14 8,2 7,2
-poleLine = +0,0 +11,0
-nextLine = p +-11,2 l @poleLine
+line = p +-11,2 l +0,0 +11,0
 conductors = l +-11,1.5 +0,1 l +11,-1 +0,1
 
-shape { lf @pole p 2,3 l @poleLine @conductors }
-shape { lf @pole p 2,3 l @poleLine @nextLine @conductors }
-shape { lf @pole p 2,3 l @poleLine @nextLine @nextLine @conductors }
-shape { lf @pole p 2,2 l @poleLine @nextLine @nextLine @nextLine @conductors }
-shape { lf @pole p 2,2 l @poleLine @nextLine @nextLine @nextLine @nextLine @conductors }
+{ lf @pole p 13,1 l @line @conductors }
+{ lf @pole p 13,1 l @line @line @conductors }
+{ lf @pole p 13,1 l @line @line @line @conductors }
+{ lf @pole p 13,1 l @line @line @line @line @conductors }
+{ lf @pole p 13,0 l @line @line @line @line @line @conductors }
 
 tower = 4,14 6,10 6,2 8,2 8,10 10,14
-towerLine = 4.5,13 9.5,13
+line = 4.5,13 9.5,13
 
-shape {
-    l @tower
-    l @towerLine
+{
+    l @tower l @line
     l 2.5,5 6,2 8,2 11.5,5 2.5,5
     l 2.5,10 6,7 8,7 11.5,10 2.5,10
-}
-shape {
-    l @tower
-    l @towerLine
+} {
+    l @tower l @line
     l 3,5 6,2 8,2 11,5 3,5
     l 2,10 6,7 8,7 12,10 2,10
-}
-shape {
-    l @tower
-    l @towerLine
+} {
+    l @tower l @line
     l 2,5 6,2 8,2 12,5 2,5
     l 3,10 6,7 8,7 11,10 3,10
-}
-shape { billboard
+} {
+    %billboard
     lf 2,2 13,2 13,8 2,8 2,2
     lf 7,13 8,13 8,8 7,8 7,13
     l 3,10 4,10
     l 11,10 12,10
+} {
+    %tv
+    lf 2,3 +11,0 +0,7 +-11,0 +0,-7
+    l 7,10 +0,2 +1,0 +0,-2 l 5,12 +5,0
+} {
+    %cross_4
+    lf 6,3 +0,3 +-3,0 +0,3 +3,0 +0,3 +3,0 +0,-3 +3,0 +0,-3 +-3,0 +0,-3 +-3,0
+} {
+    %cross_3
+    lf 6,4 +0,2 +-2,0 +0,2 +2,0 +0,2 +2,0 +0,-2 +2,0 +0,-2 +-2,0 +0,-2 +-2,0
+} { 
+    %cross_catolic_3
+    lf 6,3 +0,3 +-3,0 +0,2 +3,0 +0,5 +2,0 +0,-5 +3,0 +0,-2 +-3,0 +0,-3 +-2,0 }
+{ lf 7,3 +0,3 +-3,0 +0,1 +3,0 +0,5 +1,0 +0,-5 +3,0 +0,-1 +-3,0 +0,-3 +-1,0 }
+{ lf 7,2 +0,4 +-4,0 +0,1 +4,0 +0,7 +1,0 +0,-7 +4,0 +0,-1 +-4,0 +0,-4 +-1,0 }
+{
+    %cross_orthodox 
+    w 2 
+    l 7.5,2.5 +0,11 l 3.5,6.5 +8,0
+    l 4.5,5.5 +0,2 l 10.5,5.5 +0,2
+    l 6.5,3.5 +2,0 l 6.5,12.5 +2,0
+    w 1
+} {
+    lf 7,5 +-2,3 +4,0 +-2,-3
+    lf 7,9 +-2,-3 +4,0 +-2,3
+} {
+    l 7,5 +-3,5 +6,0 +-3,-5
+    l 7,11 +-3,-5 +6,0 +-3,5
+} {
+    l 7,3 +-4,7 +8,0 +-4,-7
+    l 7,12 +-4,-7 +8,0 +-4,7
+} {
+    l 7,2 +-5,8 +10,0 +-5,-8
+    l 7,13 +-5,-8 +10,0 +-5,8
+} {
+    %well
+    l  2,4 +5,-2 +5,2
+    l  3,4 +0,7
+    l  11,4 +0,7
+    l  3,6 +10,0 +0,2 +1,0
+    l  6,5.5 +2,0 +0,1 +-2,0 +0,4
+    lf 2,10 +10,0 +0,4 +-10,0 +0,-4
+}
+{
+    lf 2,6 +0,1  +3,0  +0,-1  +4,0 +0,1   +3,0 +0,-1 +0,4 
+           +0,-1 +-3,0  +0,1 +-4,0 +0,-1 +-3,0  +0,1 +0,-4
+    l 5,3 +4,0 l 7,2.5 +0,1.5
+}
+
+bench = lf +2,6 +11,0 +0,1 +-11,0 +0,-1
+bench_base = l +1,1 +0,2 l +9,-2 +0,2
+{
+    %bench
+    p 0,0 @bench
+    l 3,5 +0,4 l 12,5 +0,4
+} {
+    %bench_no_backrest
+    p 0,0 @bench @bench_base
+} {
+    %bench_statue
+    p 0,4 @bench @bench_base
+    c 11,2.5 2
+    lf 10,5 +2.5,0 +0.5,2 +-3,1 +0,-3
+    l 10,5 +-0.5,0 +-1.5,3
+} {
+    %bench_no_backrest
+    p 0,2 @bench
+    l 3,3 +0,8 l 12,3 +0,8
+    w 2 l 2.5,4.5 +10,0 +0,1 +-10,0 +0,-1 w 1
+}
+
+{
+    lf 3,7 +3,0 +1,1 +0,2 +-5,0 +0,-2 +1,-1
+    l 3,10 +-1,2 +0,2
+    l 6,10 +1,2 +0,2
+    l 3,7 9,1 l 6,7 9,1 +2,6
+}
+{
+    lf 2,2 +5,0 +1,1 +5,0, +-11,0 +0,-1
+    l 4,3 +0,11
+    l 6,3 +0,11
+    l 4,3 +2,2
+    l +0,1 +-2,2
+    l +0,1 +2,2
+    l +0,1 +-2,2
+    l 11,3 +0,5
+} {
+    %bowling_ball
+    c 7,7 9
+    r c 7,6 1.3
+    c 5,5 1.3
+    c 7,4 1.3 a
+} {
+    %cupboard
+    lf 3,2 +9,0 +0,10 +-9,0 +0,-10
+    l 4,12 +0,1
+    l 11,12 +0,1
+    r l 1.5,5 +12,0
+    l 1.5,9 +12,0
+    l 7,3 +1,0
+    l 7,7 +1,0
+    l 7,11 +1,0 a
+} {
+    %cliff
+    lf 2,3 +8,0 +3,2 +-1,7 +-1,-5 +-2,-1 +-2,6 +-5,0 +0,-9
+}
+stone = lf 3,4 +8,-1 +2,5 +-2,3 +-7,0 +-2,-4 +1,-3
+{ %stone @stone }
+{ 
+    %stone_with_inscription @stone
+    r l 5,6 +5,0 l 5,8 +5,0 a
+} {
+    %tyre
+    w 2 lf 4.5,2.5 +5,0 +0,9 +-5,0 +0,-9 w 1
+    r
+    lf 5.5,1.5 +1,1
+    lf 8.5,3.5 +-1,1
+    lf 5.5,5.5 +1,1
+    lf 8.5,7.5 +-1,1
+    lf 5.5,9.5 +1,1
+    lf 8.5,11.5 +-1,1
+    a
 }
