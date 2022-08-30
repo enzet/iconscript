@@ -21,7 +21,7 @@ var shift = new Point(2.5 * scale, 2.5 * scale);
 var current = new Point(0, 0);
 
 var width = 1.0;
-var uniting = "add";
+var uniting = true;
 
 var sketchOpacity = 0.2;
 var sketchColor = new Color(0, 0, 0);
@@ -88,15 +88,27 @@ function addLine(from, to) {
 }
 
 var shape = null;
+var fill = null;
+var filled = false;
 
 function combine(object) {
     if (!shape) {
         shape = new Path({fillColor: "blue", insert: false})
     }
-    if (uniting == "add") {
+    if (uniting) {
         shape = shape.unite(object, insert=false);
     } else {
         shape = shape.subtract(object, insert=false);
+    }
+}
+function combineFill() {
+    if (fill) {
+        if (uniting) {
+            shape = shape.unite(fill);
+        } else {
+            shape = shape.subtract(fill);
+        }
+        fill = null;
     }
 }
 
@@ -141,8 +153,6 @@ function parse() {
         }
     }
 
-    var filled = false;
-    var fill = null;
     var mode = null;
 
     for (var i = 0; i < lexemes.length; i++) {
@@ -151,10 +161,7 @@ function parse() {
 
         if (lexeme == "}" && shape) {
 
-            if (fill) {
-                shape = shape.unite(fill);
-                fill = null;
-            }
+            combineFill();
             fakeShape = new Path({insert: true});
             fakeShape = fakeShape.unite(shape);
             fakeShape.translate([0, scale * size])
@@ -170,10 +177,7 @@ function parse() {
         } else if (lexeme == "l" || lexeme == "lf") {
             // `L` means simple one pixel width line. `LF` means `L` but filled.
 
-            if (fill) {
-                shape = shape.unite(fill);
-                fill = null;
-            }
+            combineFill();
             filled = (lexeme == "lf");
             fill = new Path({insert: true});
             fill.fillColor = sketchColor;
@@ -189,9 +193,11 @@ function parse() {
             current = toCoordinates(lexemes[i + 1]);
             i++;
         } else if (lexeme == "r") {
-            uniting = "remove";
+            combineFill();
+            uniting = false;
         } else if (lexeme == "a") {
-            uniting = "add";
+            combineFill();
+            uniting = true;
         } else if (lexeme == "w") {
             width = Number(lexemes[i + 1]);
             i++;
@@ -244,7 +250,7 @@ function addGrid() {
     //     addGridLine(i, 0, i, size * rows, 0.2, 0.2);
     // }
 
-    gray = new Color(0.9, 0.9, 0.9);
+    gray = new Color(1, 1, 1);
     for (var i = 0; i <= size * rows; i += size) {
         addGridLine(0, i, size * columns, i, gray, 6 * scale, 1);
     }
