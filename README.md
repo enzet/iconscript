@@ -1,4 +1,4 @@
-# Röntgen
+# iconscript
 
 Paperscript parser for icon shape drawing.
 
