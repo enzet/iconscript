@@ -1,0 +1,18 @@
+%YAML 1.2
+---
+name: iconscript
+scope: markup.iconscript
+contexts:
+  main:
+    - match: '\\[\\{}:]'
+      scope: markup.raw
+    - match: '\b(c|p|l|lf|w)\b'
+      scope: keyword
+    - match: "@[a-zA-Z0-9_]*"
+      scope: variable.member
+    - match: '\b\d+\b'
+      scope: constant.numeric
+    - match: '[{}=]'
+      scope: punctuation.definition.argument
+    - match: '%[a-z0-9_]*'
+      scope: comment
