@@ -6,7 +6,7 @@
  * @see https://github.com/enzet/Roentgen
  */
 
-var scale = 4;
+var scale = 10;
 
 // Icons are 14 × 14 pixels, and this is size of icon with 1 pixel margin.
 var size = 20.0; 
@@ -58,12 +58,15 @@ function toCoordinates(position) {
  */
 function addPoint(position, radius) {
 
-    return new Path.Circle({
+    circle = new Path.Circle({
         center: position,
         radius: scale * width * 0.5 * radius,
         fillColor: sketchColor,
         opacity: sketchOpacity
     });
+    combine(circle);
+
+    return circle;
 }
 
 /**
@@ -83,8 +86,25 @@ function addLine(from, to) {
     path.fillColor = sketchColor;
     path.opacity = sketchOpacity;
     path.add(from + v, to + v, to - v, from - v);
+    combine(path);
 
     return path;
+}
+
+function addRectangle(from, to) {
+
+    p1 = new Point(from.x, to.y);
+    p2 = new Point(to.x, from.y);
+    addPoint(from, 1);
+    addPoint(to, 1);
+    addPoint(p1, 1);
+    addPoint(p2, 1);
+    addLine(from, p1);
+    addLine(p1, to);
+    addLine(to, p2);
+    addLine(p2, from);
+    r = new Path.Rectangle(from, to);
+    combine(r);
 }
 
 var shape = null;
@@ -205,22 +225,24 @@ function parse() {
             center = toCoordinates(lexemes[i + 1]);
             radius = Number(lexemes[i + 2]);
             circle = addPoint(center, radius);
-            combine(circle);
+            i += 2;
+        } else if (lexeme == "s") {
+            point_1 = toCoordinates(lexemes[i + 1]);
+            point_2 = toCoordinates(lexemes[i + 2]);
+            addRectangle(point_1, point_2);
             i += 2;
         } else if (lexeme.includes(",")) {
 
             coordinates = toCoordinates(lexeme);
 
             if (mode == "line") {
-                point = addPoint(coordinates, 1);
+                addPoint(coordinates, 1);
 
-                combine(point);
                 if (filled) {
                     fill.add(coordinates);
                 }
                 if (last) {
-                    segment = addLine(last, coordinates);
-                    combine(segment);
+                    addLine(last, coordinates);
                 }
                 last = coordinates;
             }
