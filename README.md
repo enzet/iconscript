@@ -37,7 +37,7 @@ that the position is relative to the __position__).
 | `l [<position>]` | Draw lines between positions |
 | `c <position> <float>` | Draw circle specified by center point and radius |
 | `s <position> <position>` | Draw rectangle specified by top left and bottom right points |
-| `ar <position> <float> <float> <float>` | Draw arc specified by center point, radius, and two angles |
+| `ar <position> <float> <float> <float>` | Draw arc specified by center point, radius, and two angles in radians |
 
 ### Example
 

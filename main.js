@@ -88,7 +88,7 @@ function addLine(from, to) {
 }
 
 function arcPoint(center, p1, r) {
-    return center + new Point(Math.cos(p1 * Math.PI), -Math.sin(p1 * Math.PI)) * r * scale;
+    return center + new Point(Math.cos(p1), -Math.sin(p1)) * r * scale;
 }
 
 /**
@@ -96,8 +96,8 @@ function arcPoint(center, p1, r) {
  *
  * @param {Point} center center point of the circle that defines the arc
  * @param {Number} r radius of the circle
- * @param {Number} p1 angle of arc start in radians divided by pi
- * @param {Number} p2 angle of arc end in radians divided by pi
+ * @param {Number} p1 angle of arc start in radians
+ * @param {Number} p2 angle of arc end in radians
  */
 function addArc(center, r, p1, p2) {
 
