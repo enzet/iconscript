@@ -3,10 +3,9 @@
  *
  * @author Sergey Vartanov
  * @since 28 August 2022
- * @see https://github.com/enzet/Roentgen
+ * @see https://github.com/enzet/iconscript
  */
-
-var scale = 10;
+var scale = 5.1;
 
 // Icons are 14 × 14 pixels, and this is size of icon with 1 pixel margin.
 var size = 20.0; 
@@ -53,8 +52,8 @@ function toCoordinates(position) {
 /**
  * Add point represented as a circle.
  *
- * @param {vector} position center position of a circle
- * @returns created circle
+ * @param {Point} position center position of a circle
+ * @param {Number} radius circle radius
  */
 function addPoint(position, radius) {
 
@@ -65,32 +64,61 @@ function addPoint(position, radius) {
         opacity: sketchOpacity
     });
     combine(circle);
-
-    return circle;
 }
 
 /**
  * Add line represented as a rectangle between two circles.
  *
- * @param {vector} start starting point
- * @param {vector} end ending point
- * @returns created rectangle
+ * @param {vector} from starting point
+ * @param {vector} to ending point
  */
 function addLine(from, to) {
 
-    var v = to - from;
-    v.angle += 90.0;
-    v = v / v.length * scale * width * 0.5;
-
-    var path = new Path({insert: true});
-    path.fillColor = sketchColor;
+    var path = new Path();
+    path.strokeColor = sketchColor;
+    path.strokeWidth = scale;
     path.opacity = sketchOpacity;
-    path.add(from + v, to + v, to - v, from - v);
-    combine(path);
+    path.add(from, to);
 
-    return path;
+    var strokePath = PaperOffset.offsetStroke(
+        path, width * scale / 2, { cap: 'butt' }
+    );
+    strokePath.opacity = sketchOpacity;
+    combine(strokePath);
 }
 
+function addArc(center, r, p1, p2) {
+    h = (p1 + p2) / 2;
+
+    r1 = r - width / 2;
+    r2 = r + width / 2;
+
+    a1 = center + new Point(Math.cos(p1 * Math.PI), -Math.sin(p1 * Math.PI)) * r * scale;
+    a2 = center + new Point(Math.cos(h  * Math.PI), -Math.sin(h  * Math.PI)) * r * scale;
+    a3 = center + new Point(Math.cos(p2 * Math.PI), -Math.sin(p2 * Math.PI)) * r * scale;
+
+    addPoint(a1, 1);
+    addPoint(a3, 1);
+
+    arc = new Path.Arc({
+        from: a1,
+        through: a2,
+        to: a3,
+        strokeColor: sketchColor,
+        strokeWidth: scale,
+        opacity: sketchOpacity
+    });
+    var strokePath = PaperOffset.offsetStroke(arc, scale / 2, { cap: 'butt' });
+    strokePath.opacity = sketchOpacity;
+    combine(strokePath);
+}
+
+/**
+ * Draw rectangle by two points.
+ *
+ * @param {Point} from top left point
+ * @param {Point} to bottom right point
+ */
 function addRectangle(from, to) {
 
     p1 = new Point(from.x, to.y);
@@ -103,8 +131,7 @@ function addRectangle(from, to) {
     addLine(p1, to);
     addLine(to, p2);
     addLine(p2, from);
-    r = new Path.Rectangle(from, to);
-    combine(r);
+    combine(new Path.Rectangle(from, to));
 }
 
 var shape = null;
@@ -137,11 +164,12 @@ function combineFill() {
  */
 function parse() {
 
+    project.activeLayer.removeChildren();
+    view.draw();
     var current = new Path.Circle([0, 0], 10);
 
     shift = new Point(2.5 * scale, 2.5 * scale);
 
-    project.clear();
     addGrid();
 
     var lines = area.value.split("\n");
@@ -193,13 +221,13 @@ function parse() {
                 shift += new Point(0, scale * size * 2);
                 shift.x = 2.5 * scale;
             }
+            shape.selected = true;
+            // console.log(shape.exportSVG());
             shape = null;
         } else if (lexeme == "l" || lexeme == "lf") {
-            // `L` means simple one pixel width line. `LF` means `L` but filled.
-
             combineFill();
             filled = (lexeme == "lf");
-            fill = new Path({insert: true});
+            fill = new Path();
             fill.fillColor = sketchColor;
             fill.opacity = sketchOpacity;
             
@@ -226,6 +254,13 @@ function parse() {
             radius = Number(lexemes[i + 2]);
             circle = addPoint(center, radius);
             i += 2;
+        } else if (lexeme == "ar") {
+            center = toCoordinates(lexemes[i + 1]);
+            r = Number(lexemes[i + 2]);
+            p1 = Number(lexemes[i + 3]);
+            p2 = Number(lexemes[i + 4]);
+            addArc(center, r, p1, p2);
+            i += 4;
         } else if (lexeme == "s") {
             point_1 = toCoordinates(lexemes[i + 1]);
             point_2 = toCoordinates(lexemes[i + 2]);
@@ -265,12 +300,12 @@ function addGridLine(x1, y1, x2, y2, color, width, opacity) {
  * Draw rectangular grid for parsed icons.
  */
 function addGrid() {
-    // for (var i = 0; i < size * rows; i++) {
-    //     addGridLine(0, i, size * columns, i, 0.2, 0.2);
-    // }
-    // for (var i = 0; i < size * columns; i++) {
-    //     addGridLine(i, 0, i, size * rows, 0.2, 0.2);
-    // }
+    for (var i = 0; i < size * rows; i += size / 2) {
+        addGridLine(0, i, size * columns, i, 0.2, 0.2);
+    }
+    for (var i = 0; i < size * columns; i += size / 2) {
+        addGridLine(i, 0, i, size * rows, 0.2, 0.2);
+    }
 
     gray = new Color(1, 1, 1);
     for (var i = 0; i <= size * rows; i += size) {
@@ -283,6 +318,5 @@ function addGrid() {
 
 var area = document.getElementById("code");
 area.addEventListener("input", parse, false);
-var canvas = document.getElementById("canvas");
 
 parse();
