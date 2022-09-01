@@ -5,7 +5,7 @@
  * @since 28 August 2022
  * @see https://github.com/enzet/iconscript
  */
-var scale = 5.1;
+var scale = 4.1;
 
 // Icons are 14 × 14 pixels, and this is size of icon with 1 pixel margin.
 var size = 20.0; 
@@ -87,20 +87,30 @@ function addLine(from, to) {
     combine(strokePath);
 }
 
+function arcPoint(center, p1, r) {
+    return center + new Point(Math.cos(p1 * Math.PI), -Math.sin(p1 * Math.PI)) * r * scale;
+}
+
+/**
+ * Draw the arc (part of the circle).
+ *
+ * @param {Point} center center point of the circle that defines the arc
+ * @param {Number} r radius of the circle
+ * @param {Number} p1 angle of arc start in radians divided by pi
+ * @param {Number} p2 angle of arc end in radians divided by pi
+ */
 function addArc(center, r, p1, p2) {
-    h = (p1 + p2) / 2;
 
-    r1 = r - width / 2;
-    r2 = r + width / 2;
+    var h = (p1 + p2) / 2;
 
-    a1 = center + new Point(Math.cos(p1 * Math.PI), -Math.sin(p1 * Math.PI)) * r * scale;
-    a2 = center + new Point(Math.cos(h  * Math.PI), -Math.sin(h  * Math.PI)) * r * scale;
-    a3 = center + new Point(Math.cos(p2 * Math.PI), -Math.sin(p2 * Math.PI)) * r * scale;
+    var a1 = arcPoint(center, p1, r);
+    var a2 = arcPoint(center, h, r);
+    var a3 = arcPoint(center, p2, r);
 
     addPoint(a1, 1);
     addPoint(a3, 1);
 
-    arc = new Path.Arc({
+    var arc = new Path.Arc({
         from: a1,
         through: a2,
         to: a3,
@@ -138,6 +148,11 @@ var shape = null;
 var fill = null;
 var filled = false;
 
+/**
+ * Combine (unite or subtract) the object with the currently constructed shape.
+ *
+ * @param {Path} object path-like object
+ */
 function combine(object) {
     if (!shape) {
         shape = new Path({fillColor: "blue", insert: false})
@@ -148,6 +163,10 @@ function combine(object) {
         shape = shape.subtract(object, insert=false);
     }
 }
+
+/**
+ * Combine (unite or subtract) the fill with the currently constructed shape.
+ */
 function combineFill() {
     if (fill) {
         if (uniting) {
@@ -184,7 +203,8 @@ function parse() {
             for (var j = 2; j < parts.length; j++) {
                 part = parts[j];
                 if (part[0] == "@") {
-                    variables[parts[0]] = variables[parts[0]].concat(variables[part.slice(1)]);
+                    variables[parts[0]] = variables[parts[0]]
+                        .concat(variables[part.slice(1)]);
                 } else {
                     variables[parts[0]].push(part);
                 }
