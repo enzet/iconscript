@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "paper": "^0.12.15"
+    "paper": "^0.12.15",
+    "paperjs-offset": "^1.0.8"
   }
 }
