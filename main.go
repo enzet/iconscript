@@ -1,30 +1,30 @@
 package main
 
 import (
-    "bufio"
-    "flag"
-    "fmt"
-    "log"
-    "os"
+	"flag"
+	"fmt"
+	"os"
+
+	"github.com/antlr/antlr4/runtime/Go/antlr"
+	"github.com/enzet/iconscript/grammar/parser"
 )
 
 func main() {
 
-    var fileName = flag.String("i", "icons.txt", "input file name")
-    flag.Parse()
+	var fileName = flag.String("i", "icons.txt", "input file name")
+	flag.Parse()
 
-    file, err := os.Open(*fileName)
-    if err != nil {
-        log.Fatal(err)
-    }
-    defer file.Close()
+	content, _ := os.ReadFile(*fileName)
 
-    scanner := bufio.NewScanner(file)
-    for scanner.Scan() {
-        fmt.Println(scanner.Text())
-    }
+	is := antlr.NewInputStream(string(content))
+	lexer := parser.NewiconscriptLexer(is)
 
-    if err := scanner.Err(); err != nil {
-        log.Fatal(err)
-    }
+	for {
+		t := lexer.NextToken()
+		if t.GetTokenType() == antlr.TokenEOF {
+			break
+		}
+		fmt.Printf("%s (%q)\n",
+			lexer.SymbolicNames[t.GetTokenType()], t.GetText())
+	}
 }
