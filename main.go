@@ -9,15 +9,11 @@ import (
 	"github.com/enzet/iconscript/grammar/parser"
 )
 
-func main() {
+// Parse iconscript using ANTLR.
+func parse(commands string) {
 
-	var fileName = flag.String("i", "icons.txt", "input file name")
-	flag.Parse()
-
-	content, _ := os.ReadFile(*fileName)
-
-	is := antlr.NewInputStream(string(content))
-	lexer := parser.NewiconscriptLexer(is)
+	stream := antlr.NewInputStream(commands)
+	lexer := parser.NewiconscriptLexer(stream)
 
 	for {
 		t := lexer.NextToken()
@@ -26,5 +22,21 @@ func main() {
 		}
 		fmt.Printf("%s (%q)\n",
 			lexer.SymbolicNames[t.GetTokenType()], t.GetText())
+	}
+}
+
+// Script entry point: use `-i` to specify file name or `-c` to specify string
+// commands.
+func main() {
+
+	fileName := flag.String("i", "icons.txt", "input file name")
+	commands := flag.String("c", "", "input string")
+	flag.Parse()
+
+	if *commands == "" {
+		content, _ := os.ReadFile(*fileName)
+		parse(string(content))
+	} else {
+		parse(*commands)
 	}
 }
