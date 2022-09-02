@@ -41,7 +41,7 @@ that the position is relative to the __position__).
 
 ### Example
 
-```
+```iconscript
 cube = lf +0,0 +2,0 +0,2 +-2,0 +0,-2
 {
     %glider
