@@ -3,26 +3,42 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
+	"log"
 
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"github.com/enzet/iconscript/grammar/parser"
 )
 
-// Parse iconscript using ANTLR.
-func parse(commands string) {
+func printTokens(stream antlr.CharStream) {
 
-	stream := antlr.NewInputStream(commands)
-	lexer := parser.NewiconscriptLexer(stream)
+	lexer := parser.NewIconScriptLexer(stream)
 
 	for {
-		t := lexer.NextToken()
-		if t.GetTokenType() == antlr.TokenEOF {
+		token := lexer.NextToken()
+		if token.GetTokenType() == antlr.TokenEOF {
 			break
 		}
 		fmt.Printf("%s (%q)\n",
-			lexer.SymbolicNames[t.GetTokenType()], t.GetText())
+			lexer.SymbolicNames[token.GetTokenType()], token.GetText())
 	}
+}
+
+type iconScriptListener struct {
+	*parser.BaseIconScriptListener
+}
+
+func (l *iconScriptListener) ExitAssignment(c *parser.AssignmentContext) {
+	println(c.GetLeft().GetText(), ":=", c.GetRight().GetText())
+}
+
+// Parse iconscript using ANTLR.
+func parse(stream antlr.CharStream) {
+
+	lexer := parser.NewIconScriptLexer(stream)
+	tokenStream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
+	p := parser.NewIconScriptParser(tokenStream)
+
+	antlr.ParseTreeWalkerDefault.Walk(&iconScriptListener{}, p.Script())
 }
 
 // Script entry point: use `-i` to specify file name or `-c` to specify string
@@ -34,9 +50,13 @@ func main() {
 	flag.Parse()
 
 	if *commands == "" {
-		content, _ := os.ReadFile(*fileName)
-		parse(string(content))
+		stream, err := antlr.NewFileStream(*fileName)
+		if err != nil {
+			log.Fatal(err)
+		}
+		parse(stream)
 	} else {
-		parse(*commands)
+		stream := antlr.NewInputStream(*commands)
+		parse(stream)
 	}
 }
