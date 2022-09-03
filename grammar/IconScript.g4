@@ -1,25 +1,33 @@
+/**
+ * Grammar for iconscript language.
+ *
+ * @author Sergey Vartanov
+ * @since 2 September 2022
+ */
 grammar IconScript;
 
 VARIABLE : '@' IDENTIFIER ;
-POSITION : '+'? FLOAT ',' FLOAT ;
 FLOAT : '-'? [0-9]+ ( '.' * )? ;
 IDENTIFIER : [a-zA-Z_][a-zA-Z0-9_]* ;
-WS : (' ' | '\t' | '\r'| '\n') -> skip ;
+WS : [ \t\r\n] -> skip ;
 
+position : relative='+'? x=FLOAT ',' y=FLOAT ;
 script : expression* ;
 expression : assignment | icon ;
 assignment : left=IDENTIFIER '=' right=commands ;
 commands : command+ ;
 icon : '{' command* '}' ;
-command :
-    ( '%' IDENTIFIER
+command
+    : name 
     | VARIABLE
     | 'a'
-    | 'ar' POSITION FLOAT FLOAT FLOAT
-    | 'c' POSITION FLOAT
-    | 'l' POSITION+
-    | 'lf' POSITION+
+    | 'ar' position FLOAT FLOAT FLOAT
+    | 'c' position FLOAT
+    | line
+    | 'lf' position+
     | 'r'
     | 'p' FLOAT
-    | 's' POSITION POSITION
-    | 'w' FLOAT ) ;
+    | 's' position position
+    | 'w' FLOAT ;
+line : 'l' position+ ;
+name : '%' IDENTIFIER ;

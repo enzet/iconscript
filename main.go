@@ -23,12 +23,31 @@ func printTokens(stream antlr.CharStream) {
 	}
 }
 
-type iconScriptListener struct {
-	*parser.BaseIconScriptListener
+type Figure struct {
 }
 
-func (l *iconScriptListener) ExitAssignment(c *parser.AssignmentContext) {
-	println(c.GetLeft().GetText(), ":=", c.GetRight().GetText())
+type Icon struct {
+	Name    string
+	Figures []Figure
+}
+
+type iconScriptListener struct {
+	*parser.BaseIconScriptListener
+
+	currentIcon *Icon
+	icons       []*Icon
+}
+
+func (listener *iconScriptListener) ExitName(context *parser.NameContext) {
+	listener.currentIcon.Name = context.IDENTIFIER().GetText()
+}
+
+func (listener *iconScriptListener) EnterIcon(context *parser.IconContext) {
+	listener.currentIcon = new(Icon)
+}
+
+func (listener *iconScriptListener) ExitIcon(context *parser.IconContext) {
+	listener.icons = append(listener.icons, listener.currentIcon)
 }
 
 // Parse iconscript using ANTLR.
@@ -38,7 +57,13 @@ func parse(stream antlr.CharStream) {
 	tokenStream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
 	p := parser.NewIconScriptParser(tokenStream)
 
-	antlr.ParseTreeWalkerDefault.Walk(&iconScriptListener{}, p.Script())
+	listener := new(iconScriptListener)
+
+	antlr.ParseTreeWalkerDefault.Walk(listener, p.Script())
+
+	for _, icon := range listener.icons {
+		println(icon.Name)
+	}
 }
 
 // Script entry point: use `-i` to specify file name or `-c` to specify string
