@@ -10,6 +10,8 @@ import (
 	"github.com/enzet/iconscript/grammar/parser"
 )
 
+// TODO: remove.
+// Printing tokens for debug purposes.
 func printTokens(stream antlr.CharStream) {
 
 	lexer := parser.NewIconScriptLexer(stream)
@@ -34,6 +36,7 @@ type Line struct {
 	Positions []Position
 }
 
+// Get string representation of a line.
 func (line Line) ToString() string {
 
 	result := "LINE"
@@ -44,11 +47,14 @@ func (line Line) ToString() string {
 	return result
 }
 
+// 2-dimensional shape, described by the number of figures, that should be
+// united or subtracted.
 type Icon struct {
 	Name    string
 	Figures []Figure
 }
 
+// Parser listener, that stores current parser state as well.
 type iconScriptListener struct {
 	*parser.BaseIconScriptListener
 
@@ -58,15 +64,18 @@ type iconScriptListener struct {
 	icons       []*Icon
 }
 
+// 2-dimensional point on the plane.
 type Position struct {
 	X float32
 	Y float32
 }
 
+// Get string representation of a position.
 func (position Position) ToString() string {
 	return fmt.Sprintf("%f,%f", position.X, position.Y)
 }
 
+// Add other position to the given one and return the combination.
 func (position *Position) Add(other *Position) Position {
 
 	position.X += other.X
@@ -74,6 +83,7 @@ func (position *Position) Add(other *Position) Position {
 	return Position{position.X, position.Y}
 }
 
+// Parse position from string representation and update current position.
 func parsePosition(context parser.IPositionContext,
 	currentPosition *Position) Position {
 
@@ -90,6 +100,7 @@ func parsePosition(context parser.IPositionContext,
 	}
 }
 
+// Construct line.
 func (listener *iconScriptListener) ExitLine(context *parser.LineContext) {
 
 	line := new(Line)
@@ -102,14 +113,17 @@ func (listener *iconScriptListener) ExitLine(context *parser.LineContext) {
 	listener.currentIcon.Figures = append(listener.currentIcon.Figures, line)
 }
 
+// Store icon name.
 func (listener *iconScriptListener) ExitName(context *parser.NameContext) {
 	listener.currentIcon.Name = context.IDENTIFIER().GetText()
 }
 
+// Create new icon.
 func (listener *iconScriptListener) EnterIcon(context *parser.IconContext) {
 	listener.currentIcon = new(Icon)
 }
 
+// Add constructed icon to the final set.
 func (listener *iconScriptListener) ExitIcon(context *parser.IconContext) {
 	listener.icons = append(listener.icons, listener.currentIcon)
 }
