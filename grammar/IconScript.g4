@@ -25,10 +25,12 @@ command
     | 'c' position FLOAT
     | line
     | 'r'
-    | 'p' position
-    | 's' position position
+    | rectangle
+    | setPosition
     | 'w' FLOAT ;
 
 // Commands.
 line : ('l' | 'lf') position+ ;
 name : '%' IDENTIFIER ;
+rectangle : 's' position position ;
+setPosition : 'p' position ;

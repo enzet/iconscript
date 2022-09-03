@@ -72,10 +72,7 @@ func (position *Position) Add(other *Position) Position {
 	return Position{position.X, position.Y}
 }
 
-// Parse position from string representation and update current position.
-func parsePosition(context parser.IPositionContext,
-	currentPosition *Position) Position {
-
+func readPosition(context parser.IPositionContext) Position {
 	x, _ := strconv.ParseFloat(context.GetX().GetText(), 32)
 	y := 0.0
 	if context.GetY() != nil {
@@ -83,13 +80,19 @@ func parsePosition(context parser.IPositionContext,
 	} else {
 		println("Error: no Y component.")
 	}
-	position := Position{float32(x), float32(y)}
+	return Position{float32(x), float32(y)}
+}
+
+// Parse position from string representation and update current position.
+func parsePosition(context parser.IPositionContext,
+	currentPosition *Position) Position {
+
+	position := readPosition(context)
 
 	if context.GetRelative() != nil {
 		return currentPosition.Add(&position)
 	} else {
-		currentPosition.X = float32(x)
-		currentPosition.Y = float32(y)
+		*currentPosition = position
 		return position
 	}
 }
@@ -114,6 +117,13 @@ func (listener *iconScriptListener) ExitLine(context *parser.LineContext) {
 	} else {
 		println("Error: no current icon.")
 	}
+}
+
+// Update current position.
+func (listener *iconScriptListener) ExitSetPosition(
+	context *parser.SetPositionContext) {
+
+	parsePosition(context.Position(), listener.currentPosition)
 }
 
 // Store icon name.
