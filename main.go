@@ -24,10 +24,12 @@ func printTokens(stream antlr.CharStream) {
 	}
 }
 
+// Any 2D figure on the surface.
 type Figure interface {
 	ToString() string
 }
 
+// Polyline through a set of positions.
 type Line struct {
 	Positions []Position
 }
@@ -65,15 +67,27 @@ func (position Position) ToString() string {
 	return fmt.Sprintf("%f,%f", position.X, position.Y)
 }
 
-func (position *Position) Add(other *Position) {
+func (position *Position) Add(other *Position) Position {
+
 	position.X += other.X
 	position.Y += other.Y
+	return Position{position.X, position.Y}
 }
 
-func parsePosition(context parser.IPositionContext) Position {
+func parsePosition(context parser.IPositionContext,
+	currentPosition *Position) Position {
+
 	x, _ := strconv.ParseFloat(context.GetX().GetText(), 32)
 	y, _ := strconv.ParseFloat(context.GetY().GetText(), 32)
-	return Position{float32(x), float32(y)}
+	position := Position{float32(x), float32(y)}
+
+	if context.GetRelative() != nil {
+		return currentPosition.Add(&position)
+	} else {
+		currentPosition.X = float32(x)
+		currentPosition.Y = float32(y)
+		return position
+	}
 }
 
 func (listener *iconScriptListener) ExitLine(context *parser.LineContext) {
@@ -82,7 +96,8 @@ func (listener *iconScriptListener) ExitLine(context *parser.LineContext) {
 	line.Positions = make([]Position, len(context.AllPosition()))
 
 	for index, position := range context.AllPosition() {
-		line.Positions[index] = parsePosition(position)
+		line.Positions[index] =
+			parsePosition(position, listener.currentPosition)
 	}
 	listener.currentIcon.Figures = append(listener.currentIcon.Figures, line)
 }
@@ -107,6 +122,7 @@ func parse(stream antlr.CharStream) {
 	p := parser.NewIconScriptParser(tokenStream)
 
 	listener := new(iconScriptListener)
+	listener.currentPosition = new(Position)
 
 	antlr.ParseTreeWalkerDefault.Walk(listener, p.Script())
 
