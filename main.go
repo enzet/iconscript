@@ -10,22 +10,6 @@ import (
 	"github.com/enzet/iconscript/grammar/parser"
 )
 
-// TODO: remove.
-// Printing tokens for debug purposes.
-func printTokens(stream antlr.CharStream) {
-
-	lexer := parser.NewIconScriptLexer(stream)
-
-	for {
-		token := lexer.NextToken()
-		if token.GetTokenType() == antlr.TokenEOF {
-			break
-		}
-		fmt.Printf("%s (%q)\n",
-			lexer.SymbolicNames[token.GetTokenType()], token.GetText())
-	}
-}
-
 // Any 2D figure on the surface.
 type Figure interface {
 	ToString() string
