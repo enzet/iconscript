@@ -63,6 +63,7 @@ type iconScriptListener struct {
 	*parser.BaseIconScriptListener
 
 	currentPosition *Position
+	unnamedIconId   int
 
 	currentIcon *Icon
 	icons       []*Icon
@@ -92,7 +93,12 @@ func parsePosition(context parser.IPositionContext,
 	currentPosition *Position) Position {
 
 	x, _ := strconv.ParseFloat(context.GetX().GetText(), 32)
-	y, _ := strconv.ParseFloat(context.GetY().GetText(), 32)
+	y := 0.0
+	if context.GetY() != nil {
+		y, _ = strconv.ParseFloat(context.GetY().GetText(), 32)
+	} else {
+		println("Error: no Y component.")
+	}
 	position := Position{float32(x), float32(y)}
 
 	if context.GetRelative() != nil {
@@ -118,7 +124,12 @@ func (listener *iconScriptListener) ExitLine(context *parser.LineContext) {
 		line.Positions[index] =
 			parsePosition(position, listener.currentPosition)
 	}
-	listener.currentIcon.Figures = append(listener.currentIcon.Figures, line)
+	if listener.currentIcon != nil {
+		listener.currentIcon.Figures =
+			append(listener.currentIcon.Figures, line)
+	} else {
+		println("Error: no current icon.")
+	}
 }
 
 // Store icon name.
@@ -133,6 +144,11 @@ func (listener *iconScriptListener) EnterIcon(context *parser.IconContext) {
 
 // Add constructed icon to the final set.
 func (listener *iconScriptListener) ExitIcon(context *parser.IconContext) {
+	if listener.currentIcon.Name == "" {
+		listener.currentIcon.Name =
+			fmt.Sprintf("icon%d", listener.unnamedIconId)
+		listener.unnamedIconId++
+	}
 	listener.icons = append(listener.icons, listener.currentIcon)
 }
 
