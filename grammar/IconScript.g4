@@ -7,7 +7,7 @@
 grammar IconScript;
 
 VARIABLE : '@' IDENTIFIER ;
-FLOAT : '-'? [0-9]+ ( '.' * )? ;
+FLOAT : '-'? [0-9]+ ( '.' [0-9]* )? ;
 IDENTIFIER : [a-zA-Z_][a-zA-Z0-9_]* ;
 WS : [ \t\r\n] -> skip ;
 
@@ -25,7 +25,7 @@ command
     | 'c' position FLOAT
     | line
     | 'r'
-    | 'p' FLOAT
+    | 'p' position
     | 's' position position
     | 'w' FLOAT ;
 
