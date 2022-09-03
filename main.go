@@ -25,10 +25,21 @@ func printTokens(stream antlr.CharStream) {
 }
 
 type Figure interface {
+	ToString() string
 }
 
 type Line struct {
 	Positions []Position
+}
+
+func (line Line) ToString() string {
+
+	result := "LINE"
+
+	for _, position := range line.Positions {
+		result += " " + position.ToString()
+	}
+	return result
 }
 
 type Icon struct {
@@ -48,6 +59,10 @@ type iconScriptListener struct {
 type Position struct {
 	X float32
 	Y float32
+}
+
+func (position Position) ToString() string {
+	return fmt.Sprintf("%f,%f", position.X, position.Y)
 }
 
 func (position *Position) Add(other *Position) {
@@ -98,7 +113,7 @@ func parse(stream antlr.CharStream) {
 	for _, icon := range listener.icons {
 		println(icon.Name)
 		for _, figure := range icon.Figures {
-			println("   ", figure)
+			println("   ", figure.ToString())
 		}
 	}
 }
