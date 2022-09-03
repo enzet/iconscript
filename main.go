@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"strconv"
 
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"github.com/enzet/iconscript/grammar/parser"
@@ -23,7 +24,11 @@ func printTokens(stream antlr.CharStream) {
 	}
 }
 
-type Figure struct {
+type Figure interface {
+}
+
+type Line struct {
+	Positions []Position
 }
 
 type Icon struct {
@@ -34,8 +39,37 @@ type Icon struct {
 type iconScriptListener struct {
 	*parser.BaseIconScriptListener
 
+	currentPosition *Position
+
 	currentIcon *Icon
 	icons       []*Icon
+}
+
+type Position struct {
+	X float32
+	Y float32
+}
+
+func (position *Position) Add(other *Position) {
+	position.X += other.X
+	position.Y += other.Y
+}
+
+func parsePosition(context parser.IPositionContext) Position {
+	x, _ := strconv.ParseFloat(context.GetX().GetText(), 32)
+	y, _ := strconv.ParseFloat(context.GetY().GetText(), 32)
+	return Position{float32(x), float32(y)}
+}
+
+func (listener *iconScriptListener) ExitLine(context *parser.LineContext) {
+
+	line := new(Line)
+	line.Positions = make([]Position, len(context.AllPosition()))
+
+	for index, position := range context.AllPosition() {
+		line.Positions[index] = parsePosition(position)
+	}
+	listener.currentIcon.Figures = append(listener.currentIcon.Figures, line)
 }
 
 func (listener *iconScriptListener) ExitName(context *parser.NameContext) {
@@ -63,6 +97,9 @@ func parse(stream antlr.CharStream) {
 
 	for _, icon := range listener.icons {
 		println(icon.Name)
+		for _, figure := range icon.Figures {
+			println("   ", figure)
+		}
 	}
 }
 
