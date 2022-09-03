@@ -1,55 +1,57 @@
-flag = 1,13 1,3 13,3 13,11 1,11
-triangle_r = 1,3 7,7 1,11
-triangle_l = 13,3 7,7 13,11
-line_h =  1,7  +12,0
-line_h1 = 1,6  +12,0
-line_h2 = 13,8 +-12,0
-line_v =  7,3  +0,8
-line_v1 = 5,3  +0,8
-line_v2 = 9,11 +0,-8
+flag = l 1,13 1,3 13,3 13,11 1,11
+triangle_r = l 1,3 7,7 1,11
+triangle_l = l 13,3 7,7 13,11
+triangle_rf = lf 1,3 7,7 1,11
+triangle_lf = lf 13,3 7,7 13,11
+line_h =  l  1,7  +12,0
+line_h1 = lf 1,6  +12,0
+line_h2 = lf 13,8 +-12,0
+line_v =  l  7,3  +0,8
+line_v1 = lf 5,3  +0,8
+line_v2 = lf 9,11 +0,-8
 line = l +0,0 +12,0
 
-{ l @flag }
-{ l @flag lf 1,11 1,3 13,3 13,11 }
-{ l @flag l @triangle_r }
-{ l @flag lf @triangle_r }
-{ l @flag l @triangle_l }
-{ l @flag lf @triangle_l }
-{ l @flag l @line_h }
-{ l @flag lf @line_h1 @line_h2 }
-{ l @flag l @line_v }
-{ l @flag lf @line_v1 @line_v2 }
-{ l @flag l @line_h l @line_v }
-{ l @flag lf @line_h1 @line_h2 lf 6,3 6,11 8,11 8,3 }
-{ l @flag p 1,5 @line p 1,7 @line p 1,9 @line }
+{ @flag }
+{ @flag lf 1,11 1,3 13,3 13,11 }
+{ @flag @triangle_r }
+{ @flag @triangle_rf }
+{ @flag @triangle_l }
+{ @flag @triangle_lf }
+{ @flag @line_h }
+{ @flag @line_h1 @line_h2 }
+{ @flag @line_v }
+{ @flag @line_v1 @line_v2 }
+{ @flag @line_h @line_v }
+{ @flag @line_h1 @line_h2 lf 6,3 6,11 8,11 8,3 }
+{ @flag p 1,5 @line p 1,7 @line p 1,9 @line }
 {
     %flag_usa
-    l @flag p 1,5 @line p 1,7 @line p 1,9 @line s 1,3 +6,4
+    @flag p 1,5 @line p 1,7 @line p 1,9 @line s 1,3 +6,4
     r l 2,4 l 4,4 l 6,4 l 2,6 l 4,6 l 6,6 a
 }
 
-bend = 1,3 13,11
-bend_s = 1,11 13,3
-bend_w = 2,3 13,10 12,11 1,4
-bend_sw = 1,10 12,3 13,4 2,11
+bend = l 1,3 13,11
+bend_s = l 1,11 13,3
+bend_w = lf 2,3 13,10 12,11 1,4
+bend_sw = lf 1,10 12,3 13,4 2,11
 
-{ l @flag l @bend }
-{ l @flag l @bend_s }
-{ l @flag l @bend l @bend_s }
-{ l @flag lf @bend_w }
-{ l @flag lf @bend_sw }
-{ l @flag lf @bend_w lf @bend_sw }
-{ l @flag l 7,5 l +2,1 l +0,2 l +-2,1 l +-2,-1 l +0,-2 }
+{ @flag @bend }
+{ @flag @bend_s }
+{ @flag @bend @bend_s }
+{ @flag @bend_w }
+{ @flag @bend_sw }
+{ @flag @bend_w @bend_sw }
+{ @flag l 7,5 l +2,1 l +0,2 l +-2,1 l +-2,-1 l +0,-2 }
 
-pole = 7,2 7,14 8,14 8,2 7,2
+pole = lf 7,2 7,14 8,14 8,2 7,2
 line = p +-11,2 l +0,0 +11,0
 conductors = l +-11,1.5 +0,1 l +11,-1 +0,1
 
-{ lf @pole p 13,1 l @line @conductors }
-{ lf @pole p 13,1 l @line @line @conductors }
-{ lf @pole p 13,1 l @line @line @line @conductors }
-{ lf @pole p 13,1 l @line @line @line @line @conductors }
-{ lf @pole p 13,0 l @line @line @line @line @line @conductors }
+{ @pole p 13,1 @line @conductors }
+{ @pole p 13,1 @line @line @conductors }
+{ @pole p 13,1 @line @line @line @conductors }
+{ @pole p 13,1 @line @line @line @line @conductors }
+{ @pole p 13,0 @line @line @line @line @line @conductors }
 
 line = l 4.5,13 9.5,13
 tower = l 4,14 +2,-4 +0,-8 +2,0 +0,8 +2,4 @line
