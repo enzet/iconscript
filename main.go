@@ -34,6 +34,7 @@ type Figure interface {
 // Polyline through a set of positions.
 type Line struct {
 	Positions []Position
+	IsFilled  bool
 }
 
 // Get string representation of a line.
@@ -41,6 +42,9 @@ func (line Line) ToString() string {
 
 	result := "LINE"
 
+	if line.IsFilled {
+		result += "_FILLED"
+	}
 	for _, position := range line.Positions {
 		result += " " + position.ToString()
 	}
@@ -106,6 +110,10 @@ func (listener *iconScriptListener) ExitLine(context *parser.LineContext) {
 	line := new(Line)
 	line.Positions = make([]Position, len(context.AllPosition()))
 
+	command := context.GetChild(0).GetPayload().(*antlr.CommonToken).GetText()
+	if command == "lf" {
+		line.IsFilled = true
+	}
 	for index, position := range context.AllPosition() {
 		line.Positions[index] =
 			parsePosition(position, listener.currentPosition)

@@ -24,10 +24,11 @@ command
     | 'ar' position FLOAT FLOAT FLOAT
     | 'c' position FLOAT
     | line
-    | 'lf' position+
     | 'r'
     | 'p' FLOAT
     | 's' position position
     | 'w' FLOAT ;
-line : 'l' position+ ;
+
+// Commands.
+line : ('l' | 'lf') position+ ;
 name : '%' IDENTIFIER ;
