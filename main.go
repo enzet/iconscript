@@ -75,6 +75,15 @@ type Icon struct {
 	Figures []Figure
 }
 
+func (icon Icon) String() string {
+
+	result := icon.Name + "\n"
+	for _, figure := range icon.Figures {
+		result += fmt.Sprintf("    %s\n", figure)
+	}
+	return result
+}
+
 // Parser listener, that stores current parser state as well.
 type iconScriptListener struct {
 	*parser.BaseIconScriptListener
@@ -254,12 +263,6 @@ func parse(stream antlr.CharStream) ([]*Icon, error) {
 
 	antlr.ParseTreeWalkerDefault.Walk(listener, p.Script())
 
-	for _, icon := range listener.icons {
-		println(icon.Name)
-		for _, figure := range icon.Figures {
-			fmt.Printf("    %s\n", figure)
-		}
-	}
 	return listener.icons, nil
 }
 
