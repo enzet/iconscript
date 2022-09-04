@@ -75,6 +75,7 @@ type Icon struct {
 	Figures []Figure
 }
 
+// Get string representation of an icon.
 func (icon Icon) String() string {
 
 	result := icon.Name + "\n"
@@ -84,15 +85,21 @@ func (icon Icon) String() string {
 	return result
 }
 
-// Parser listener, that stores current parser state as well.
-type iconScriptListener struct {
-	*parser.BaseIconScriptListener
-
+// Drawing context.
+type Context struct {
 	currentPosition *Position
+	currentWidth    float32
 	unnamedIconId   int
+	isUnionMode     bool
 
 	currentIcon *Icon
 	icons       []*Icon
+}
+
+// Parser listener, that stores current parser state as well.
+type iconScriptListener struct {
+	*parser.BaseIconScriptListener
+	context *Context
 }
 
 // 2-dimensional point on the plane.
@@ -135,15 +142,15 @@ func readPosition(context parser.IPositionContext) Position {
 }
 
 // Parse position from string representation and update current position.
-func parsePosition(context parser.IPositionContext,
-	currentPosition *Position) Position {
+func parsePosition(positionContext parser.IPositionContext,
+	context *Context) Position {
 
-	position := readPosition(context)
+	position := readPosition(positionContext)
 
-	if context.GetRelative() != nil {
-		return currentPosition.Add(&position)
+	if positionContext.GetRelative() != nil {
+		return context.currentPosition.Add(&position)
 	} else {
-		*currentPosition = position
+		*context.currentPosition = position
 		return position
 	}
 }
@@ -159,13 +166,12 @@ func (listener *iconScriptListener) ExitLine(context *parser.LineContext) {
 	if command == "lf" {
 		line.IsFilled = true
 	}
-	for index, position := range positions {
-		line.Positions[index] =
-			parsePosition(position, listener.currentPosition)
+	for i, position := range positions {
+		line.Positions[i] = parsePosition(position, listener.context)
 	}
-	if listener.currentIcon != nil {
-		listener.currentIcon.Figures =
-			append(listener.currentIcon.Figures, line)
+	if listener.context.currentIcon != nil {
+		listener.context.currentIcon.Figures =
+			append(listener.context.currentIcon.Figures, line)
 	} else {
 		println("Error: no current icon.")
 	}
@@ -178,12 +184,12 @@ func (listener *iconScriptListener) ExitRectangle(
 	rectangle := new(Rectangle)
 	positions := context.AllPosition()
 
-	rectangle.Start = parsePosition(positions[0], listener.currentPosition)
-	rectangle.End = parsePosition(positions[1], listener.currentPosition)
+	rectangle.Start = parsePosition(positions[0], listener.context)
+	rectangle.End = parsePosition(positions[1], listener.context)
 
-	if listener.currentIcon != nil {
-		listener.currentIcon.Figures =
-			append(listener.currentIcon.Figures, rectangle)
+	if listener.context.currentIcon != nil {
+		listener.context.currentIcon.Figures =
+			append(listener.context.currentIcon.Figures, rectangle)
 	} else {
 		println("Error: no current icon.")
 	}
@@ -194,12 +200,12 @@ func (listener *iconScriptListener) ExitCircle(context *parser.CircleContext) {
 
 	circle := new(Circle)
 
-	circle.Center = parsePosition(context.Position(), listener.currentPosition)
+	circle.Center = parsePosition(context.Position(), listener.context)
 	circle.Radius = ParseFloat(context.FLOAT().GetText())
 
-	if listener.currentIcon != nil {
-		listener.currentIcon.Figures =
-			append(listener.currentIcon.Figures, circle)
+	if listener.context.currentIcon != nil {
+		listener.context.currentIcon.Figures =
+			append(listener.context.currentIcon.Figures, circle)
 	} else {
 		println("Error: no current icon.")
 	}
@@ -211,13 +217,14 @@ func (listener *iconScriptListener) ExitArc(context *parser.ArcContext) {
 	arc := new(Arc)
 	floats := context.AllFLOAT()
 
-	arc.Center = parsePosition(context.Position(), listener.currentPosition)
+	arc.Center = parsePosition(context.Position(), listener.context)
 	arc.Radius = ParseFloat(floats[0].GetText())
 	arc.StartAngle = ParseFloat(floats[1].GetText())
 	arc.EndAngle = ParseFloat(floats[2].GetText())
 
-	if listener.currentIcon != nil {
-		listener.currentIcon.Figures = append(listener.currentIcon.Figures, arc)
+	if listener.context.currentIcon != nil {
+		listener.context.currentIcon.Figures =
+			append(listener.context.currentIcon.Figures, arc)
 	} else {
 		println("Error: no current icon.")
 	}
@@ -227,28 +234,35 @@ func (listener *iconScriptListener) ExitArc(context *parser.ArcContext) {
 func (listener *iconScriptListener) ExitSetPosition(
 	context *parser.SetPositionContext) {
 
-	parsePosition(context.Position(), listener.currentPosition)
+	parsePosition(context.Position(), listener.context)
+}
+
+func (listener *iconScriptListener) ExitSetWidth(
+	context *parser.SetWidthContext) {
+
+	listener.context.currentWidth = ParseFloat(context.FLOAT().GetText())
 }
 
 // Store icon name.
 func (listener *iconScriptListener) ExitName(context *parser.NameContext) {
-	listener.currentIcon.Name = context.IDENTIFIER().GetText()
+	listener.context.currentIcon.Name = context.IDENTIFIER().GetText()
 }
 
 // Create new icon.
 func (listener *iconScriptListener) EnterIcon(context *parser.IconContext) {
-	listener.currentIcon = new(Icon)
+	listener.context.currentIcon = new(Icon)
 }
 
 // Add constructed icon to the final set.
 func (listener *iconScriptListener) ExitIcon(context *parser.IconContext) {
 
-	if listener.currentIcon.Name == "" {
-		listener.currentIcon.Name =
-			fmt.Sprintf("icon%d", listener.unnamedIconId)
-		listener.unnamedIconId++
+	if listener.context.currentIcon.Name == "" {
+		listener.context.currentIcon.Name =
+			fmt.Sprintf("icon%d", listener.context.unnamedIconId)
+		listener.context.unnamedIconId++
 	}
-	listener.icons = append(listener.icons, listener.currentIcon)
+	listener.context.icons =
+		append(listener.context.icons, listener.context.currentIcon)
 }
 
 // Parse iconscript using ANTLR.
@@ -259,11 +273,11 @@ func parse(stream antlr.CharStream) ([]*Icon, error) {
 	p := parser.NewIconScriptParser(tokenStream)
 
 	listener := new(iconScriptListener)
-	listener.currentPosition = new(Position)
+	listener.context = &Context{new(Position), 1.0, 0, false, nil, nil}
 
 	antlr.ParseTreeWalkerDefault.Walk(listener, p.Script())
 
-	return listener.icons, nil
+	return listener.context.icons, nil
 }
 
 // Script entry point: use `-i` to specify file name or `-c` to specify string

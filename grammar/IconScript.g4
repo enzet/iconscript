@@ -21,18 +21,23 @@ command
     : name 
     | VARIABLE
     | 'a'
+    | 'r'
     | arc
     | circle
     | line
-    | 'r'
     | rectangle
     | setPosition
-    | 'w' FLOAT ;
+    | setWidth ;
 
-// Commands.
+// Figures.
 arc : 'ar' position FLOAT FLOAT FLOAT ;
 circle : 'c' position FLOAT ;
 line : ('l' | 'lf') position+ ;
-name : '%' IDENTIFIER ;
 rectangle : 's' position position ;
+
+/** Icon name. */
+name : '%' IDENTIFIER ;
+
+// Set context.
 setPosition : 'p' position ;
+setWidth : 'w' FLOAT ;

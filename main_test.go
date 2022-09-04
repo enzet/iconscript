@@ -26,40 +26,33 @@ func CheckIcon(t *testing.T, command string) *Icon {
 func TestLine(t *testing.T) {
 
 	icon := CheckIcon(t, "{ l 0,0 1,1 }")
-	assert.Equal(t,
-		*icon.Figures[0].(*Line),
-		Line{[]Position{Position{0, 0}, Position{1, 1}}, false},
-	)
+	assert.Equal(t, icon.Figures[0], &Line{[]Position{{0, 0}, {1, 1}}, false})
 }
 
 // Test filled line parsing.
 func TestLineFilled(t *testing.T) {
 
 	icon := CheckIcon(t, "{ lf 0,0 1,1 }")
-	assert.Equal(t,
-		*icon.Figures[0].(*Line),
-		Line{[]Position{Position{0, 0}, Position{1, 1}}, true},
-	)
+	assert.Equal(t, icon.Figures[0], &Line{[]Position{{0, 0}, {1, 1}}, true})
 }
 
 // Test arc parsing.
 func TestArc(t *testing.T) {
 
 	icon := CheckIcon(t, "{ ar 1,1 5 0.1 0.2 }")
-	assert.Equal(t, *icon.Figures[0].(*Arc), Arc{Position{1, 1}, 5, 0.1, 0.2})
+	assert.Equal(t, icon.Figures[0], &Arc{Position{1, 1}, 5, 0.1, 0.2})
 }
 
 // Test circle parsing.
 func TestCircle(t *testing.T) {
 
 	icon := CheckIcon(t, "{ c 1,1 5 }")
-	assert.Equal(t, *icon.Figures[0].(*Circle), Circle{Position{1, 1}, 5})
+	assert.Equal(t, icon.Figures[0], &Circle{Position{1, 1}, 5})
 }
 
 // Test rectangle parsing.
 func TestRectangle(t *testing.T) {
 
 	icon := CheckIcon(t, "{ s 1,1 2,2 }")
-	assert.Equal(t, *icon.Figures[0].(*Rectangle),
-		Rectangle{Position{1, 1}, Position{2, 2}})
+	assert.Equal(t, icon.Figures[0], &Rectangle{Position{1, 1}, Position{2, 2}})
 }
