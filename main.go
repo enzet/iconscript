@@ -12,7 +12,7 @@ import (
 
 // Any 2D figure on the surface.
 type Figure interface {
-	ToString() string
+	String() string
 }
 
 // Polyline through a set of positions.
@@ -22,7 +22,7 @@ type Line struct {
 }
 
 // Get string representation of a line.
-func (line Line) ToString() string {
+func (line Line) String() string {
 
 	result := "LINE"
 
@@ -30,9 +30,19 @@ func (line Line) ToString() string {
 		result += "_FILLED"
 	}
 	for _, position := range line.Positions {
-		result += " " + position.ToString()
+		result += " " + position.String()
 	}
 	return result
+}
+
+type Rectangle struct {
+	Start Position
+	End   Position
+}
+
+func (rectangle Rectangle) String() string {
+
+	return fmt.Sprintf("RECTANGLE %s %s", rectangle.Start, rectangle.End)
 }
 
 // 2-dimensional shape, described by the number of figures, that should be
@@ -60,7 +70,7 @@ type Position struct {
 }
 
 // Get string representation of a position.
-func (position Position) ToString() string {
+func (position Position) String() string {
 	return fmt.Sprintf("%f,%f", position.X, position.Y)
 }
 
@@ -97,7 +107,7 @@ func parsePosition(context parser.IPositionContext,
 	}
 }
 
-// Construct line.
+// Construct line and add it to the current icon.
 func (listener *iconScriptListener) ExitLine(context *parser.LineContext) {
 
 	line := new(Line)
@@ -114,6 +124,25 @@ func (listener *iconScriptListener) ExitLine(context *parser.LineContext) {
 	if listener.currentIcon != nil {
 		listener.currentIcon.Figures =
 			append(listener.currentIcon.Figures, line)
+	} else {
+		println("Error: no current icon.")
+	}
+}
+
+// Construct rectangle and add it to the current icon.
+func (listener *iconScriptListener) ExitRectangle(
+	context *parser.RectangleContext) {
+
+	rectangle := new(Rectangle)
+
+	rectangle.Start =
+		parsePosition(context.AllPosition()[0], listener.currentPosition)
+	rectangle.End =
+		parsePosition(context.AllPosition()[1], listener.currentPosition)
+
+	if listener.currentIcon != nil {
+		listener.currentIcon.Figures =
+			append(listener.currentIcon.Figures, rectangle)
 	} else {
 		println("Error: no current icon.")
 	}
@@ -161,7 +190,7 @@ func parse(stream antlr.CharStream) {
 	for _, icon := range listener.icons {
 		println(icon.Name)
 		for _, figure := range icon.Figures {
-			println("   ", figure.ToString())
+			println("   ", figure.String())
 		}
 	}
 }
