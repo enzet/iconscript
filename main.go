@@ -12,7 +12,6 @@ import (
 
 // Any 2D figure on the surface.
 type Figure interface {
-	String() string
 }
 
 // Polyline through a set of positions.
@@ -40,9 +39,22 @@ type Rectangle struct {
 	End   Position
 }
 
+// Get string representation of a rectangle.
 func (rectangle Rectangle) String() string {
-
 	return fmt.Sprintf("RECTANGLE %s %s", rectangle.Start, rectangle.End)
+}
+
+type Arc struct {
+	Center     Position
+	Radius     float32
+	StartAngle float32 // Start angle in radians.
+	EndAngle   float32 // End angle in radians.
+}
+
+// Get string representation of an arc.
+func (arc Arc) String() string {
+	return fmt.Sprintf("ARC %s %f %f %f", arc.Center, arc.Radius,
+		arc.StartAngle, arc.EndAngle)
 }
 
 // 2-dimensional shape, described by the number of figures, that should be
@@ -82,15 +94,24 @@ func (position *Position) Add(other *Position) Position {
 	return Position{position.X, position.Y}
 }
 
+// Errors are ignored since it should be checked by ANTLR.
+func ParseFloat(node string) float32 {
+
+	float, _ := strconv.ParseFloat(node, 32)
+	return float32(float)
+}
+
+// Read position from its string representation.
 func readPosition(context parser.IPositionContext) Position {
-	x, _ := strconv.ParseFloat(context.GetX().GetText(), 32)
-	y := 0.0
+
+	x := ParseFloat(context.GetX().GetText())
+	y := float32(0.0)
 	if context.GetY() != nil {
-		y, _ = strconv.ParseFloat(context.GetY().GetText(), 32)
+		y = ParseFloat(context.GetY().GetText())
 	} else {
 		println("Error: no Y component.")
 	}
-	return Position{float32(x), float32(y)}
+	return Position{x, y}
 }
 
 // Parse position from string representation and update current position.
@@ -111,13 +132,14 @@ func parsePosition(context parser.IPositionContext,
 func (listener *iconScriptListener) ExitLine(context *parser.LineContext) {
 
 	line := new(Line)
-	line.Positions = make([]Position, len(context.AllPosition()))
-
+	positions := context.AllPosition()
+	line.Positions = make([]Position, len(positions))
 	command := context.GetChild(0).GetPayload().(*antlr.CommonToken).GetText()
+
 	if command == "lf" {
 		line.IsFilled = true
 	}
-	for index, position := range context.AllPosition() {
+	for index, position := range positions {
 		line.Positions[index] =
 			parsePosition(position, listener.currentPosition)
 	}
@@ -134,15 +156,32 @@ func (listener *iconScriptListener) ExitRectangle(
 	context *parser.RectangleContext) {
 
 	rectangle := new(Rectangle)
+	positions := context.AllPosition()
 
-	rectangle.Start =
-		parsePosition(context.AllPosition()[0], listener.currentPosition)
-	rectangle.End =
-		parsePosition(context.AllPosition()[1], listener.currentPosition)
+	rectangle.Start = parsePosition(positions[0], listener.currentPosition)
+	rectangle.End = parsePosition(positions[1], listener.currentPosition)
 
 	if listener.currentIcon != nil {
 		listener.currentIcon.Figures =
 			append(listener.currentIcon.Figures, rectangle)
+	} else {
+		println("Error: no current icon.")
+	}
+}
+
+// Construct arc and add it to the current icon.
+func (listener *iconScriptListener) ExitArc(context *parser.ArcContext) {
+
+	arc := new(Arc)
+	floats := context.AllFLOAT()
+
+	arc.Center = parsePosition(context.Position(), listener.currentPosition)
+	arc.Radius = ParseFloat(floats[0].GetText())
+	arc.StartAngle = ParseFloat(floats[1].GetText())
+	arc.EndAngle = ParseFloat(floats[2].GetText())
+
+	if listener.currentIcon != nil {
+		listener.currentIcon.Figures = append(listener.currentIcon.Figures, arc)
 	} else {
 		println("Error: no current icon.")
 	}
@@ -167,6 +206,7 @@ func (listener *iconScriptListener) EnterIcon(context *parser.IconContext) {
 
 // Add constructed icon to the final set.
 func (listener *iconScriptListener) ExitIcon(context *parser.IconContext) {
+
 	if listener.currentIcon.Name == "" {
 		listener.currentIcon.Name =
 			fmt.Sprintf("icon%d", listener.unnamedIconId)
@@ -190,7 +230,7 @@ func parse(stream antlr.CharStream) {
 	for _, icon := range listener.icons {
 		println(icon.Name)
 		for _, figure := range icon.Figures {
-			println("   ", figure.String())
+			fmt.Printf("    %s\n", figure)
 		}
 	}
 }

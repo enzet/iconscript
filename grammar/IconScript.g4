@@ -21,7 +21,7 @@ command
     : name 
     | VARIABLE
     | 'a'
-    | 'ar' position FLOAT FLOAT FLOAT
+    | arc
     | 'c' position FLOAT
     | line
     | 'r'
@@ -30,6 +30,7 @@ command
     | 'w' FLOAT ;
 
 // Commands.
+arc : 'ar' position FLOAT FLOAT FLOAT ;
 line : ('l' | 'lf') position+ ;
 name : '%' IDENTIFIER ;
 rectangle : 's' position position ;
