@@ -44,6 +44,17 @@ func (rectangle Rectangle) String() string {
 	return fmt.Sprintf("RECTANGLE %s %s", rectangle.Start, rectangle.End)
 }
 
+type Circle struct {
+	Center Position
+	Radius float32
+}
+
+// Get string representation of a circle.
+func (circle Circle) String() string {
+	return fmt.Sprintf("CIRCLE %s %f", circle.Center, circle.Radius)
+}
+
+// Arc, a part of a circle.
 type Arc struct {
 	Center     Position
 	Radius     float32
@@ -164,6 +175,21 @@ func (listener *iconScriptListener) ExitRectangle(
 	if listener.currentIcon != nil {
 		listener.currentIcon.Figures =
 			append(listener.currentIcon.Figures, rectangle)
+	} else {
+		println("Error: no current icon.")
+	}
+}
+
+func (listener *iconScriptListener) ExitCircle(context *parser.CircleContext) {
+
+	circle := new(Circle)
+
+	circle.Center = parsePosition(context.Position(), listener.currentPosition)
+	circle.Radius = ParseFloat(context.FLOAT().GetText())
+
+	if listener.currentIcon != nil {
+		listener.currentIcon.Figures =
+			append(listener.currentIcon.Figures, circle)
 	} else {
 		println("Error: no current icon.")
 	}
