@@ -180,6 +180,7 @@ func (listener *iconScriptListener) ExitRectangle(
 	}
 }
 
+// Construct circle and add it to the current icon.
 func (listener *iconScriptListener) ExitCircle(context *parser.CircleContext) {
 
 	circle := new(Circle)
@@ -242,7 +243,7 @@ func (listener *iconScriptListener) ExitIcon(context *parser.IconContext) {
 }
 
 // Parse iconscript using ANTLR.
-func parse(stream antlr.CharStream) {
+func parse(stream antlr.CharStream) ([]*Icon, error) {
 
 	lexer := parser.NewIconScriptLexer(stream)
 	tokenStream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
@@ -259,6 +260,7 @@ func parse(stream antlr.CharStream) {
 			fmt.Printf("    %s\n", figure)
 		}
 	}
+	return listener.icons, nil
 }
 
 // Script entry point: use `-i` to specify file name or `-c` to specify string
