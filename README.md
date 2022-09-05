@@ -13,12 +13,7 @@ live-server
 
 ## Syntax
 
-### Variables
-
-Variable can be defined with `<variable> = <value>` and accessed with
-`@<variable>`.
-
-### Global state
+### Global context
 
   - __width__ — stroke width.
   - __position__ — current position of the cursor.
@@ -33,11 +28,16 @@ that the position is relative to the __position__).
 | `a` | Set adding mode (default mode) |
 | `r` | Set removing mode |
 | `w <float>` | Set __width__ to a value |
-| `p <position>` | Set __current position__ to a value |
+| `p <position>` | Set __position__ to a value |
 | `l [<position>]` | Draw lines between positions |
 | `c <position> <float>` | Draw circle specified by center point and radius |
 | `s <position> <position>` | Draw rectangle specified by top left and bottom right points |
 | `ar <position> <float> <float> <float>` | Draw arc specified by center point, radius, and two angles in radians |
+
+### Variables
+
+Variable can be defined with `<variable> = [<command>]` and accessed with
+`@<variable>`.
 
 ### Example
 
@@ -45,7 +45,7 @@ that the position is relative to the __position__).
 cube = lf +0,0 +2,0 +0,2 +-2,0 +0,-2
 {
     %glider
-    p 6,2 @cube p 10,6 @cube
-    p 2,10 @cube p +4,0 @cube p +4,0 @cube
+    p 6,2   @cube p +4,4 @cube
+    p +-8,4 @cube p +4,0 @cube p +4,0 @cube
 }
 ```
