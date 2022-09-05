@@ -11,11 +11,12 @@ import (
 func CheckIcon(t *testing.T, command string) *Icon {
 
 	parsed, err := parse(antlr.NewInputStream(command))
+	icons := parsed.icons
 
 	assert.Equal(t, nil, err, "Error.")
 	assert.Equal(t, 1, len(icons), "Unexpected number of icons.")
 
-	icon := parsed[0]
+	icon := icons[0]
 	assert.Equal(t, "icon0", icon.Name)
 	assert.Equal(t, 1, len(icon.Figures), "Unexpected number of figures.")
 

@@ -1,3 +1,5 @@
+// ANTLR-based parser for iconscript.
+// Author: Sergey Vartanov <me@enzet.ru>
 package main
 
 import (
@@ -262,6 +264,7 @@ func (listener *iconScriptListener) ExitSetPosition(
 	parsePosition(context.Position(), listener.context)
 }
 
+// Set current width.
 func (listener *iconScriptListener) ExitSetWidth(
 	context *parser.SetWidthContext) {
 
@@ -291,7 +294,7 @@ func (listener *iconScriptListener) ExitIcon(context *parser.IconContext) {
 }
 
 // Parse iconscript using ANTLR.
-func parse(stream antlr.CharStream) ([]*Icon, error) {
+func parse(stream antlr.CharStream) (*Context, error) {
 
 	lexer := parser.NewIconScriptLexer(stream)
 	tokenStream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
@@ -302,7 +305,7 @@ func parse(stream antlr.CharStream) ([]*Icon, error) {
 
 	antlr.ParseTreeWalkerDefault.Walk(listener, p.Script())
 
-	return listener.context.icons, nil
+	return listener.context, nil
 }
 
 // Script entry point: use `-i` to specify file name or `-c` to specify string
