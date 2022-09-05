@@ -1,0 +1,6 @@
+grammar/.antlr/
+grammar/parser/
+node_modules/
+work/
+
+run.sh
