@@ -60,3 +60,11 @@ func TestRectangle(t *testing.T) {
 	assert.Equal(t, &Rectangle{Position{1, 1}, Position{2, 2}, 1},
 		icon.Figures[0])
 }
+
+// Test moving current position.
+func TestSetPosition(t *testing.T) {
+
+	parsed, err := parse(antlr.NewInputStream("{ p 1,2 p +2,3 }"))
+	assert.Equal(t, nil, err)
+	assert.Equal(t, &Position{3, 5}, parsed.currentPosition)
+}
