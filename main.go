@@ -12,12 +12,18 @@ import (
 
 // Any 2D figure on the surface.
 type Figure interface {
+	SetWidth(width float32)
 }
 
 // Polyline through a set of positions.
 type Line struct {
 	Positions []Position
 	IsFilled  bool
+	Width     float32
+}
+
+func (line *Line) SetWidth(width float32) {
+	line.Width = width
 }
 
 // Get string representation of a line.
@@ -37,6 +43,11 @@ func (line Line) String() string {
 type Rectangle struct {
 	Start Position
 	End   Position
+	Width float32
+}
+
+func (rectange *Rectangle) SetWidth(width float32) {
+	rectange.Width = width
 }
 
 // Get string representation of a rectangle.
@@ -47,6 +58,11 @@ func (rectangle Rectangle) String() string {
 type Circle struct {
 	Center Position
 	Radius float32
+	Width  float32
+}
+
+func (circle *Circle) SetWidth(width float32) {
+	circle.Width = width
 }
 
 // Get string representation of a circle.
@@ -60,6 +76,11 @@ type Arc struct {
 	Radius     float32
 	StartAngle float32 // Start angle in radians.
 	EndAngle   float32 // End angle in radians.
+	Width      float32
+}
+
+func (arc *Arc) SetWidth(width float32) {
+	arc.Width = width
 }
 
 // Get string representation of an arc.
@@ -159,6 +180,7 @@ func parsePosition(positionContext parser.IPositionContext,
 func (listener *iconScriptListener) ExitLine(context *parser.LineContext) {
 
 	line := new(Line)
+	line.SetWidth(listener.context.currentWidth)
 	positions := context.AllPosition()
 	line.Positions = make([]Position, len(positions))
 	command := context.GetChild(0).GetPayload().(*antlr.CommonToken).GetText()
@@ -182,6 +204,7 @@ func (listener *iconScriptListener) ExitRectangle(
 	context *parser.RectangleContext) {
 
 	rectangle := new(Rectangle)
+	rectangle.SetWidth(listener.context.currentWidth)
 	positions := context.AllPosition()
 
 	rectangle.Start = parsePosition(positions[0], listener.context)
@@ -199,6 +222,7 @@ func (listener *iconScriptListener) ExitRectangle(
 func (listener *iconScriptListener) ExitCircle(context *parser.CircleContext) {
 
 	circle := new(Circle)
+	circle.SetWidth(listener.context.currentWidth)
 
 	circle.Center = parsePosition(context.Position(), listener.context)
 	circle.Radius = ParseFloat(context.FLOAT().GetText())
@@ -215,6 +239,7 @@ func (listener *iconScriptListener) ExitCircle(context *parser.CircleContext) {
 func (listener *iconScriptListener) ExitArc(context *parser.ArcContext) {
 
 	arc := new(Arc)
+	arc.SetWidth(listener.context.currentWidth)
 	floats := context.AllFLOAT()
 
 	arc.Center = parsePosition(context.Position(), listener.context)
