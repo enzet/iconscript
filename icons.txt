@@ -388,3 +388,36 @@ person = c +0,0 2 l +-3,2 +6,0 s +-5,0 +4,3 r s +-5,-2 +1,4 s +4,-4 +1,4 l +-3,-
     ar 7,6 5 -1.97 1.16
     l 7,11 +0,2 l +-3,0 +6,0
 }
+
+{ lf 5,11 +0,-9 +5,3 +-5,3 }
+
+triangle_ul = lf +0,-3 +3,5 +-6,0 +3,-5 p +0,3
+triangle_us = lf +0,-2 +2,3 +-4,0 +2,-3 p +0,2
+triangle_dl = lf +0,3 +3,-5 +-6,0 +3,5 p +0,-3
+triangle_ds = lf +0,2 +2,-3 +-4,0 +2,3 p +0,-2
+
+{ p 7,7 @triangle_ul }
+{ p 7,7 @triangle_us }
+{ p 7,7 @triangle_dl }
+{ p 7,7 @triangle_ds }
+
+seamark_ns = @triangle_us p +0,3 @triangle_us
+seamark_ss = @triangle_ds p +0,3 @triangle_ds
+seamark_ws = @triangle_us p +0,2 @triangle_ds
+seamark_es = @triangle_ds p +0,4 @triangle_us
+
+{ p 7,6 @seamark_ns }
+{ p 7,5 @seamark_ss }
+{ p 7,6 @seamark_ws }
+{ p 7,5 @seamark_es }
+
+seamark_nl = @triangle_ul p +0,5 @triangle_ul
+seamark_sl = @triangle_dl p +0,5 @triangle_dl
+seamark_wl = @triangle_ul p +0,4 @triangle_dl
+seamark_el = @triangle_dl p +0,6 @triangle_ul
+
+{ p 7,5 @seamark_nl }
+{ p 7,4 @seamark_sl }
+{ p 7,5 @seamark_wl }
+{ p 7,4 @seamark_el }
+
