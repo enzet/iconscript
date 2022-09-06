@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+go vet || { echo "FAIL"; exit 1; }
+go test || { echo "FAIL"; exit 1; }
+
