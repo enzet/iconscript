@@ -8,7 +8,7 @@ import (
 )
 
 // Parse exactly one icon.
-func CheckIcon(t *testing.T, command string) *Icon {
+func checkIcon(t *testing.T, command string) *Icon {
 
 	parsed, err := parse(antlr.NewInputStream(command))
 	icons := parsed.icons
@@ -17,8 +17,8 @@ func CheckIcon(t *testing.T, command string) *Icon {
 	assert.Equal(t, 1, len(icons), "Unexpected number of icons.")
 
 	icon := icons[0]
-	assert.Equal(t, "icon0", icon.Name)
-	assert.Equal(t, 1, len(icon.Figures), "Unexpected number of figures.")
+	assert.Equal(t, "icon0", icon.name)
+	assert.Equal(t, 1, len(icon.figures), "Unexpected number of figures.")
 
 	return icon
 }
@@ -26,39 +26,39 @@ func CheckIcon(t *testing.T, command string) *Icon {
 // Test not filled line parsing.
 func TestLine(t *testing.T) {
 
-	icon := CheckIcon(t, "{ l 0,0 1,1 }")
+	icon := checkIcon(t, "{ l 0,0 1,1 }")
 	assert.Equal(t, &Line{[]Position{{0, 0}, {1, 1}}, false, 1},
-		icon.Figures[0])
+		icon.figures[0])
 }
 
 // Test filled line parsing.
 func TestLineFilled(t *testing.T) {
 
-	icon := CheckIcon(t, "{ lf 0,0 1,1 }")
+	icon := checkIcon(t, "{ lf 0,0 1,1 }")
 	assert.Equal(t, &Line{[]Position{{0, 0}, {1, 1}}, true, 1},
-		icon.Figures[0])
+		icon.figures[0])
 }
 
 // Test arc parsing.
 func TestArc(t *testing.T) {
 
-	icon := CheckIcon(t, "{ ar 1,1 5 0.1 0.2 }")
-	assert.Equal(t, &Arc{Position{1, 1}, 5, 0.1, 0.2, 1}, icon.Figures[0])
+	icon := checkIcon(t, "{ ar 1,1 5 0.1 0.2 }")
+	assert.Equal(t, &Arc{Position{1, 1}, 5, 0.1, 0.2, 1}, icon.figures[0])
 }
 
 // Test circle parsing.
 func TestCircle(t *testing.T) {
 
-	icon := CheckIcon(t, "{ c 1,1 5 }")
-	assert.Equal(t, &Circle{Position{1, 1}, 5, 1}, icon.Figures[0])
+	icon := checkIcon(t, "{ c 1,1 5 }")
+	assert.Equal(t, &Circle{Position{1, 1}, 5, 1}, icon.figures[0])
 }
 
 // Test rectangle parsing.
 func TestRectangle(t *testing.T) {
 
-	icon := CheckIcon(t, "{ s 1,1 2,2 }")
+	icon := checkIcon(t, "{ s 1,1 2,2 }")
 	assert.Equal(t, &Rectangle{Position{1, 1}, Position{2, 2}, 1},
-		icon.Figures[0])
+		icon.figures[0])
 }
 
 // Test moving current position.

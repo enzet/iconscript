@@ -19,13 +19,13 @@ type Figure interface {
 
 // Polyline through a set of positions.
 type Line struct {
-	Positions []Position
-	IsFilled  bool
-	Width     float32
+	positions []Position
+	isFilled  bool
+	width     float32
 }
 
 func (line *Line) SetWidth(width float32) {
-	line.Width = width
+	line.width = width
 }
 
 // Get string representation of a line.
@@ -33,76 +33,76 @@ func (line Line) String() string {
 
 	result := "LINE"
 
-	if line.IsFilled {
+	if line.isFilled {
 		result += "_FILLED"
 	}
-	for _, position := range line.Positions {
+	for _, position := range line.positions {
 		result += " " + position.String()
 	}
 	return result
 }
 
 type Rectangle struct {
-	Start Position
-	End   Position
-	Width float32
+	start Position
+	end   Position
+	width float32
 }
 
 func (rectange *Rectangle) SetWidth(width float32) {
-	rectange.Width = width
+	rectange.width = width
 }
 
 // Get string representation of a rectangle.
 func (rectangle Rectangle) String() string {
-	return fmt.Sprintf("RECTANGLE %s %s", rectangle.Start, rectangle.End)
+	return fmt.Sprintf("RECTANGLE %s %s", rectangle.start, rectangle.end)
 }
 
 type Circle struct {
-	Center Position
-	Radius float32
-	Width  float32
+	center Position
+	radius float32
+	width  float32
 }
 
 func (circle *Circle) SetWidth(width float32) {
-	circle.Width = width
+	circle.width = width
 }
 
 // Get string representation of a circle.
 func (circle Circle) String() string {
-	return fmt.Sprintf("CIRCLE %s %f", circle.Center, circle.Radius)
+	return fmt.Sprintf("CIRCLE %s %f", circle.center, circle.radius)
 }
 
 // Arc, a part of a circle.
 type Arc struct {
-	Center     Position
-	Radius     float32
-	StartAngle float32 // Start angle in radians.
-	EndAngle   float32 // End angle in radians.
-	Width      float32
+	center     Position
+	radius     float32
+	startAngle float32 // Start angle in radians.
+	endAngle   float32 // End angle in radians.
+	width      float32
 }
 
 func (arc *Arc) SetWidth(width float32) {
-	arc.Width = width
+	arc.width = width
 }
 
 // Get string representation of an arc.
 func (arc Arc) String() string {
-	return fmt.Sprintf("ARC %s %f %f %f", arc.Center, arc.Radius,
-		arc.StartAngle, arc.EndAngle)
+	return fmt.Sprintf("ARC %s %f %f %f", arc.center, arc.radius,
+		arc.startAngle, arc.endAngle)
 }
 
 // 2-dimensional shape, described by the number of figures, that should be
 // united or subtracted.
 type Icon struct {
-	Name    string
-	Figures []Figure
+	name    string
+	figures []Figure
 }
 
 // Get string representation of an icon.
 func (icon Icon) String() string {
 
-	result := icon.Name + "\n"
-	for _, figure := range icon.Figures {
+	result := icon.name + "\n"
+	for _, figure := range icon.figures {
 		result += fmt.Sprintf("    %s\n", figure)
 	}
 	return result
@@ -127,25 +127,25 @@ type iconScriptListener struct {
 
 // 2-dimensional point on the plane.
 type Position struct {
-	X float32
-	Y float32
+	x float32
+	y float32
 }
 
 // Get string representation of a position.
 func (position Position) String() string {
-	return fmt.Sprintf("%f,%f", position.X, position.Y)
+	return fmt.Sprintf("%f,%f", position.x, position.y)
 }
 
 // Add other position to the given one and return the combination.
 func (position *Position) Add(other *Position) Position {
 
-	position.X += other.X
-	position.Y += other.Y
-	return Position{position.X, position.Y}
+	position.x += other.x
+	position.y += other.y
+	return Position{position.x, position.y}
 }
 
 // Errors are ignored since it should be checked by ANTLR.
-func ParseFloat(node string) float32 {
+func parseFloat(node string) float32 {
 
 	float, _ := strconv.ParseFloat(node, 32)
 	return float32(float)
@@ -154,10 +154,10 @@ func ParseFloat(node string) float32 {
 // Read position from its string representation.
 func readPosition(context parser.IPositionContext) Position {
 
-	x := ParseFloat(context.GetX().GetText())
+	x := parseFloat(context.GetX().GetText())
 	y := float32(0.0)
 	if context.GetY() != nil {
-		y = ParseFloat(context.GetY().GetText())
+		y = parseFloat(context.GetY().GetText())
 	} else {
 		println("Error: no Y component.")
 	}
@@ -184,18 +184,18 @@ func (listener *iconScriptListener) ExitLine(context *parser.LineContext) {
 	line := new(Line)
 	line.SetWidth(listener.context.currentWidth)
 	positions := context.AllPosition()
-	line.Positions = make([]Position, len(positions))
+	line.positions = make([]Position, len(positions))
 	command := context.GetChild(0).GetPayload().(*antlr.CommonToken).GetText()
 
 	if command == "lf" {
-		line.IsFilled = true
+		line.isFilled = true
 	}
 	for i, position := range positions {
-		line.Positions[i] = parsePosition(position, listener.context)
+		line.positions[i] = parsePosition(position, listener.context)
 	}
 	if listener.context.currentIcon != nil {
-		listener.context.currentIcon.Figures =
-			append(listener.context.currentIcon.Figures, line)
+		listener.context.currentIcon.figures =
+			append(listener.context.currentIcon.figures, line)
 	} else {
 		println("Error: no current icon.")
 	}
@@ -209,12 +209,12 @@ func (listener *iconScriptListener) ExitRectangle(
 	rectangle.SetWidth(listener.context.currentWidth)
 	positions := context.AllPosition()
 
-	rectangle.Start = parsePosition(positions[0], listener.context)
-	rectangle.End = parsePosition(positions[1], listener.context)
+	rectangle.start = parsePosition(positions[0], listener.context)
+	rectangle.end = parsePosition(positions[1], listener.context)
 
 	if listener.context.currentIcon != nil {
-		listener.context.currentIcon.Figures =
-			append(listener.context.currentIcon.Figures, rectangle)
+		listener.context.currentIcon.figures =
+			append(listener.context.currentIcon.figures, rectangle)
 	} else {
 		println("Error: no current icon.")
 	}
@@ -226,12 +226,12 @@ func (listener *iconScriptListener) ExitCircle(context *parser.CircleContext) {
 	circle := new(Circle)
 	circle.SetWidth(listener.context.currentWidth)
 
-	circle.Center = parsePosition(context.Position(), listener.context)
-	circle.Radius = ParseFloat(context.FLOAT().GetText())
+	circle.center = parsePosition(context.Position(), listener.context)
+	circle.radius = parseFloat(context.FLOAT().GetText())
 
 	if listener.context.currentIcon != nil {
-		listener.context.currentIcon.Figures =
-			append(listener.context.currentIcon.Figures, circle)
+		listener.context.currentIcon.figures =
+			append(listener.context.currentIcon.figures, circle)
 	} else {
 		println("Error: no current icon.")
 	}
@@ -244,14 +244,14 @@ func (listener *iconScriptListener) ExitArc(context *parser.ArcContext) {
 	arc.SetWidth(listener.context.currentWidth)
 	floats := context.AllFLOAT()
 
-	arc.Center = parsePosition(context.Position(), listener.context)
-	arc.Radius = ParseFloat(floats[0].GetText())
-	arc.StartAngle = ParseFloat(floats[1].GetText())
-	arc.EndAngle = ParseFloat(floats[2].GetText())
+	arc.center = parsePosition(context.Position(), listener.context)
+	arc.radius = parseFloat(floats[0].GetText())
+	arc.startAngle = parseFloat(floats[1].GetText())
+	arc.endAngle = parseFloat(floats[2].GetText())
 
 	if listener.context.currentIcon != nil {
-		listener.context.currentIcon.Figures =
-			append(listener.context.currentIcon.Figures, arc)
+		listener.context.currentIcon.figures =
+			append(listener.context.currentIcon.figures, arc)
 	} else {
 		println("Error: no current icon.")
 	}
@@ -268,12 +268,12 @@ func (listener *iconScriptListener) ExitSetPosition(
 func (listener *iconScriptListener) ExitSetWidth(
 	context *parser.SetWidthContext) {
 
-	listener.context.currentWidth = ParseFloat(context.FLOAT().GetText())
+	listener.context.currentWidth = parseFloat(context.FLOAT().GetText())
 }
 
 // Store icon name.
 func (listener *iconScriptListener) ExitName(context *parser.NameContext) {
-	listener.context.currentIcon.Name = context.IDENTIFIER().GetText()
+	listener.context.currentIcon.name = context.IDENTIFIER().GetText()
 }
 
 // Create new icon.
@@ -284,8 +284,8 @@ func (listener *iconScriptListener) EnterIcon(context *parser.IconContext) {
 // Add constructed icon to the final set.
 func (listener *iconScriptListener) ExitIcon(context *parser.IconContext) {
 
-	if listener.context.currentIcon.Name == "" {
-		listener.context.currentIcon.Name =
+	if listener.context.currentIcon.name == "" {
+		listener.context.currentIcon.name =
 			fmt.Sprintf("icon%d", listener.context.unnamedIconId)
 		listener.context.unnamedIconId++
 	}
