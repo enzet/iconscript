@@ -4,11 +4,38 @@ Paperscript parser for icon shape drawing.
 
 This is a part of [Map Machine](https://github.com/enzet/map-machine) project.
 
-## Run
+## JavaScript part
+
+Install:
 
 ```shell
-npm install paper live-server
+npm install paper paperjs-offset
+npm install -g live-server
+```
+
+Run:
+
+```shell
 live-server
+```
+
+## Go part
+
+Requires: Go 1.19, ANTLR 4.10.1.
+
+Install:
+
+```shell
+cd grammar
+antlr -Dlanguage=Go -o parser IconScript.g4
+cd ..
+go build
+```
+
+You may also test installation with `go test`.
+
+```shell
+go run main.go -i <file path>
 ```
 
 ## Syntax
