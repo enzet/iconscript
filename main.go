@@ -321,9 +321,19 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		parse(stream)
+		parsed, err := parse(stream)
+		if err == nil {
+			log.Print(parsed)
+		} else {
+			log.Fatal("Failed to parse file.")
+		}
 	} else {
 		stream := antlr.NewInputStream(*commands)
-		parse(stream)
+		parsed, err := parse(stream)
+		if err == nil {
+			log.Print(parsed)
+		} else {
+			log.Fatal("Failed to parse file.")
+		}
 	}
 }
