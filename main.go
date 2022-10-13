@@ -178,7 +178,7 @@ func parsePosition(positionContext parser.IPositionContext,
 	}
 }
 
-// Construct line and add it to the current icon.
+// ExitLine constructs line and adds it to the current icon.
 func (listener *iconScriptListener) ExitLine(context *parser.LineContext) {
 
 	line := new(Line)
@@ -277,12 +277,12 @@ func (listener *iconScriptListener) ExitName(context *parser.NameContext) {
 }
 
 // EnterIcon creates a new icon.
-func (listener *iconScriptListener) EnterIcon(context *parser.IconContext) {
+func (listener *iconScriptListener) EnterIcon(_ *parser.IconContext) {
 	listener.context.currentIcon = new(Icon)
 }
 
 // ExitIcon adds constructed icon to the final set.
-func (listener *iconScriptListener) ExitIcon(context *parser.IconContext) {
+func (listener *iconScriptListener) ExitIcon(_ *parser.IconContext) {
 
 	if listener.context.currentIcon.name == "" {
 		listener.context.currentIcon.name =
