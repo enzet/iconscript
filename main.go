@@ -12,12 +12,12 @@ import (
 	"github.com/enzet/iconscript/grammar/parser"
 )
 
-// Any 2D figure on the surface.
+// Figure is a simple 2D figure on the surface.
 type Figure interface {
 	setWidth(width float32)
 }
 
-// Polyline through a set of positions.
+// Line is a polyline through a set of positions.
 type Line struct {
 	positions []Position
 	isFilled  bool
@@ -72,7 +72,7 @@ func (circle Circle) String() string {
 	return fmt.Sprintf("CIRCLE %s %f", circle.center, circle.radius)
 }
 
-// Arc, a part of a circle.
+// Arc is a part of a circle.
 type Arc struct {
 	center     Position
 	radius     float32
@@ -91,8 +91,8 @@ func (arc Arc) String() string {
 		arc.startAngle, arc.endAngle)
 }
 
-// 2-dimensional shape, described by the number of figures, that should be
-// united or subtracted.
+// Icon is a 2-dimensional shape, described by the number of figures, that
+// should be united or subtracted.
 type Icon struct {
 	name    string
 	figures []Figure
@@ -108,7 +108,7 @@ func (icon Icon) String() string {
 	return result
 }
 
-// Drawing context.
+// Context describes current state of the drawing process.
 type Context struct {
 	currentPosition *Position
 	currentWidth    float32
@@ -125,7 +125,7 @@ type iconScriptListener struct {
 	context *Context
 }
 
-// 2-dimensional point on the plane.
+// Position is a 2-dimensional point on the plane.
 type Position struct {
 	x float32
 	y float32
@@ -201,7 +201,7 @@ func (listener *iconScriptListener) ExitLine(context *parser.LineContext) {
 	}
 }
 
-// Construct rectangle and add it to the current icon.
+// ExitRectangle constructs a rectangle and adds it to the current icon.
 func (listener *iconScriptListener) ExitRectangle(
 	context *parser.RectangleContext) {
 
@@ -220,7 +220,7 @@ func (listener *iconScriptListener) ExitRectangle(
 	}
 }
 
-// Construct circle and add it to the current icon.
+// ExitCircle constructs acircle and adds it to the current icon.
 func (listener *iconScriptListener) ExitCircle(context *parser.CircleContext) {
 
 	circle := new(Circle)
@@ -237,7 +237,7 @@ func (listener *iconScriptListener) ExitCircle(context *parser.CircleContext) {
 	}
 }
 
-// Construct arc and add it to the current icon.
+// ExitArc constructs an arc and adds it to the current icon.
 func (listener *iconScriptListener) ExitArc(context *parser.ArcContext) {
 
 	arc := new(Arc)
@@ -257,31 +257,31 @@ func (listener *iconScriptListener) ExitArc(context *parser.ArcContext) {
 	}
 }
 
-// Update current position.
+// ExitSetPosition updates current position.
 func (listener *iconScriptListener) ExitSetPosition(
 	context *parser.SetPositionContext) {
 
 	parsePosition(context.Position(), listener.context)
 }
 
-// Set current width.
+// ExitsetWidth sets current width.
 func (listener *iconScriptListener) ExitsetWidth(
 	context *parser.SetWidthContext) {
 
 	listener.context.currentWidth = parseFloat(context.FLOAT().GetText())
 }
 
-// Store icon name.
+// ExitName stores icon name.
 func (listener *iconScriptListener) ExitName(context *parser.NameContext) {
 	listener.context.currentIcon.name = context.IDENTIFIER().GetText()
 }
 
-// Create new icon.
+// EnterIcon creates a new icon.
 func (listener *iconScriptListener) EnterIcon(context *parser.IconContext) {
 	listener.context.currentIcon = new(Icon)
 }
 
-// Add constructed icon to the final set.
+// ExitIcon adds constructed icon to the final set.
 func (listener *iconScriptListener) ExitIcon(context *parser.IconContext) {
 
 	if listener.context.currentIcon.name == "" {
