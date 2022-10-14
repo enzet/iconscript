@@ -48,8 +48,8 @@ type Rectangle struct {
 	width float32
 }
 
-func (rectange *Rectangle) setWidth(width float32) {
-	rectange.width = width
+func (rectangle *Rectangle) setWidth(width float32) {
+	rectangle.width = width
 }
 
 // Get string representation of a rectangle.
