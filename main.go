@@ -29,7 +29,7 @@ func (line *Line) setWidth(width float32) {
 }
 
 // Get string representation of a line.
-func (line Line) String() string {
+func (line *Line) String() string {
 
 	result := "LINE"
 
@@ -53,8 +53,9 @@ func (rectangle *Rectangle) setWidth(width float32) {
 }
 
 // Get string representation of a rectangle.
-func (rectangle Rectangle) String() string {
-	return fmt.Sprintf("RECTANGLE %s %s", rectangle.start, rectangle.end)
+func (rectangle *Rectangle) String() string {
+	return fmt.Sprintf("RECTANGLE %s %s", rectangle.start.String(),
+		rectangle.end.String())
 }
 
 type Circle struct {
@@ -68,8 +69,8 @@ func (circle *Circle) setWidth(width float32) {
 }
 
 // Get string representation of a circle.
-func (circle Circle) String() string {
-	return fmt.Sprintf("CIRCLE %s %f", circle.center, circle.radius)
+func (circle *Circle) String() string {
+	return fmt.Sprintf("CIRCLE %s %f", circle.center.String(), circle.radius)
 }
 
 // Arc is a part of a circle.
@@ -86,8 +87,8 @@ func (arc *Arc) setWidth(width float32) {
 }
 
 // Get string representation of an arc.
-func (arc Arc) String() string {
-	return fmt.Sprintf("ARC %s %f %f %f", arc.center, arc.radius,
+func (arc *Arc) String() string {
+	return fmt.Sprintf("ARC %s %f %f %f", arc.center.String(), arc.radius,
 		arc.startAngle, arc.endAngle)
 }
 
@@ -132,7 +133,7 @@ type Position struct {
 }
 
 // Get string representation of a position.
-func (position Position) String() string {
+func (position *Position) String() string {
 	return fmt.Sprintf("%f,%f", position.x, position.y)
 }
 
@@ -323,7 +324,9 @@ func main() {
 		}
 		parsed, err := parse(stream)
 		if err == nil {
-			log.Print(parsed)
+			for _, icon := range parsed.icons {
+				fmt.Print(icon)
+			}
 		} else {
 			log.Fatal("Failed to parse file.")
 		}
@@ -331,9 +334,11 @@ func main() {
 		stream := antlr.NewInputStream(*commands)
 		parsed, err := parse(stream)
 		if err == nil {
-			log.Print(parsed)
+			for _, icon := range parsed.icons {
+				fmt.Print(icon)
+			}
 		} else {
-			log.Fatal("Failed to parse file.")
+			log.Fatal("Failed to parse command.")
 		}
 	}
 }
