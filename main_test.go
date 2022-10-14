@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// Parse exactly one icon.
+// checkIcon parses exactly one icon.
 func checkIcon(t *testing.T, command string) *Icon {
 
 	parsed, err := parse(antlr.NewInputStream(command))
@@ -23,7 +23,7 @@ func checkIcon(t *testing.T, command string) *Icon {
 	return icon
 }
 
-// Test not filled line parsing.
+// TestLine tests not filled line parsing.
 func TestLine(t *testing.T) {
 
 	icon := checkIcon(t, "{ l 0,0 1,1 }")
@@ -31,7 +31,7 @@ func TestLine(t *testing.T) {
 		icon.figures[0])
 }
 
-// Test filled line parsing.
+// TestLineFilled tests filled line parsing.
 func TestLineFilled(t *testing.T) {
 
 	icon := checkIcon(t, "{ lf 0,0 1,1 }")
@@ -39,21 +39,21 @@ func TestLineFilled(t *testing.T) {
 		icon.figures[0])
 }
 
-// Test arc parsing.
+// TestArc tests arc parsing.
 func TestArc(t *testing.T) {
 
 	icon := checkIcon(t, "{ ar 1,1 5 0.1 0.2 }")
 	assert.Equal(t, &Arc{Position{1, 1}, 5, 0.1, 0.2, 1}, icon.figures[0])
 }
 
-// Test circle parsing.
+// TestCircle tests circle parsing.
 func TestCircle(t *testing.T) {
 
 	icon := checkIcon(t, "{ c 1,1 5 }")
 	assert.Equal(t, &Circle{Position{1, 1}, 5, 1}, icon.figures[0])
 }
 
-// Test rectangle parsing.
+// TestRectangle tests rectangle parsing.
 func TestRectangle(t *testing.T) {
 
 	icon := checkIcon(t, "{ s 1,1 2,2 }")
@@ -61,7 +61,7 @@ func TestRectangle(t *testing.T) {
 		icon.figures[0])
 }
 
-// Test moving current position.
+// TestSetPosition tests moving current position.
 func TestSetPosition(t *testing.T) {
 
 	parsed, err := parse(antlr.NewInputStream("{ p 1,2 p +2,3 }"))
