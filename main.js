@@ -32,12 +32,12 @@ var finalColor = new Color(0, 0, 0);
  * Convert position in icon shape coordinates to shifted and scaled coordinates
  * of the canvas.
  *
- * @param {vector} position coordinates to convert
+ * @param {array} position coordinates to convert
  * @returns point on the canvas
  */
 function toCoordinates(position) {
 
-    if (position[0] == "+") {
+    if (position[0] === "+") {
         position = position.slice(1).split(",");
         p = new Point([Number(position[0]), Number(position[1])]);
         current = current + p;
@@ -69,8 +69,8 @@ function addPoint(position, radius) {
 /**
  * Add line represented as a rectangle between two circles.
  *
- * @param {vector} from starting point
- * @param {vector} to ending point
+ * @param {array} from starting point
+ * @param {array} to ending point
  */
 function addLine(from, to) {
 
@@ -194,15 +194,18 @@ function parse() {
     var lines = area.value.split("\n");
     var variables = {};
 
-    var lexemes = []
+    var lexemes = [];
 
-    for (var i = 0; i < lines.length; i++) {
+    var i;
+    var j;
+
+    for (i = 0; i < lines.length; i++) {
         parts = lines[i].trim().split(" ");
-        if (parts[1] == "=") {
+        if (parts[1] === "=") {
             variables[parts[0]] = []; // parts.slice(2);
-            for (var j = 2; j < parts.length; j++) {
+            for (j = 2; j < parts.length; j++) {
                 part = parts[j];
-                if (part[0] == "@") {
+                if (part[0] === "@") {
                     variables[parts[0]] = variables[parts[0]]
                         .concat(variables[part.slice(1)]);
                 } else {
@@ -210,9 +213,9 @@ function parse() {
                 }
             }
         } else {
-            for (var j = 0; j < parts.length; j++) {
+            for (j = 0; j < parts.length; j++) {
                 part = parts[j];
-                if (part[0] == "@") {
+                if (part[0] === "@") {
                     lexemes = lexemes.concat(variables[part.slice(1)]);
                 } else {
                     lexemes.push(part);
@@ -223,11 +226,14 @@ function parse() {
 
     var mode = null;
 
-    for (var i = 0; i < lexemes.length; i++) {
+    for (i = 0; i < lexemes.length; i++) {
 
         var lexeme = lexemes[i];
 
-        if (lexeme == "}" && shape) {
+        var center;
+        var radius;
+
+        if (lexeme === "}" && shape) {
 
             combineFill();
             fakeShape = new Path({insert: true});
@@ -244,44 +250,44 @@ function parse() {
             shape.selected = true;
             // console.log(shape.exportSVG());
             shape = null;
-        } else if (lexeme == "l" || lexeme == "lf") {
+        } else if (lexeme === "l" || lexeme === "lf") {
             combineFill();
-            filled = (lexeme == "lf");
+            filled = (lexeme === "lf");
             fill = new Path();
             fill.fillColor = sketchColor;
             fill.opacity = sketchOpacity;
-            
+
             var last = null;
 
             mode = "line";
-        } else if (mode == "width") {
+        } else if (mode === "width") {
             width = Number(lexeme);
             mode = null;
-        } else if (lexeme == "p") {
+        } else if (lexeme === "p") {
             current = toCoordinates(lexemes[i + 1]);
             i++;
-        } else if (lexeme == "r") {
+        } else if (lexeme === "r") {
             combineFill();
             uniting = false;
-        } else if (lexeme == "a") {
+        } else if (lexeme === "a") {
             combineFill();
             uniting = true;
-        } else if (lexeme == "w") {
+        } else if (lexeme === "w") {
             width = Number(lexemes[i + 1]);
             i++;
-        } else if (lexeme == "c") {
+        } else if (lexeme === "c") {
             center = toCoordinates(lexemes[i + 1]);
             radius = Number(lexemes[i + 2]);
-            circle = addPoint(center, radius);
+            addPoint(center, radius);
             i += 2;
-        } else if (lexeme == "ar") {
+        } else if (lexeme === "ar") {
             center = toCoordinates(lexemes[i + 1]);
-            r = Number(lexemes[i + 2]);
+            radius = Number(lexemes[i + 2]);
             p1 = Number(lexemes[i + 3]);
             p2 = Number(lexemes[i + 4]);
-            addArc(center, r, p1, p2);
+            addArc(center, radius, p1, p2);
             i += 4;
-        } else if (lexeme == "s") {
+        } else if (lexeme === "s") {
             point_1 = toCoordinates(lexemes[i + 1]);
             point_2 = toCoordinates(lexemes[i + 2]);
             addRectangle(point_1, point_2);
@@ -290,7 +296,7 @@ function parse() {
 
             coordinates = toCoordinates(lexeme);
 
-            if (mode == "line") {
+            if (mode === "line") {
                 addPoint(coordinates, 1);
 
                 if (filled) {
@@ -320,18 +326,20 @@ function addGridLine(x1, y1, x2, y2, color, width, opacity) {
  * Draw rectangular grid for parsed icons.
  */
 function addGrid() {
-    for (var i = 0; i < size * rows; i += size / 2) {
+    var i
+
+    for (i = 0; i < size * rows; i += size / 2) {
         addGridLine(0, i, size * columns, i, 0.2, 0.2);
     }
-    for (var i = 0; i < size * columns; i += size / 2) {
+    for (i = 0; i < size * columns; i += size / 2) {
         addGridLine(i, 0, i, size * rows, 0.2, 0.2);
     }
 
-    gray = new Color(1, 1, 1);
-    for (var i = 0; i <= size * rows; i += size) {
+    var gray = new Color(1, 1, 1);
+    for (i = 0; i <= size * rows; i += size) {
         addGridLine(0, i, size * columns, i, gray, 6 * scale, 1);
     }
-    for (var i = 0; i <= size * columns; i += size) {
+    for (i = 0; i <= size * columns; i += size) {
         addGridLine(i, 0, i, size * rows, gray, 6 * scale, 1);
     }
 }
