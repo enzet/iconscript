@@ -11,8 +11,8 @@ FLOAT : '-'? [0-9]+ ( '.' [0-9]* )? ;
 IDENTIFIER : [a-zA-Z_][a-zA-Z0-9_]* ;
 WS : [ \t\r\n] -> skip ;
 
-position : relative='+'? x=FLOAT ',' y=FLOAT ;
 script : expression* ;
+position : relative='+'? x=FLOAT ',' y=FLOAT ;
 expression : assignment | icon ;
 assignment : left=IDENTIFIER '=' right=commands ;
 commands : command+ ;
