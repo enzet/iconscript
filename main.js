@@ -348,3 +348,21 @@ var area = document.getElementById("code");
 area.addEventListener("input", parse, false);
 
 parse();
+
+// Add download SVG button functionality.
+var downloadButton = document.getElementById("download-svg");
+downloadButton.addEventListener("click", function() {
+    var svgString = project.exportSVG({ asString: true });
+    var blob = new Blob([svgString], {type: "image/svg+xml"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "icon.svg";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+});
+
+// Export the whole project as SVG string.
+var svgString = project.exportSVG({ asString: true });
