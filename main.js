@@ -346,7 +346,6 @@ function addGrid() {
 
 var area = document.getElementById("code");
 area.addEventListener("input", parse, false);
-
 parse();
 
 // Add download SVG button functionality.
@@ -366,3 +365,31 @@ downloadButton.addEventListener("click", function() {
 
 // Export the whole project as SVG string.
 var svgString = project.exportSVG({ asString: true });
+
+// Load `icons.txt` from file input.
+var loadInput = document.getElementById("load-txt");
+loadInput.addEventListener("change", function(event) {
+    var file = event.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        area.value = e.target.result;
+        parse();
+    };
+    reader.readAsText(file, "UTF-8");
+});
+
+// Save `icons.txt` from `<textarea>`.
+var saveButton = document.getElementById("save-txt");
+saveButton.addEventListener("click", function() {
+    var text = area.value;
+    var blob = new Blob([text], {type: "text/plain"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "icons.txt";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+});
