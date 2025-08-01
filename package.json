@@ -1,6 +1,20 @@
 {
+  "name": "iconscript",
+  "version": "1.0.0",
+  "description": "iconscript parser and SVG generator",
+  "type": "module",
+  "main": "generate-icons.js",
+  "scripts": {
+    "generate": "node generate-icons-antlr.mjs",
+    "test-billboard": "node test-billboard.js",
+    "test-icons": "node test-icons.js",
+    "test-width": "node test-width-command.js",
+    "test-add-remove": "node test-add-remove-commands.js",
+    "test-svg-format": "node test-svg-format.js"
+  },
   "dependencies": {
-    "paper": "^0.12.15",
+    "antlr4": "^4.13.1",
+    "paper": "^0.12.18",
     "paperjs-offset": "^1.0.8"
   }
 }

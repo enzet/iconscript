@@ -80,9 +80,15 @@ function addLine(from, to) {
     path.opacity = sketchOpacity;
     path.add(from, to);
 
-    var strokePath = PaperOffset.offsetStroke(
-        path, width * scale / 2, { cap: 'butt' }
-    );
+    var paperOffset = window.PaperOffset || paper.PaperOffset;
+    if (!paperOffset) {
+        console.error('PaperOffset not available. Using fallback stroke.');
+        var strokePath = path;
+    } else {
+        var strokePath = paperOffset.offsetStroke(
+            path, width * scale / 2, { cap: 'butt' }
+        );
+    }
     strokePath.opacity = sketchOpacity;
     combine(strokePath);
 }
@@ -118,7 +124,13 @@ function addArc(center, r, p1, p2) {
         strokeWidth: scale,
         opacity: sketchOpacity
     });
-    var strokePath = PaperOffset.offsetStroke(arc, scale / 2, { cap: 'butt' });
+    var paperOffset = window.PaperOffset || paper.PaperOffset;
+    if (!paperOffset) {
+        console.error('PaperOffset not available. Using fallback stroke.');
+        var strokePath = arc;
+    } else {
+        var strokePath = paperOffset.offsetStroke(arc, scale / 2, { cap: 'butt' });
+    }
     strokePath.opacity = sketchOpacity;
     combine(strokePath);
 }
