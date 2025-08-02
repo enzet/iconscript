@@ -90,6 +90,7 @@ class IconGenerator {
         this.shape = null;
         this.fill = null;
         this.filled = false;
+        this.elements = []; // Unified array for all elements with their modes
     }
 
     toCoordinates(position) {
@@ -112,27 +113,24 @@ class IconGenerator {
         // Create a circle using SVG circle element instead of path
         const circleSVG = `<circle cx="${center.x}" cy="${center.y}" r="${r}" fill="black" stroke="none" />`;
         
-        if (!this.circles) {
-            this.circles = [circleSVG];
-        } else {
-            this.circles.push(circleSVG);
-        }
-        this.pathModes.push(this.uniting);
+        this.elements.push({
+            type: 'circle',
+            element: circleSVG,
+            mode: this.uniting
+        });
     }
 
     addLine(from, to) {
-        if (!this.lines) {
-            this.lines = [];
-        }
-        this.lines.push(`<line x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}" stroke="black" stroke-width="${this.width || 1}" />`);
-        this.pathModes.push(this.uniting);
+        const lineSVG = `<line x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}" stroke="black" stroke-width="${this.width || 1}" />`;
+        
+        this.elements.push({
+            type: 'line',
+            element: lineSVG,
+            mode: this.uniting
+        });
     }
 
     addFilledPolyline(positions) {
-        if (!this.filledPaths) {
-            this.filledPaths = [];
-        }
-        
         const points = positions.map(pos => {
             const coords = this.toCoordinates(pos);
             return { x: coords.x, y: coords.y };
@@ -146,16 +144,15 @@ class IconGenerator {
             }
             path += ' Z'; // Close the path for filling
             
-            this.filledPaths.push(path);
-            this.pathModes.push(this.uniting);
+            this.elements.push({
+                type: 'filledPolyline',
+                element: path,
+                mode: this.uniting
+            });
         }
     }
 
     addFilledPolylineFromCoordinates(coordinates) {
-        if (!this.filledPaths) {
-            this.filledPaths = [];
-        }
-        
         // Create a simple closed path directly from pre-processed coordinates
         if (coordinates.length >= 2) {
             let path = `M ${coordinates[0].x} ${coordinates[0].y}`;
@@ -164,8 +161,11 @@ class IconGenerator {
             }
             path += ' Z'; // Close the path for filling
             
-            this.filledPaths.push(path);
-            this.pathModes.push(this.uniting);
+            this.elements.push({
+                type: 'filledPolyline',
+                element: path,
+                mode: this.uniting
+            });
         }
     }
 
@@ -418,7 +418,7 @@ class IconGenerator {
     }
 
     generateSVG(iconName) {
-        if (!this.lines && !this.filledPaths && !this.circles) return null;
+        if (this.elements.length === 0) return null;
 
         // Combine all elements into a single path using union operations
         const combinedPath = this.combineAllElements();
@@ -434,41 +434,21 @@ class IconGenerator {
         const paths = [];
         const modes = [];
         
-        // Convert lines to paths
-        if (this.lines) {
-            for (let i = 0; i < this.lines.length; i++) {
-                const line = this.lines[i];
-                const path = this.lineToPath(line);
-                if (path) {
-                    paths.push(path);
-                    modes.push(this.pathModes[i]);
-                }
+        // Process all elements in order
+        for (const element of this.elements) {
+            let path = null;
+            
+            if (element.type === 'line') {
+                path = this.lineToPath(element.element);
+            } else if (element.type === 'filledPolyline') {
+                path = element.element; // Already a path
+            } else if (element.type === 'circle') {
+                path = this.circleToPath(element.element);
             }
-        }
-        
-        // Convert filled polylines to paths
-        if (this.filledPaths) {
-            const lineCount = this.lines ? this.lines.length : 0;
-            for (let i = 0; i < this.filledPaths.length; i++) {
-                const path = this.filledPaths[i];
-                if (path) {
-                    paths.push(path);
-                    modes.push(this.pathModes[lineCount + i]);
-                }
-            }
-        }
-        
-        // Convert circles to paths
-        if (this.circles) {
-            const lineCount = this.lines ? this.lines.length : 0;
-            const polylineCount = this.filledPaths ? this.filledPaths.length : 0;
-            for (let i = 0; i < this.circles.length; i++) {
-                const circle = this.circles[i];
-                const path = this.circleToPath(circle);
-                if (path) {
-                    paths.push(path);
-                    modes.push(this.pathModes[lineCount + polylineCount + i]);
-                }
+            
+            if (path) {
+                paths.push(path);
+                modes.push(element.mode);
             }
         }
         
@@ -480,15 +460,12 @@ class IconGenerator {
 
     // Process commands from the parsed AST
     processCommands(commands) {
-        this.lines = null;
-        this.filledPaths = null;
-        this.circles = null;
+        this.elements = []; // Unified array for all elements
         this.fill = null;
         this.filled = false;
         this.currentPoint = new Point(0, 0);
         this.uniting = true;
         this.width = width;
-        this.pathModes = []; // Track mode for each path
 
         for (const command of commands) {
             this.processCommand(command);
