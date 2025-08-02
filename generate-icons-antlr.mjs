@@ -10,12 +10,12 @@ import IconScriptLexer from "./grammar/IconScriptLexer.js";
 import IconScriptParser from "./grammar/IconScriptParser.js";
 
 // Configuration
-const scale = 1;
-const size = 20.0;
+const scale = 1.0;
 const width = 1.0;
-const sketchOpacity = 0.2;
-const finalOpacity = 1;
 
+/*
+ * Simple 2D point.
+ */
 class Point {
     constructor(x, y) {
         this.x = x;
@@ -90,7 +90,7 @@ class IconGenerator {
         this.shape = null;
         this.fill = null;
         this.filled = false;
-        this.elements = []; // Unified array for all elements with their modes
+        this.elements = [];
     }
 
     toCoordinates(position) {
@@ -110,121 +110,68 @@ class IconGenerator {
         const center = position;
         const r = diameter / 2; // Convert diameter to radius
         
-        // Create a circle using SVG circle element instead of path
-        const circleSVG = `<circle cx="${center.x}" cy="${center.y}" r="${r}" fill="black" stroke="none" />`;
-        
         this.elements.push({
             type: 'circle',
-            element: circleSVG,
+            center: center,
+            radius: r,
             mode: this.uniting
         });
     }
 
     addLine(from, to) {
-        const lineSVG = `<line x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}" stroke="black" stroke-width="${this.width || 1}" />`;
-        
         this.elements.push({
             type: 'line',
-            element: lineSVG,
+            from: from,
+            to: to,
+            strokeWidth: this.width || 1,
             mode: this.uniting
         });
     }
 
     addFilledPolyline(positions) {
+
         const points = positions.map(pos => {
             const coords = this.toCoordinates(pos);
             return { x: coords.x, y: coords.y };
         });
         
-        // Create a simple closed path directly
         if (points.length >= 2) {
-            let path = `M ${points[0].x} ${points[0].y}`;
-            for (let i = 1; i < points.length; i++) {
-                path += ` L ${points[i].x} ${points[i].y}`;
-            }
-            path += ' Z'; // Close the path for filling
-            
             this.elements.push({
                 type: 'filledPolyline',
-                element: path,
+                points: points,
                 mode: this.uniting
             });
         }
     }
 
     addFilledPolylineFromCoordinates(coordinates) {
-        // Create a simple closed path directly from pre-processed coordinates
+
         if (coordinates.length >= 2) {
-            let path = `M ${coordinates[0].x} ${coordinates[0].y}`;
-            for (let i = 1; i < coordinates.length; i++) {
-                path += ` L ${coordinates[i].x} ${coordinates[i].y}`;
-            }
-            path += ' Z'; // Close the path for filling
-            
             this.elements.push({
                 type: 'filledPolyline',
-                element: path,
+                points: coordinates,
                 mode: this.uniting
             });
         }
     }
 
-    lineToPath(lineElement) {
-        // Extract coordinates from <line x1="..." y1="..." x2="..." y2="..." stroke-width="..." />
-        const x1Match = lineElement.match(/x1="([^"]+)"/);
-        const y1Match = lineElement.match(/y1="([^"]+)"/);
-        const x2Match = lineElement.match(/x2="([^"]+)"/);
-        const y2Match = lineElement.match(/y2="([^"]+)"/);
-        const strokeWidthMatch = lineElement.match(/stroke-width="([^"]+)"/);
-        
-        if (!x1Match || !y1Match || !x2Match || !y2Match || !strokeWidthMatch) {
-            console.warn('Failed to parse line element:', lineElement);
-            return null;
-        }
-        
-        const x1 = parseFloat(x1Match[1]);
-        const y1 = parseFloat(y1Match[1]);
-        const x2 = parseFloat(x2Match[1]);
-        const y2 = parseFloat(y2Match[1]);
-        const strokeWidth = parseFloat(strokeWidthMatch[1]);
+    lineToPath(lineData) {
+        // Extract coordinates from line JavaScript structure
+        const x1 = lineData.from.x;
+        const y1 = lineData.from.y;
+        const x2 = lineData.to.x;
+        const y2 = lineData.to.y;
+        const strokeWidth = lineData.strokeWidth;
         
         // Create a thick line path by offsetting the line
         return this.createThickLinePath(x1, y1, x2, y2, strokeWidth);
     }
 
-    polylineToPath(polylineElement) {
-        // Extract points from <polyline points="x1,y1 x2,y2 ..." />
-        const match = polylineElement.match(/points="([^"]+)"/);
-        if (!match) return null;
-        
-        const points = match[1].split(' ').map(p => {
-            const [x, y] = p.split(',').map(Number);
-            return { x, y };
-        });
-        
-        if (points.length < 2) return null;
-        
-        // For filled polylines, create a simple closed path
-        let path = `M ${points[0].x} ${points[0].y}`;
-        for (let i = 1; i < points.length; i++) {
-            path += ` L ${points[i].x} ${points[i].y}`;
-        }
-        path += ' Z'; // Close the path for filling
-        
-        return path;
-    }
-
-    circleToPath(circleElement) {
-        // Extract coordinates from <circle cx="..." cy="..." r="..." />
-        const match = circleElement.match(/cx="([^"]+)" cy="([^"]+)" r="([^"]+)"/);
-        if (!match) {
-            console.warn('Failed to parse circle element:', circleElement);
-            return null;
-        }
-        
-        const cx = parseFloat(match[1]);
-        const cy = parseFloat(match[2]);
-        const r = parseFloat(match[3]);
+    circleToPath(circleData) {
+        // Extract coordinates from circle JavaScript structure
+        const cx = circleData.center.x;
+        const cy = circleData.center.y;
+        const r = circleData.radius;
         
         if (isNaN(cx) || isNaN(cy) || isNaN(r)) {
             console.warn('Invalid circle coordinates:', cx, cy, r);
@@ -439,11 +386,19 @@ class IconGenerator {
             let path = null;
             
             if (element.type === 'line') {
-                path = this.lineToPath(element.element);
+                path = this.lineToPath(element);
             } else if (element.type === 'filledPolyline') {
-                path = element.element; // Already a path
+                // Convert points to path string
+                const points = element.points;
+                if (points.length >= 2) {
+                    path = `M ${points[0].x} ${points[0].y}`;
+                    for (let i = 1; i < points.length; i++) {
+                        path += ` L ${points[i].x} ${points[i].y}`;
+                    }
+                    path += ' Z'; // Close the path for filling
+                }
             } else if (element.type === 'circle') {
-                path = this.circleToPath(element.element);
+                path = this.circleToPath(element);
             }
             
             if (path) {
@@ -488,22 +443,27 @@ class IconGenerator {
                 last = coordinates;
             }
         } else if (command.type === 'line_filled') {
-            // Filled line - create individual line elements, circles on joints, AND filled polyline
-            let last = null;
+            // Filled line - create filled polyline with stroke lines and circles at all joints
             const processedCoordinates = [];
+            let last = null;
             
             for (const position of command.positions) {
                 const coordinates = this.toCoordinates(position);
                 processedCoordinates.push(coordinates);
-                this.addPoint(coordinates, this.width || 1);
                 
+                // Add stroke lines between points
                 if (last) {
                     this.addLine(last, coordinates);
                 }
                 last = coordinates;
             }
-            // Also add the filled polyline using the same processed coordinates
+            // Add the filled polyline
             this.addFilledPolylineFromCoordinates(processedCoordinates);
+            
+            // Add circles at all connection points
+            for (const coordinates of processedCoordinates) {
+                this.addPoint(coordinates, this.width || 1);
+            }
         } else if (command.type === 'line_single') {
             // Handle single line commands (l position)
             const coordinates = this.toCoordinates(command.position);
