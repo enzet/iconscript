@@ -346,14 +346,25 @@ class IconGenerator {
     }
 
     addRectangle(from, to) {
+        // Create the four corners of the rectangle
         const p1 = new Point(from.x, to.y);
         const p2 = new Point(to.x, from.y);
         
-        // Add four individual lines to form the rectangle
+        // Add circles at all four corners
+        this.addPoint(from, this.width || 1);
+        this.addPoint(p1, this.width || 1);
+        this.addPoint(to, this.width || 1);
+        this.addPoint(p2, this.width || 1);
+        
+        // Add stroke lines to form the rectangle outline
         this.addLine(from, p1);
         this.addLine(p1, to);
         this.addLine(to, p2);
         this.addLine(p2, from);
+        
+        // Add filled rectangle as a filled polyline
+        const rectanglePoints = [from, p1, to, p2, from];
+        this.addFilledPolylineFromCoordinates(rectanglePoints);
     }
 
     combineFill() {
@@ -521,86 +532,6 @@ class IconScriptListener extends GeneratedIconScriptListener {
         this.variables = {};
         this.icons = [];
         this.currentIcon = null;
-    }
-
-    // Enter a parse tree produced by IconScriptParser#script.
-    enterScript(ctx) {
-    }
-
-    // Exit a parse tree produced by IconScriptParser#script.
-    exitScript(ctx) {
-    }
-
-    // Enter a parse tree produced by IconScriptParser#position.
-    enterPosition(ctx) {
-    }
-
-    // Exit a parse tree produced by IconScriptParser#position.
-    exitPosition(ctx) {
-    }
-
-    // Enter a parse tree produced by IconScriptParser#expression.
-    enterExpression(ctx) {
-    }
-
-    // Exit a parse tree produced by IconScriptParser#expression.
-    exitExpression(ctx) {
-    }
-
-    // Enter a parse tree produced by IconScriptParser#commands.
-    enterCommands(ctx) {
-    }
-
-    // Exit a parse tree produced by IconScriptParser#commands.
-    exitCommands(ctx) {
-    }
-
-    // Enter a parse tree produced by IconScriptParser#arc.
-    enterArc(ctx) {
-    }
-
-    // Exit a parse tree produced by IconScriptParser#arc.
-    exitArc(ctx) {
-    }
-
-    // Enter a parse tree produced by IconScriptParser#circle.
-    enterCircle(ctx) {
-    }
-
-    // Exit a parse tree produced by IconScriptParser#circle.
-    exitCircle(ctx) {
-    }
-
-    // Enter a parse tree produced by IconScriptParser#line.
-    enterLine(ctx) {
-    }
-
-    // Exit a parse tree produced by IconScriptParser#line.
-    exitLine(ctx) {
-    }
-
-    // Enter a parse tree produced by IconScriptParser#rectangle.
-    enterRectangle(ctx) {
-    }
-
-    // Exit a parse tree produced by IconScriptParser#rectangle.
-    exitRectangle(ctx) {
-    }
-
-    // Enter a parse tree produced by IconScriptParser#setPosition.
-    enterSetPosition(ctx) {
-    }
-
-    // Exit a parse tree produced by IconScriptParser#setPosition.
-    exitSetPosition(ctx) {
-    }
-
-    // Enter a parse tree produced by IconScriptParser#setWidth.
-    enterSetWidth(ctx) {
-    }
-
-    // Exit a parse tree produced by IconScriptParser#setWidth.
-    exitSetWidth(ctx) {
     }
 
     // Enter a parse tree produced by IconScriptParser#assignment.
@@ -910,4 +841,7 @@ function generateIcons(inputFile = "icons.txt") {
 
 // Run the generator.
 const inputFile = process.argv[2] || "icons.txt";
-generateIcons(inputFile); 
+generateIcons(inputFile);
+
+// Export for testing
+export { IconGenerator, parseIconsFile }; 
