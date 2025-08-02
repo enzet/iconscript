@@ -454,7 +454,7 @@ class IconGenerator {
                 last = coordinates;
             }
         } else if (command.type === 'line_filled') {
-            // Filled line - create filled polyline with stroke lines and circles at all joints
+            // Filled line - create filled polyline with stroke lines and circles at all joints (except last)
             const processedCoordinates = [];
             let last = null;
             
@@ -471,9 +471,9 @@ class IconGenerator {
             // Add the filled polyline
             this.addFilledPolylineFromCoordinates(processedCoordinates);
             
-            // Add circles at all connection points
-            for (const coordinates of processedCoordinates) {
-                this.addPoint(coordinates, this.width || 1);
+            // Add circles at all connection points except the last one
+            for (let i = 0; i < processedCoordinates.length - 1; i++) {
+                this.addPoint(processedCoordinates[i], this.width || 1);
             }
         } else if (command.type === 'line_single') {
             // Handle single line commands (l position)
