@@ -9,14 +9,14 @@ import paper from "paper";
 import IconScriptLexer from "./grammar/IconScriptLexer.js";
 import IconScriptParser from "./grammar/IconScriptParser.js";
 
-// Configuration.
 const scale = 1.0;
 const width = 1.0;
 
-/*
+/**
  * Simple 2D point.
  */
 class Point {
+
     constructor(x, y) {
         this.x = x;
         this.y = y;
@@ -35,7 +35,11 @@ class Point {
     }
 }
 
+/**
+ * SVG path generator.
+ */
 class SVGPath {
+
     constructor() {
         this.currentPath = "";
         this.currentPoint = new Point(0, 0);
@@ -52,6 +56,7 @@ class SVGPath {
     }
 
     arcTo(center, radius, startAngle, endAngle) {
+
         const startPoint = this.arcPoint(center, startAngle, radius);
         const endPoint = this.arcPoint(center, endAngle, radius);
 
@@ -61,11 +66,14 @@ class SVGPath {
         // Determine sweep flag (direction).
         const sweepFlag = endAngle > startAngle ? 1 : 0;
 
-        this.currentPath += `A ${radius},${radius} 0 ${largeArcFlag} ${sweepFlag} ${endPoint.x},${endPoint.y} `;
+        this.currentPath +=
+            `A ${radius},${radius} 0 ${largeArcFlag} ${sweepFlag} ` +
+            `${endPoint.x},${endPoint.y} `;
         this.currentPoint = endPoint;
     }
 
     arcPoint(center, angle, radius) {
+
         return new Point(
             center.x + Math.cos(angle) * radius * scale,
             center.y - Math.sin(angle) * radius * scale
@@ -81,7 +89,11 @@ class SVGPath {
     }
 }
 
+/**
+ * Icon generator.
+ */
 class IconGenerator {
+
     constructor() {
         this.variables = {};
         this.currentPoint = new Point(0, 0);
@@ -154,19 +166,18 @@ class IconGenerator {
     }
 
     lineToPath(lineData) {
-        // Extract coordinates from line JavaScript structure.
+
         const x1 = lineData.from.x;
         const y1 = lineData.from.y;
         const x2 = lineData.to.x;
         const y2 = lineData.to.y;
         const strokeWidth = lineData.strokeWidth;
 
-        // Create a thick line path by offsetting the line.
         return this.createThickLinePath(x1, y1, x2, y2, strokeWidth);
     }
 
     circleToPath(circleData) {
-        // Extract coordinates from circle JavaScript structure.
+
         const cx = circleData.center.x;
         const cy = circleData.center.y;
         const r = circleData.radius;
@@ -176,12 +187,16 @@ class IconGenerator {
             return null;
         }
 
-        // Create a circle path.
-        return `M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy} A ${r} ${r} 0 0 1 ${cx - r} ${cy} Z`;
+        return (
+            `M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy} ` +
+            `A ${r} ${r} 0 0 1 ${cx - r} ${cy} Z`
+        );
     }
 
     createThickLinePath(x1, y1, x2, y2, thickness) {
-        // Create a thick line by offsetting the line perpendicular to its direction.
+
+        // Create a thick line by offsetting the line perpendicular to its
+        // direction.
         const dx = x2 - x1;
         const dy = y2 - y1;
         const length = Math.sqrt(dx * dx + dy * dy);
@@ -208,10 +223,20 @@ class IconGenerator {
         const y2b = y2 - py * halfThickness;
 
         // Create a simpler path that might work better with subtraction.
-        return `M ${x1a} ${y1a} L ${x2a} ${y2a} L ${x2b} ${y2b} L ${x1b} ${y1b} Z`;
+        return (
+            `M ${x1a} ${y1a} L ${x2a} ${y2a} L ${x2b} ${y2b} ` +
+            `L ${x1b} ${y1b} Z`
+        );
     }
 
+    /**
+     * Union all elements in order to create a single path.
+     *
+     * @param {array} paths paths to union
+     * @returns {string} unioned path
+     */
     unionPaths(paths) {
+
         if (paths.length === 0) return null;
         if (paths.length === 1) return paths[0];
 
@@ -265,11 +290,13 @@ class IconGenerator {
         }
     }
 
-    /*
-     * paths: array of paths
-     * modes: array of booleans (true for add, false for remove)
+    /**
+     * Union paths with modes.
      *
-     * returns: combined path
+     * @param {array} paths paths to union
+     * @param {array} modes modes to apply to paths (true for add, false for
+     *     remove)
+     * @returns {string} unioned path
      */
     unionPathsWithModes(paths, modes) {
         if (paths.length === 0) return null;
@@ -391,8 +418,14 @@ class IconGenerator {
 
         if (!combinedPath) return null;
 
-        const svg = `<?xml version="1.0" encoding="utf-8" ?>
-<svg baseProfile="tiny" height="16px" version="1.2" width="16px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink"><defs /><path d="${combinedPath}" fill="black" stroke="none" /></svg>`;
+        const svg =
+            `<?xml version="1.0" encoding="utf-8" ?>` +
+            `<svg baseProfile="tiny" ` +
+            `height="16px" version="1.2" width="16px" viewBox="0 0 16 16" ` +
+            `xmlns="http://www.w3.org/2000/svg" ` +
+            `xmlns:ev="http://www.w3.org/2001/xml-events" ` +
+            `xmlns:xlink="http://www.w3.org/1999/xlink"><defs />` +
+            `<path d="${combinedPath}" fill="black" stroke="none" /></svg>`;
         return svg;
     }
 
@@ -450,7 +483,8 @@ class IconGenerator {
 
     processCommand(command) {
         if (command.type === "line") {
-            // Regular line - create individual line elements and circles on joints.
+            // Regular line - create individual line elements and circles on
+            // joints.
             let last = null;
             for (const position of command.positions) {
                 const coordinates = this.toCoordinates(position);
@@ -462,7 +496,8 @@ class IconGenerator {
                 last = coordinates;
             }
         } else if (command.type === "line_filled") {
-            // Filled line - create filled polyline with stroke lines and circles at all joints (except last).
+            // Filled line - create filled polyline with stroke lines and
+            // circles at all joints (except last).
             const processedCoordinates = [];
             let last = null;
 
@@ -508,7 +543,8 @@ class IconGenerator {
             const point2 = this.toCoordinates(command.position2);
             this.addRectangle(point1, point2);
         } else if (command.type === "setPosition") {
-            // For setPosition, we want to store the raw coordinates without the 0.5 offset.
+            // For setPosition, we want to store the raw coordinates without the
+            // 0.5 offset.
             if (command.position.startsWith("+")) {
                 const coords = command.position.slice(1).split(",");
                 const p = new Point(Number(coords[0]), Number(coords[1]));
@@ -569,7 +605,8 @@ class IconScriptListener extends GeneratedIconScriptListener {
                 commands: processedCommands,
             });
             console.log(
-                `Icon completed - name: ${this.currentIcon.name}, commands: ${processedCommands.length}`
+                `Icon completed - name: ${this.currentIcon.name}, ` +
+                    `commands: ${processedCommands.length}`
             );
             this.currentIcon = null;
         }
