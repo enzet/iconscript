@@ -1,20 +1,27 @@
 {
-  "name": "iconscript",
-  "version": "1.0.0",
-  "description": "iconscript parser and SVG generator",
-  "type": "module",
-  "main": "generate-icons.js",
-  "scripts": {
-    "generate": "node generate-icons-antlr.mjs",
-    "test-billboard": "node test-billboard.js",
-    "test-icons": "node test-icons.js",
-    "test-width": "node test-width-command.js",
-    "test-add-remove": "node test-add-remove-commands.js",
-    "test-svg-format": "node test-svg-format.js"
-  },
-  "dependencies": {
-    "antlr4": "^4.13.1",
-    "paper": "^0.12.18",
-    "paperjs-offset": "^1.0.8"
-  }
+    "name": "iconscript",
+    "version": "0.1.0",
+    "description": "iconscript, a language for generating SVG icons",
+    "main": "generate-icons-antlr.mjs",
+    "scripts": {
+        "format": "prettier --write \"**/*.js\" \"**/*.mjs\"",
+        "format:check": "prettier --check \"**/*.js\" \"**/*.mjs\"",
+        "test": "node test-suite.js",
+        "generate": "node generate-icons-antlr.mjs"
+    },
+    "keywords": [
+        "svg",
+        "icons",
+        "antlr",
+        "parser"
+    ],
+    "author": "Sergey Vartanov",
+    "license": "MIT",
+    "devDependencies": {
+        "prettier": "^3.0.0"
+    },
+    "dependencies": {
+        "antlr4": "^4.13.0",
+        "paper": "^0.12.17"
+    }
 }

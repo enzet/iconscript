@@ -8,10 +8,10 @@
 var scale = 4.1;
 
 // Icons are 14 × 14 pixels, and this is size of icon with 1 pixel margin.
-var size = 20.0; 
+var size = 20.0;
 
 // Number of rows (icons in a column).
-var rows = 100; 
+var rows = 100;
 
 // Number of columns (icons in a row).
 var columns = Math.floor(800 / scale / size);
@@ -36,7 +36,6 @@ var finalColor = new Color(0, 0, 0);
  * @returns point on the canvas
  */
 function toCoordinates(position) {
-
     if (position[0] === "+") {
         position = position.slice(1).split(",");
         p = new Point([Number(position[0]), Number(position[1])]);
@@ -56,12 +55,11 @@ function toCoordinates(position) {
  * @param {Number} radius circle radius
  */
 function addPoint(position, radius) {
-
     circle = new Path.Circle({
         center: position,
         radius: scale * width * 0.5 * radius,
         fillColor: sketchColor,
-        opacity: sketchOpacity
+        opacity: sketchOpacity,
     });
     combine(circle);
 }
@@ -73,7 +71,6 @@ function addPoint(position, radius) {
  * @param {array} to ending point
  */
 function addLine(from, to) {
-
     var path = new Path();
     path.strokeColor = sketchColor;
     path.strokeWidth = scale;
@@ -82,12 +79,12 @@ function addLine(from, to) {
 
     var paperOffset = window.PaperOffset || paper.PaperOffset;
     if (!paperOffset) {
-        console.error('PaperOffset not available. Using fallback stroke.');
+        console.error("PaperOffset not available. Using fallback stroke.");
         var strokePath = path;
     } else {
-        var strokePath = paperOffset.offsetStroke(
-            path, width * scale / 2, { cap: 'butt' }
-        );
+        var strokePath = paperOffset.offsetStroke(path, (width * scale) / 2, {
+            cap: "butt",
+        });
     }
     strokePath.opacity = sketchOpacity;
     combine(strokePath);
@@ -106,7 +103,6 @@ function arcPoint(center, p1, r) {
  * @param {Number} p2 angle of arc end in radians
  */
 function addArc(center, r, p1, p2) {
-
     var h = (p1 + p2) / 2;
 
     var a1 = arcPoint(center, p1, r);
@@ -122,14 +118,16 @@ function addArc(center, r, p1, p2) {
         to: a3,
         strokeColor: sketchColor,
         strokeWidth: scale,
-        opacity: sketchOpacity
+        opacity: sketchOpacity,
     });
     var paperOffset = window.PaperOffset || paper.PaperOffset;
     if (!paperOffset) {
-        console.error('PaperOffset not available. Using fallback stroke.');
+        console.error("PaperOffset not available. Using fallback stroke.");
         var strokePath = arc;
     } else {
-        var strokePath = paperOffset.offsetStroke(arc, scale / 2, { cap: 'butt' });
+        var strokePath = paperOffset.offsetStroke(arc, scale / 2, {
+            cap: "butt",
+        });
     }
     strokePath.opacity = sketchOpacity;
     combine(strokePath);
@@ -142,7 +140,6 @@ function addArc(center, r, p1, p2) {
  * @param {Point} to bottom right point
  */
 function addRectangle(from, to) {
-
     p1 = new Point(from.x, to.y);
     p2 = new Point(to.x, from.y);
     addPoint(from, 1);
@@ -167,12 +164,12 @@ var filled = false;
  */
 function combine(object) {
     if (!shape) {
-        shape = new Path({fillColor: "blue", insert: false})
+        shape = new Path({fillColor: "blue", insert: false});
     }
     if (uniting) {
-        shape = shape.unite(object, insert=false);
+        shape = shape.unite(object, (insert = false));
     } else {
-        shape = shape.subtract(object, insert=false);
+        shape = shape.subtract(object, (insert = false));
     }
 }
 
@@ -194,7 +191,6 @@ function combineFill() {
  * Parse shape description file line by line.
  */
 function parse() {
-
     project.activeLayer.removeChildren();
     view.draw();
     var current = new Path.Circle([0, 0], 10);
@@ -218,8 +214,9 @@ function parse() {
             for (j = 2; j < parts.length; j++) {
                 part = parts[j];
                 if (part[0] === "@") {
-                    variables[parts[0]] = variables[parts[0]]
-                        .concat(variables[part.slice(1)]);
+                    variables[parts[0]] = variables[parts[0]].concat(
+                        variables[part.slice(1)]
+                    );
                 } else {
                     variables[parts[0]].push(part);
                 }
@@ -239,18 +236,16 @@ function parse() {
     var mode = null;
 
     for (i = 0; i < lexemes.length; i++) {
-
         var lexeme = lexemes[i];
 
         var center;
         var radius;
 
         if (lexeme === "}" && shape) {
-
             combineFill();
             fakeShape = new Path({insert: true});
             fakeShape = fakeShape.unite(shape);
-            fakeShape.translate([0, scale * size])
+            fakeShape.translate([0, scale * size]);
             fakeShape.opacity = finalOpacity;
             fakeShape.fillColor = finalColor;
 
@@ -264,7 +259,7 @@ function parse() {
             shape = null;
         } else if (lexeme === "l" || lexeme === "lf") {
             combineFill();
-            filled = (lexeme === "lf");
+            filled = lexeme === "lf";
             fill = new Path();
             fill.fillColor = sketchColor;
             fill.opacity = sketchOpacity;
@@ -305,7 +300,6 @@ function parse() {
             addRectangle(point_1, point_2);
             i += 2;
         } else if (lexeme.includes(",")) {
-
             coordinates = toCoordinates(lexeme);
 
             if (mode === "line") {
@@ -338,7 +332,7 @@ function addGridLine(x1, y1, x2, y2, color, width, opacity) {
  * Draw rectangular grid for parsed icons.
  */
 function addGrid() {
-    var i
+    var i;
 
     for (i = 0; i < size * rows; i += size / 2) {
         addGridLine(0, i, size * columns, i, 0.2, 0.2);
@@ -362,8 +356,8 @@ parse();
 
 // Add download SVG button functionality.
 var downloadButton = document.getElementById("download-svg");
-downloadButton.addEventListener("click", function() {
-    var svgString = project.exportSVG({ asString: true });
+downloadButton.addEventListener("click", function () {
+    var svgString = project.exportSVG({asString: true});
     var blob = new Blob([svgString], {type: "image/svg+xml"});
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
@@ -376,15 +370,15 @@ downloadButton.addEventListener("click", function() {
 });
 
 // Export the whole project as SVG string.
-var svgString = project.exportSVG({ asString: true });
+var svgString = project.exportSVG({asString: true});
 
 // Load `icons.txt` from file input.
 var loadInput = document.getElementById("load-txt");
-loadInput.addEventListener("change", function(event) {
+loadInput.addEventListener("change", function (event) {
     var file = event.target.files[0];
     if (!file) return;
     var reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = function (e) {
         area.value = e.target.result;
         parse();
     };
@@ -393,7 +387,7 @@ loadInput.addEventListener("change", function(event) {
 
 // Save `icons.txt` from `<textarea>`.
 var saveButton = document.getElementById("save-txt");
-saveButton.addEventListener("click", function() {
+saveButton.addEventListener("click", function () {
     var text = area.value;
     var blob = new Blob([text], {type: "text/plain"});
     var url = URL.createObjectURL(blob);
