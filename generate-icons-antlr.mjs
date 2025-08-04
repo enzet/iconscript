@@ -25,68 +25,6 @@ class Point {
     add(other) {
         return new Point(this.x + other.x, this.y + other.y);
     }
-
-    multiply(factor) {
-        return new Point(this.x * factor, this.y * factor);
-    }
-
-    toString() {
-        return `${this.x},${this.y}`;
-    }
-}
-
-/**
- * SVG path generator.
- */
-class SVGPath {
-
-    constructor() {
-        this.currentPath = "";
-        this.currentPoint = new Point(0, 0);
-    }
-
-    moveTo(point) {
-        this.currentPoint = point;
-        this.currentPath += `M ${point.x},${point.y} `;
-    }
-
-    lineTo(point) {
-        this.currentPoint = point;
-        this.currentPath += `L ${point.x},${point.y} `;
-    }
-
-    arcTo(center, radius, startAngle, endAngle) {
-
-        const startPoint = this.arcPoint(center, startAngle, radius);
-        const endPoint = this.arcPoint(center, endAngle, radius);
-
-        // Determine if we need to draw the large arc.
-        const largeArcFlag = Math.abs(endAngle - startAngle) > Math.PI ? 1 : 0;
-
-        // Determine sweep flag (direction).
-        const sweepFlag = endAngle > startAngle ? 1 : 0;
-
-        this.currentPath +=
-            `A ${radius},${radius} 0 ${largeArcFlag} ${sweepFlag} ` +
-            `${endPoint.x},${endPoint.y} `;
-        this.currentPoint = endPoint;
-    }
-
-    arcPoint(center, angle, radius) {
-
-        return new Point(
-            center.x + Math.cos(angle) * radius * scale,
-            center.y - Math.sin(angle) * radius * scale
-        );
-    }
-
-    closePath() {
-        this.currentPath += "Z ";
-    }
-
-    getPathData() {
-        return this.currentPath.trim();
-    }
 }
 
 /**
@@ -138,21 +76,6 @@ class IconGenerator {
             strokeWidth: this.width || 1,
             mode: this.uniting,
         });
-    }
-
-    addFilledPolyline(positions) {
-        const points = positions.map(pos => {
-            const coords = this.toCoordinates(pos);
-            return {x: coords.x, y: coords.y};
-        });
-
-        if (points.length >= 2) {
-            this.elements.push({
-                type: "filledPolyline",
-                points: points,
-                mode: this.uniting,
-            });
-        }
     }
 
     addFilledPolylineFromCoordinates(coordinates) {
@@ -230,73 +153,12 @@ class IconGenerator {
     }
 
     /**
-     * Union all elements in order to create a single path.
+     * Combine paths.
      *
-     * @param {array} paths paths to union
-     * @returns {string} unioned path
-     */
-    unionPaths(paths) {
-
-        if (paths.length === 0) return null;
-        if (paths.length === 1) return paths[0];
-
-        // Initialize Paper.js.
-        paper.setup(new paper.Size(100, 100));
-
-        try {
-            // Convert SVG paths to Paper.js paths.
-            const paperPaths = paths
-                .map(pathData => {
-                    try {
-                        return new paper.Path(pathData);
-                    } catch (e) {
-                        console.warn(
-                            "Failed to parse path:",
-                            pathData,
-                            e.message
-                        );
-                        return null;
-                    }
-                })
-                .filter(path => path !== null);
-
-            if (paperPaths.length === 0) return null;
-            if (paperPaths.length === 1) return paperPaths[0].pathData;
-
-            // Perform operations based on current mode.
-            let result = paperPaths[0];
-            for (let i = 1; i < paperPaths.length; i++) {
-                if (this.uniting) {
-                    // Add mode - use union operation.
-                    result = result.unite(paperPaths[i]);
-                } else {
-                    // Remove mode - use difference operation.
-                    result = result.subtract(paperPaths[i]);
-                }
-            }
-
-            // Get the combined path data.
-            const combinedPathData = result.pathData;
-
-            // Clean up Paper.js objects.
-            paperPaths.forEach(path => path.remove());
-            result.remove();
-
-            return combinedPathData;
-        } catch (e) {
-            console.warn("Path operation failed:", e.message);
-            // Fallback to concatenation.
-            return paths.join(" ");
-        }
-    }
-
-    /**
-     * Union paths with modes.
-     *
-     * @param {array} paths paths to union
+     * @param {array} paths paths to combine (union or subtract)
      * @param {array} modes modes to apply to paths (true for add, false for
      *     remove)
-     * @returns {string} unioned path
+     * @returns {string} combined path
      */
     unionPathsWithModes(paths, modes) {
         if (paths.length === 0) return null;
