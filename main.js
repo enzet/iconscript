@@ -5,13 +5,13 @@
  * @since 28 August 2022
  * @see https://github.com/enzet/iconscript
  */
-var scale = 4.1;
+var scale = 8.2;
 
 // Icons are 14 × 14 pixels, and this is size of icon with 1 pixel margin.
 var size = 20.0;
 
 // Number of rows (icons in a column).
-var rows = 100;
+var rows = 10;
 
 // Number of columns (icons in a row).
 var columns = Math.floor(800 / scale / size);
@@ -334,19 +334,26 @@ function addGridLine(x1, y1, x2, y2, color, width, opacity) {
 function addGrid() {
     var i;
 
-    for (i = 0; i < size * rows; i += size / 2) {
-        addGridLine(0, i, size * columns, i, 0.2, 0.2);
+    var color = new Color(0, 0, 0, 0.2);
+    for (i = 0.5; i < rows; i += 1) {
+        addGridLine(0, i * size, size * columns, i * size, color, 1, 1);
+        for (j = -7; j <= 7; j++) {
+            addGridLine(0, i * size + j, size * columns, i * size + j, color, 1, 0.5);
+        }
     }
-    for (i = 0; i < size * columns; i += size / 2) {
-        addGridLine(i, 0, i, size * rows, 0.2, 0.2);
+    for (i = 0.5; i < columns; i += 1) {
+        addGridLine(i * size, 0, i * size, size * rows, color, 1, 1);
+        for (j = -7; j <= 7; j++) {
+            addGridLine(i * size + j, 0, i * size + j, size * rows, color, 1, 0.5);
+        }
     }
 
-    var gray = new Color(1, 1, 1);
+    color = new Color(1, 1, 1);
     for (i = 0; i <= size * rows; i += size) {
-        addGridLine(0, i, size * columns, i, gray, 6 * scale, 1);
+        addGridLine(0, i, size * columns, i, color, (size - 14) * scale, 1);
     }
     for (i = 0; i <= size * columns; i += size) {
-        addGridLine(i, 0, i, size * rows, gray, 6 * scale, 1);
+        addGridLine(i, 0, i, size * rows, color, (size - 14) * scale, 1);
     }
 }
 
