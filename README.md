@@ -34,11 +34,20 @@ live-server
 
 ## Python part
 
+Parses `*.iconscript` files and converts them to SVG files.
 
+**Requires:** Python 3.12, ANTLR 4.13.2.
+
+Run:
+
+```shell
+pip install .
+iconscript -i $INPUT_FILE -o $OUTPUT_DIRECTORY
+```
 
 ## Go part
 
-Requires: Go 1.22, ANTLR 4.13.2.
+**Requires:** Go 1.22, ANTLR 4.13.2.
 
 Install:
 
@@ -54,7 +63,7 @@ You may also test installation with `go test`.
 
 ```shell
 cd parser-go
-go run main.go -i <file path>
+go run main.go -i $INPUT_FILE
 ```
 
 ## Syntax

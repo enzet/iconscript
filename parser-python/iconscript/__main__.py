@@ -3,6 +3,7 @@
 Usage: `python -m iconscript input.txt`
 """
 
+import argparse
 import logging
 import math
 import sys
@@ -210,7 +211,7 @@ def circle_to_bezier_path(
     )
 
 
-def iconscript_to_svg(input_file: Path) -> None:
+def iconscript_to_svg(input_file: Path, output_directory: Path) -> None:
     """Convert an iconscript file to SVG."""
 
     input_stream: antlr4.InputStream = antlr4.FileStream(
@@ -226,12 +227,11 @@ def iconscript_to_svg(input_file: Path) -> None:
     walker.walk(collector, tree)
 
     # Ensure output directory exists.
-    output_dir: Path = Path("icons")
-    output_dir.mkdir(exist_ok=True)
+    output_directory.mkdir(exist_ok=True)
 
     # Output SVGs.
     for name, shapes in collector.icons:
-        svg_path: Path = output_dir / f"{name}.svg"
+        svg_path: Path = output_directory / f"{name}.svg"
         drawing: svgwrite.Drawing = svgwrite.Drawing(
             str(svg_path), profile="tiny"
         )
@@ -273,22 +273,26 @@ def iconscript_to_svg(input_file: Path) -> None:
 def main() -> None:
     """Script entry point."""
 
-    if len(sys.argv) > 1:
-        for file_name in sys.argv[1:]:
-            logger.info("Processing `%s`...", file_name)
-            try:
-                iconscript_to_svg(Path(file_name))
-            except Exception:
-                logger.exception("Error processing `%s`.", file_name)
-                return 1
+    parser: argparse.ArgumentParser = argparse.ArgumentParser(
+        description="Convert iconscript files to SVG."
+    )
+    parser.add_argument("-i", "--input", nargs="*", help="Input file names")
+    parser.add_argument("-o", "--output", help="Output directory", default="icons")
+    arguments: argparse.Namespace = parser.parse_args()
+
+    inputs: list[Path]
+    if arguments.input:
+        inputs = [Path(input) for input in arguments.input]
     else:
-        for path in Path().glob("*.iconscript"):
-            logger.info("Processing `%s`...", path)
-            try:
-                iconscript_to_svg(path)
-            except Exception:
-                logger.exception("Error processing `%s`.", path)
-                return 1
+        inputs = Path().glob("*.iconscript")
+
+    for input_path in inputs:
+        logger.info("Processing `%s`...", input)
+        try:
+            iconscript_to_svg(input_path, arguments.output)
+        except Exception:
+            logger.exception("Error processing `%s`.", input_path)
+            return 1
 
     return None
 

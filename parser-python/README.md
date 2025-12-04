@@ -5,7 +5,7 @@ Python parser and converter for the IconScript language.
 ## Installation
 
 ```bash
-pip install iconscript
+pip install .
 ```
 
 ## Usage
@@ -13,10 +13,10 @@ pip install iconscript
 ### Command Line
 
 ```bash
-iconscript input.iconscript
+iconscript -i $INPUT_FILE -o $OUTPUT_DIRECTORY
 ```
 
-This will generate SVG files in the `icons/` directory.
+This will generate SVG files in the `$OUTPUT_DIRECTORY`.
 
 ### Python API
 
@@ -24,7 +24,10 @@ This will generate SVG files in the `icons/` directory.
 from iconscript import iconscript_to_svg
 from pathlib import Path
 
-iconscript_to_svg(Path("input.iconscript"))
+iconscript_file_path: Path = ...
+output_directory: Path = ...
+
+iconscript_to_svg(iconscript_file_path, output_directory)
 ```
 
 ## Requirements
@@ -33,4 +36,3 @@ iconscript_to_svg(Path("input.iconscript"))
 - antlr4-python3-runtime
 - svgwrite
 - shapely
-
