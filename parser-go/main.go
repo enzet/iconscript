@@ -9,7 +9,7 @@ import (
 	"strconv"
 
 	"github.com/antlr/antlr4/runtime/Go/antlr"
-	"github.com/enzet/iconscript/grammar/parser"
+	"github.com/enzet/iconscript/parser-go/parser"
 )
 
 // Figure is a simple 2D figure on the surface.

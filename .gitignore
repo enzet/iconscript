@@ -4,3 +4,12 @@ grammar/parser/
 node_modules/
 run.sh
 work/
+
+# Output files.
+icons/
+
+# Parsers, generated from `IconScript.g4` by ANTLR4.
+grammar/*.interp
+grammar/*.tokens
+parser-go/parser/
+parser-python/parser/

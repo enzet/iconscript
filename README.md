@@ -4,7 +4,20 @@ Paperscript parser for icon shape drawing.
 
 This is a part of [Map Machine](https://github.com/enzet/map-machine) project.
 
-## JavaScript part
+This project consists of several parts:
+  - iconscript language grammar, written in ANTLR4,
+  - web interface for interactively creating `*.iconscript` files,
+  - SVG generator `iconscript_to_svg.py`, that converts drawing commands to SVG
+    files,
+  - iconscript parser (Go), that converts `*.iconscript` files to drawing
+    commands.
+
+```
+web interface -> iconscript
+iconscript -main.go-> drawing commands
+```
+
+## Web interface
 
 Install:
 
@@ -19,6 +32,10 @@ Run:
 live-server
 ```
 
+## Python part
+
+
+
 ## Go part
 
 Requires: Go 1.19, ANTLR 4.10.1.
@@ -26,15 +43,17 @@ Requires: Go 1.19, ANTLR 4.10.1.
 Install:
 
 ```shell
-cd grammar
-antlr -Dlanguage=Go -o parser IconScript.g4
-cd ..
+cd parser-go
+cd ../grammar
+antlr -Dlanguage=Go -o ../parser-go/parser IconScript.g4
+cd ../parser-go
 go build
 ```
 
 You may also test installation with `go test`.
 
 ```shell
+cd parser-go
 go run main.go -i <file path>
 ```
 
