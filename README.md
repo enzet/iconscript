@@ -38,7 +38,7 @@ live-server
 
 ## Go part
 
-Requires: Go 1.19, ANTLR 4.10.1.
+Requires: Go 1.22, ANTLR 4.13.2.
 
 Install:
 

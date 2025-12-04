@@ -1,6 +1,5 @@
 grammar/.antlr/
 node_modules/
-run.sh
 
 # Output files.
 icons/
@@ -9,6 +8,7 @@ icons/
 grammar/*.interp
 grammar/*.tokens
 parser-go/parser/
+parser-go/parser-go
 parser-python/iconscript/parser/
 
 # WIP.

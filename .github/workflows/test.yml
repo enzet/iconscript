@@ -11,16 +11,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Set up ANTLR
-      uses: StoneMoe/setup-antlr4@v4.10.1
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: 1.19
+        go-version: 1.22
+    - name: Set up ANTLR (handles Java internally)
+      uses: StoneMoe/setup-antlr4@v4.13.2
     - name: Construct grammar
       run: |
         cd grammar
-        antlr -Dlanguage=Go -o ../parser-go/parser IconScript.g4
+        antlr4 -Dlanguage=Go -o ../parser-go/parser IconScript.g4
         cd ..
     - name: Build
       working-directory: parser-go
