@@ -1,0 +1,1 @@
+"""iconscript package."""
