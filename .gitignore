@@ -1,9 +1,6 @@
-.fleet/
 grammar/.antlr/
-grammar/parser/
 node_modules/
 run.sh
-work/
 
 # Output files.
 icons/
@@ -12,4 +9,8 @@ icons/
 grammar/*.interp
 grammar/*.tokens
 parser-go/parser/
-parser-python/parser/
+parser-python/iconscript/parser/
+
+# WIP.
+webassembly/
+work/
