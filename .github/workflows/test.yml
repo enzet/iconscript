@@ -25,6 +25,9 @@ jobs:
     - name: Build
       working-directory: parser-go
       run: go build
+    - name: Vet
+      working-directory: parser-go
+      run: go vet
     - name: Test
       working-directory: parser-go
       run: go test
