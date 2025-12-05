@@ -13,7 +13,7 @@ license = { text = "MIT" }
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "antlr4-python3-runtime~=4.13.0",
+    "antlr4-python3-runtime~=4.13.2",
     "svgwrite~=1.4.3",
     "shapely~=2.1.1",
 ]

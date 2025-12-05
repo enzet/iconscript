@@ -1,20 +1,21 @@
 # iconscript
 
-Paperscript parser for icon shape drawing.
+iconscript is a language for describing simple pixel-wise pictograms.
 
-This is a part of [Map Machine](https://github.com/enzet/map-machine) project.
+The language is created for the [Röntgen](https://github.com/enzet/Roentgen)
+project to automate pictogram generation.
 
 This project consists of several parts:
   - iconscript language grammar, written in ANTLR4,
   - web interface for interactively creating `*.iconscript` files,
-  - SVG generator `iconscript_to_svg.py`, that converts drawing commands to SVG
-    files,
-  - iconscript parser (Go), that converts `*.iconscript` files to drawing
+  - SVG generator (Python) that converts drawing commands to SVG files,
+  - IconScript parser (Go) that converts `*.iconscript` files to drawing
     commands.
 
 ```
-web interface -> iconscript
-iconscript -main.go-> drawing commands
+web interface -> iconscript files
+iconscript files -> (parser-go) -> drawing commands
+iconscript files -> (parser-python) -> SVG files
 ```
 
 ## Web interface
@@ -38,10 +39,17 @@ Parses `*.iconscript` files and converts them to SVG files.
 
 **Requires:** Python 3.12, ANTLR 4.13.2.
 
+Install:
+
+```shell
+cd parser-python
+./generate-parser.sh
+pip install .
+```
+
 Run:
 
 ```shell
-pip install .
 iconscript -i $INPUT_FILE -o $OUTPUT_DIRECTORY
 ```
 
@@ -54,7 +62,7 @@ Install:
 ```shell
 cd parser-go
 cd ../grammar
-antlr -Dlanguage=Go -o ../parser-go/parser IconScript.g4
+antlr4 -Dlanguage=Go -o ../parser-go/parser IconScript.g4
 cd ../parser-go
 go build
 ```
@@ -75,7 +83,7 @@ go run main.go -i $INPUT_FILE
 
 ### Commands
 
-`<positon>` is 2D coordinates in the form `<x>,<y>` or `+<x>,<y>` (`+` means,
+`<position>` is 2D coordinates in the form `<x>,<y>` or `+<x>,<y>` (`+` means
 that the position is relative to the __position__).
 
 | Command | Description |
@@ -91,7 +99,7 @@ that the position is relative to the __position__).
 
 ### Variables
 
-Variable can be defined with `<variable> = [<command>]` and accessed with
+Variables can be defined with `<variable> = [<command>]` and accessed with
 `@<variable>`.
 
 ### Example

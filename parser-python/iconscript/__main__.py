@@ -287,7 +287,7 @@ def main() -> None:
         inputs = Path().glob("*.iconscript")
 
     for input_path in inputs:
-        logger.info("Processing `%s`...", input)
+        logger.info("Processing `%s`...", input_path)
         try:
             iconscript_to_svg(input_path, arguments.output)
         except Exception:

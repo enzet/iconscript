@@ -4,6 +4,14 @@ Python parser and converter for the IconScript language.
 
 ## Installation
 
+First, generate the parser files:
+
+```bash
+./generate-parser.sh
+```
+
+Then install the package:
+
 ```bash
 pip install .
 ```
