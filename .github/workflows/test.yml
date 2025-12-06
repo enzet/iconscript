@@ -17,6 +17,8 @@ jobs:
         go-version: 1.22
     - name: Set up ANTLR (handles Java internally)
       uses: StoneMoe/setup-antlr4@v4.13.2
+    - name: Install GEOS
+      run: sudo apt-get update && sudo apt-get install -y libgeos-dev
     - name: Construct grammar
       run: |
         cd grammar

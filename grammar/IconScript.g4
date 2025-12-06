@@ -15,12 +15,12 @@ script : expression* ;
 position : relative='+'? x=FLOAT ',' y=FLOAT ;
 expression : assignment | icon ;
 assignment : left=IDENTIFIER '=' right=commands ;
-commands : command+ ;
-icon : '{' command* '}' ;
+scope : '{' commands '}' ;
+commands : ( command | scope )+ ;
+icon : 'icon' name '=' '{' commands '}' | 'icon' name '=' command ;
 command
     : name 
     | VARIABLE
-    | 'a'
     | 'r'
     | arc
     | circle
@@ -30,13 +30,13 @@ command
     | setWidth ;
 
 // Figures.
-arc : 'ar' position FLOAT FLOAT FLOAT ;
+arc : 'a' position FLOAT FLOAT FLOAT ;
 circle : 'c' position FLOAT ;
 line : ('l' | 'lf') position+ ;
 rectangle : 's' position position ;
 
 /** Icon name. */
-name : '%' IDENTIFIER ;
+name : IDENTIFIER ;
 
 // Set context.
 setPosition : 'p' position ;

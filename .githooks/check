@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+# Get the directory where this script is located.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Check if ANTLR is installed.
+if ! command -v antlr4 &> /dev/null && ! command -v antlr &> /dev/null; then
+    echo "Warning: ANTLR is not installed. Skipping parser generation."
+    echo "Parser files should already be generated in parser-go/parser/"
+else
+    # Use antlr4 if available, otherwise fall back to antlr.
+    ANTLR_CMD="antlr4"
+    if ! command -v antlr4 &> /dev/null; then
+        ANTLR_CMD="antlr"
+    fi
+
+    # Generate parser from grammar.
+    echo "Generating parser from grammar..."
+    cd "$PROJECT_ROOT/grammar"
+    $ANTLR_CMD -Dlanguage=Go -o ../parser-go/parser IconScript.g4
+    cd "$PROJECT_ROOT"
+fi
+
+# Run Go checks in parser-go directory.
+cd "$PROJECT_ROOT/parser-go"
+go build || { echo "FAIL: go build"; exit 1; }
+go vet || { echo "FAIL: go vet"; exit 1; }
+go test || { echo "FAIL: go test"; exit 1; }
+
+exit 0

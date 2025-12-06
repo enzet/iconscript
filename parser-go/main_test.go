@@ -17,7 +17,7 @@ func checkIcon(t *testing.T, command string) *Icon {
 	assert.Equal(t, 1, len(icons), "Unexpected number of icons.")
 
 	icon := icons[0]
-	assert.Equal(t, "icon0", icon.name)
+	assert.Equal(t, "temp", icon.name)
 	assert.Equal(t, 1, len(icon.figures), "Unexpected number of figures.")
 
 	return icon
@@ -26,7 +26,7 @@ func checkIcon(t *testing.T, command string) *Icon {
 // TestLine tests not filled line parsing.
 func TestLine(t *testing.T) {
 
-	icon := checkIcon(t, "{ l 0,0 1,1 }")
+	icon := checkIcon(t, "icon temp = { l 0,0 1,1 }")
 	assert.Equal(t, &Line{[]Position{{0, 0}, {1, 1}}, false, 1},
 		icon.figures[0])
 }
@@ -34,7 +34,7 @@ func TestLine(t *testing.T) {
 // TestLineFilled tests filled line parsing.
 func TestLineFilled(t *testing.T) {
 
-	icon := checkIcon(t, "{ lf 0,0 1,1 }")
+	icon := checkIcon(t, "icon temp = { lf 0,0 1,1 }")
 	assert.Equal(t, &Line{[]Position{{0, 0}, {1, 1}}, true, 1},
 		icon.figures[0])
 }
@@ -42,21 +42,21 @@ func TestLineFilled(t *testing.T) {
 // TestArc tests arc parsing.
 func TestArc(t *testing.T) {
 
-	icon := checkIcon(t, "{ ar 1,1 5 0.1 0.2 }")
+	icon := checkIcon(t, "icon temp = { a 1,1 5 0.1 0.2 }")
 	assert.Equal(t, &Arc{Position{1, 1}, 5, 0.1, 0.2, 1}, icon.figures[0])
 }
 
 // TestCircle tests circle parsing.
 func TestCircle(t *testing.T) {
 
-	icon := checkIcon(t, "{ c 1,1 5 }")
+	icon := checkIcon(t, "icon temp = { c 1,1 5 }")
 	assert.Equal(t, &Circle{Position{1, 1}, 5, 1}, icon.figures[0])
 }
 
 // TestRectangle tests rectangle parsing.
 func TestRectangle(t *testing.T) {
 
-	icon := checkIcon(t, "{ s 1,1 2,2 }")
+	icon := checkIcon(t, "icon temp = { s 1,1 2,2 }")
 	assert.Equal(t, &Rectangle{Position{1, 1}, Position{2, 2}, 1},
 		icon.figures[0])
 }
@@ -64,7 +64,7 @@ func TestRectangle(t *testing.T) {
 // TestSetPosition tests moving current position.
 func TestSetPosition(t *testing.T) {
 
-	parsed, err := parse(antlr.NewInputStream("{ p 1,2 p +2,3 }"))
+	parsed, err := parse(antlr.NewInputStream("icon temp = { p 1,2 p +2,3 }"))
 	assert.Equal(t, nil, err)
 	assert.Equal(t, &Position{3, 5}, parsed.currentPosition)
 }

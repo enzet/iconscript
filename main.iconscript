@@ -3,31 +3,31 @@ triangle_r = l 1,3 7,7 1,11
 triangle_l = l 13,3 7,7 13,11
 triangle_rf = lf 1,3 7,7 1,11
 triangle_lf = lf 13,3 7,7 13,11
-line_h =  l  1,7  +12,0
-line_h1 = lf 1,6  +12,0
+line_h = l 1,7 +12,0
+line_h1 = lf 1,6 +12,0
 line_h2 = lf 13,8 +-12,0
-line_v =  l  7,3  +0,8
-line_v1 = lf 5,3  +0,8
+line_v = l 7,3 +0,8
+line_v1 = lf 5,3 +0,8
 line_v2 = lf 9,11 +0,-8
 line = l +0,0 +12,0
 
-{ %flag @flag }
-{ @flag lf 1,11 1,3 13,3 13,11 }
-{ @flag @triangle_r }
-{ @flag @triangle_rf }
-{ @flag @triangle_l }
-{ @flag @triangle_lf }
-{ @flag @line_h }
-{ @flag @line_h1 @line_h2 }
-{ @flag @line_v }
-{ @flag @line_v1 @line_v2 }
-{ @flag @line_h @line_v }
-{ @flag @line_h1 @line_h2 lf 6,3 6,11 8,11 8,3 }
-{ @flag p 1,5 @line p 1,7 @line p 1,9 @line }
-{
-    %flag_usa
+icon flag = { @flag }
+icon flag_cross = { @flag lf 1,11 1,3 13,3 13,11 }
+icon flag_triangle_r = { @flag @triangle_r }
+icon flag_triangle_rf = { @flag @triangle_rf }
+icon flag_triangle_l = { @flag @triangle_l }
+icon flag_triangle_lf = { @flag @triangle_lf }
+icon flag_line_h = { @flag @line_h }
+icon flag_line_h1 = { @flag @line_h1 @line_h2 }
+icon flag_line_v = { @flag @line_v }
+icon flag_line_v1 = { @flag @line_v1 @line_v2 }
+icon flag_line_h_v = { @flag @line_h @line_v }
+icon temp = { @flag @line_h1 @line_h2 lf 6,3 6,11 8,11 8,3 }
+icon temp = { @flag p 1,5 @line p 1,7 @line p 1,9 @line }
+
+icon flag_usa = {
     @flag p 1,5 @line p 1,7 @line p 1,9 @line s 1,3 +6,4
-    r c 2,4 1 c 4,4 1 c 6,4 1 c 2,6 1 c 4,6 1 c 6,6 1 a
+    { r c 2,4 1 c 4,4 1 c 6,4 1 c 2,6 1 c 4,6 1 c 6,6 1 }
 }
 
 bend = l 1,3 13,11
@@ -35,23 +35,24 @@ bend_s = l 1,11 13,3
 bend_w = lf 2,3 13,10 12,11 1,4
 bend_sw = lf 1,10 12,3 13,4 2,11
 
-{ @flag @bend }
-{ @flag @bend_s }
-{ @flag @bend @bend_s }
-{ @flag @bend_w }
-{ @flag @bend_sw }
-{ @flag @bend_w @bend_sw }
-{ @flag l 7,5 l +2,1 l +0,2 l +-2,1 l +-2,-1 l +0,-2 }
+icon flag_bend = { @flag @bend }
+icon flag_bend_s = { @flag @bend_s }
+icon flag_bend_bend_s = { @flag @bend @bend_s }
+icon flag_bend_w = { @flag @bend_w }
+icon flag_bend_sw = { @flag @bend_sw }
+icon flag_bend_w_bend_sw = { @flag @bend_w @bend_sw }
+icon flag_bend_bend_w_bend_sw = { @flag @bend_w @bend_sw }
+icon temp = { @flag l 7,5 +2,1 +0,2 +-2,1 +-2,-1 +0,-2 }
 
 pole = lf 7,2 7,14 8,14 8,2 7,2
 line = p +-11,2 l +0,0 +11,0
 conductors = l +-11,1.5 +0,1 l +11,-1 +0,1
 
-{ @pole p 13,1 @line @conductors }
-{ @pole p 13,1 @line @line @conductors }
-{ @pole p 13,1 @line @line @line @conductors }
-{ @pole p 13,1 @line @line @line @line @conductors }
-{ @pole p 13,0 @line @line @line @line @line @conductors }
+icon temp = { @pole p 13,1 @line @conductors }
+icon temp = { @pole p 13,1 @line @line @conductors }
+icon temp = { @pole p 13,1 @line @line @line @conductors }
+icon temp = { @pole p 13,1 @line @line @line @line @conductors }
+icon temp = { @pole p 13,0 @line @line @line @line @line @conductors }
 
 line = l 4.5,13 9.5,13
 tower = l 4,14 +2,-4 +0,-8 +2,0 +0,8 +2,4 @line
@@ -63,22 +64,22 @@ arm_l = l +0,0 +-3.5,3 +5,0
 arm_s = l +0,0 +2,0 +3,3 +-8,0 +3,-3
 arm_w = l +0,0 +2,0 +4,3 +-10,0 +4,-3
 
-{ @tower p 6,2 @arm p 6,7 @arm }
-{ @tower p 6,2 @arm_s p 6,7 @arm_w }
-{ @tower p 6,2 @arm_w p 6,7 @arm_s }
-{ @tower_1 p 6,1 @arm p 6,4 @arm p 6,7 @arm }
-{ @tower_1 p 6,1 @arm_s p 6,4 @arm_w p 6,7 @arm_s }
-{ @tower p 6,2 @arm_l p 6,7 @arm }
-{ @tower_1 p 6,1 @arm_l p 6,4 @arm_r p 6,7 @arm_l }
-{ @tower_2 l 6,10 +2,0 p 6,4 @arm }
-{ @tower_2 l 6,10 +2,0 l 8,4 +-5,0 l 8,7 +-5,0 l 8,10 +-5,0 }
-{ @tower_2 l 6,10 +2,0 l 11,4 +-8,0 l 11,6 +-8,0 l 11,8 +-8,0 l 11,10 +-8,0 }
+icon temp = { @tower p 6,2 @arm p 6,7 @arm }
+icon temp = { @tower p 6,2 @arm_s p 6,7 @arm_w }
+icon temp = { @tower p 6,2 @arm_w p 6,7 @arm_s }
+icon temp = { @tower_1 p 6,1 @arm p 6,4 @arm p 6,7 @arm }
+icon temp = { @tower_1 p 6,1 @arm_s p 6,4 @arm_w p 6,7 @arm_s }
+icon temp = { @tower p 6,2 @arm_l p 6,7 @arm }
+icon temp = { @tower_1 p 6,1 @arm_l p 6,4 @arm_r p 6,7 @arm_l }
+icon temp = { @tower_2 l 6,10 +2,0 p 6,4 @arm }
+icon temp = { @tower_2 l 6,10 +2,0 l 8,4 +-5,0 l 8,7 +-5,0 l 8,10 +-5,0 }
+icon temp = { @tower_2 l 6,10 +2,0 l 11,4 +-8,0 l 11,6 +-8,0 l 11,8 +-8,0 l 11,10 +-8,0 }
 
 tower = l 7,9 +-1,2 +0,3 l 7,9 +1,2 +0,3 l 7,9 +-4,-3 +3,5 l 7,9 +4,-3 +-3,5 l 6,13 +2,0
 
-{ @tower l 3,6 +0,-3 l 11,6 +0,-3 l 1.5,4 +11,0 }
-{ @tower l 3,6 +0,-4 l 11,6 +0,-4 l 1.5,3 +11,0 l 1.5,5 +11,0 } 
-{ @tower l 3,6 +0,-5 l 11,6 +0,-5 l 1.5,2 +11,0 l 1.5,4 +11,0 l 1.5,6 +11,0 }
+icon temp = { @tower l 3,6 +0,-3 l 11,6 +0,-3 l 1.5,4 +11,0 }
+icon temp = { @tower l 3,6 +0,-4 l 11,6 +0,-4 l 1.5,3 +11,0 l 1.5,5 +11,0 } 
+icon temp = { @tower l 3,6 +0,-5 l 11,6 +0,-5 l 1.5,2 +11,0 l 1.5,4 +11,0 l 1.5,6 +11,0 }
 
 cond = l +0,0 +0,1 l +5,-1 +0,1 l +5,-1 +0,1
 cond_i = l +3,0 +0,1 l +4,-1 +0,1
@@ -87,24 +88,24 @@ pole_1 = l 4,2 +-1,12 l 10,2 +1,12
 pole_2 = l 3,2 +-1,12 l 11,2 +1,12
 arm = l +0,0 +10,0
 
-{ @pole p 2,3 @arm p 2,4.5 @cond }
-{ @pole p 2,3 @arm p 2,5 @arm p 2,6.5 @cond }
-{ @pole p 2,3 @arm p 2,5 @arm p 2,7 @arm p 2,8.5 @cond }
-{ @pole_1 p 2,3 @arm p 2,4.5 @cond }
-{ @pole_1 p 2,3 @arm p 2,5 @arm p 2,6.5 @cond }
-{ @pole_1 p 2,3 @arm p 2,5 @arm p 2,7 @arm p 2,8.5 @cond }
-{ @pole_2 p 2,3 @arm p 2,4.5 @cond_i }
-{ @pole_2 p 2,3 @arm p 2,5 @arm p 2,6.5 @cond_i }
-{ @pole_2 p 2,3 @arm p 2,5 @arm p 2,7 @arm p 2,8.5 @cond_i }
+icon temp = { @pole p 2,3 @arm p 2,4.5 @cond }
+icon temp = { @pole p 2,3 @arm p 2,5 @arm p 2,6.5 @cond }
+icon temp = { @pole p 2,3 @arm p 2,5 @arm p 2,7 @arm p 2,8.5 @cond }
+icon temp = { @pole p 2,3 @arm p 2,5 @arm p 2,7 @arm p 2,8.5 @cond }
+icon temp = { @pole_1 p 2,3 @arm p 2,4.5 @cond }
+icon temp = { @pole_1 p 2,3 @arm p 2,5 @arm p 2,6.5 @cond }
+icon temp = { @pole_1 p 2,3 @arm p 2,5 @arm p 2,7 @arm p 2,8.5 @cond }
+icon temp = { @pole_2 p 2,3 @arm p 2,4.5 @cond_i }
+icon temp = { @pole_2 p 2,3 @arm p 2,5 @arm p 2,6.5 @cond_i }
+icon temp = { @pole_2 p 2,3 @arm p 2,5 @arm p 2,7 @arm p 2,8.5 @cond_i }
 
-{
-    %billboard
+icon billboard = {
     lf 2,2 13,2 13,8 2,8 2,2
     lf 7,13 8,13 8,8 7,8 7,13
     l 3,10 4,10
     l 11,10 12,10
-} {
-    %tv
+}
+icon tv = {
     lf 2,3 +11,0 +0,7 +-11,0 +0,-7
     l 7,10 +0,2 +1,0 +0,-2 l 5,12 +5,0
 } 
@@ -113,45 +114,51 @@ cross_4 = lf 6,3 +0,3 +-3,0 +0,3 +3,0 +0,3 +3,0 +0,-3 +3,0 +0,-3 +-3,0 +0,-3 +-3
 cross_3 = lf 6,4 +0,2 +-2,0 +0,2 +2,0 +0,2 +2,0 +0,-2 +2,0 +0,-2 +-2,0 +0,-2 +-2,0 
 cross_2 = lf +0,0 +0,2 +-2,0 +0,1 +2,0 +0,2 +1,0 +0,-2 +2,0 +0,-1 +-2,0 +0,-2 +-1,0
 
-{ p 7,5 @cross_2 }
-{ s 4,2 +7,11   r l 3,4 +9,0 p 7,6 @cross_2 a }
-{ s 2,2 +10,10   r p 7,6 @cross_3 a }
-{ @cross_3 }
-{ @cross_4 }
-{ 
-    %cross_catolic_3
+icon temp = { p 7,5 @cross_2 }
+icon temp = { s 4,2 +7,11   { r l 3,4 +9,0 p 7,6 @cross_2 } }
+icon temp = { s 2,2 +10,10   { r p 7,6 @cross_3 } }
+icon temp = { @cross_3 }
+icon temp = { @cross_4 }
+icon cross_catholic_3 = { 
     lf 6,3 +0,3 +-3,0 +0,2 +3,0 +0,5 +2,0 +0,-5 +3,0 +0,-2 +-3,0 +0,-3 +-2,0 
 }
-{ lf 7,3 +0,3 +-3,0 +0,1 +3,0 +0,5 +1,0 +0,-5 +3,0 +0,-1 +-3,0 +0,-3 +-1,0 }
-{ lf 7,2 +0,4 +-4,0 +0,1 +4,0 +0,7 +1,0 +0,-7 +4,0 +0,-1 +-4,0 +0,-4 +-1,0 }
-{
-    %cross_orthodox 
+icon temp = {
+    lf 7,3 +0,3 +-3,0 +0,1 +3,0 +0,5 +1,0 +0,-5 +3,0 +0,-1 +-3,0 +0,-3 +-1,0 
+}
+icon temp = { 
+    lf 7,2 +0,4 +-4,0 +0,1 +4,0 +0,7 +1,0 +0,-7 +4,0 +0,-1 +-4,0 +0,-4 +-1,0 
+}
+icon cross_orthodox = {
     w 2 
     l 7.5,2.5 +0,11 l 3.5,6.5 +8,0
     l 4.5,5.5 +0,2 l 10.5,5.5 +0,2
     l 6.5,3.5 +2,0 l 6.5,12.5 +2,0
-    w 1
-} {
+}
+icon temp = {
     lf 7,5 +-2,3 +4,0 +-2,-3
     lf 7,9 +-2,-3 +4,0 +-2,3
-} {
+}
+icon temp = {
     l 7,5 +-3,5 +6,0 +-3,-5
     l 7,11 +-3,-5 +6,0 +-3,5
-} {
+}
+icon temp = {
     l 7,3 +-4,7 +8,0 +-4,-7
     l 7,12 +-4,-7 +8,0 +-4,7
-} {
+}
+icon temp = {
     l 7,2 +-5,8 +10,0 +-5,-8
     l 7,13 +-5,-8 +10,0 +-5,8
-} {
-    %well
+}
+icon well = {
     l  2,4 +5,-2 +5,2
     l  3,4 +0,7
     l  11,4 +0,7
     l  3,6 +10,0 +0,2 +1,0
     l  6,5.5 +2,0 +0,1 +-2,0 +0,4
     lf 2,10 +10,0 +0,4 +-10,0 +0,-4
-} {
+}
+icon temp = {
     lf 2,6 +0,1  +3,0  +0,-1  +4,0 +0,1   +3,0 +0,-1 +0,4 
            +0,-1 +-3,0  +0,1 +-4,0 +0,-1 +-3,0  +0,1 +0,-4
     l 5,3 +4,0 l 7,2.5 +0,1.5
@@ -159,30 +166,31 @@ cross_2 = lf +0,0 +0,2 +-2,0 +0,1 +2,0 +0,2 +1,0 +0,-2 +2,0 +0,-1 +-2,0 +0,-2 +-
 
 bench = lf +2,6 +11,0 +0,1 +-11,0 +0,-1
 bench_base = l +1,1 +0,2 l +9,-2 +0,2
-{
-    %bench
+icon bench = {
     p 0,0 @bench
     l 3,5 +0,4 l 12,5 +0,4
-} {
-    %bench_no_backrest
+}
+icon bench_no_backrest = {
     p 0,0 @bench @bench_base
-} {
-    %bench_statue
+}
+icon bench_statue = {
     p 0,4 @bench @bench_base
     c 11,2.5 2
     lf 10,5 +2.5,0 +0.5,2 +-3,1 +0,-3
     l 10,5 +-0.5,0 +-1.5,3
-} {
-    %bench_no_backrest_v0
+}
+icon bench_no_backrest_v0 = {
     p 0,2 @bench
     l 3,3 +0,8 l 12,3 +0,8
-    w 2 l 2.5,4.5 +10,0 +0,1 +-10,0 +0,-1 w 1
-} {
+    { w 2 l 2.5,4.5 +10,0 +0,1 +-10,0 +0,-1 }
+}
+icon temp = {
     lf 3,7 +3,0 +1,1 +0,2 +-5,0 +0,-2 +1,-1
     l 3,10 +-1,2 +0,2
     l 6,10 +1,2 +0,2
     l 3,7 9,1 l 6,7 9,1 +2,6
-} {
+}
+icon temp = {
     lf 2,2 +5,0 +1,1 +5,0 +-11,0 +0,-1
     l 4,3 +0,11
     l 6,3 +0,11
@@ -191,43 +199,43 @@ bench_base = l +1,1 +0,2 l +9,-2 +0,2
     l +0,1 +2,2
     l +0,1 +-2,2
     l 11,3 +0,5
-} {
-    %bowling_ball_v0
-    c 7,7 9   r c 7,6 1.3 c 5,5 1.3 c 7,4 1.3 a
-} {
-    c 7,7 9   r c 6,6 1.3 c 8,8 1.3 c 8,6 1.3 c 6,8 1.3 a
-} {
-    %manhole
-    c 7,7 9   r l 6,4 +2,0 l 4,6 +6,0 l 4,8 +6,0 l 6,10 +2,0 a
-} {
-    %death_star
-    c 7,7 9   r l 2,7 +10,0 c 5,7 3 a
-} {
-    %cliff_v0
+}
+icon bowling_ball_v0 = {
+    c 7,7 9   { r c 7,6 1.3 c 5,5 1.3 c 7,4 1.3 }
+}
+icon temp = {
+    c 7,7 9   { r c 6,6 1.3 c 8,8 1.3 c 8,6 1.3 c 6,8 1.3 }
+}
+icon manhole = {
+    c 7,7 9   { r l 6,4 +2,0 l 4,6 +6,0 l 4,8 +6,0 l 6,10 +2,0 }
+}
+icon death_star = {
+    c 7,7 9   { r l 2,7 +10,0 c 5,7 3 }
+}
+icon cliff_v0 = {
     lf 2,3 +8,0 +3,2 +-1,7 +-1,-5 +-2,-1 +-2,6 +-5,0 +0,-9
 }
 
 stone = lf 3,4 +8,-1 +2,5 +-2,3 +-7,0 +-2,-4 +1,-3
 
-{ %stone @stone }
-{ %stone_with_inscription @stone r l 5,6 +5,0 l 5,8 +5,0 a }
-{
-    %tyre
-    w 2 lf 4.5,2.5 +5,0 +0,9 +-5,0 +0,-9 w 1
-    r
-    lf 5.5,1.5 +1,1
-    lf 8.5,3.5 +-1,1
-    lf 5.5,5.5 +1,1
-    lf 8.5,7.5 +-1,1
-    lf 5.5,9.5 +1,1
-    lf 8.5,11.5 +-1,1
-    a
+icon stone = { @stone }
+icon stone_with_inscription = { @stone { r l 5,6 +5,0 l 5,8 +5,0 } }
+icon tyre = {
+    { w 2 lf 4.5,2.5 +5,0 +0,9 +-5,0 +0,-9 }
+    {
+        r
+        lf 5.5,1.5 +1,1
+        lf 8.5,3.5 +-1,1
+        lf 5.5,5.5 +1,1
+        lf 8.5,7.5 +-1,1
+        lf 5.5,9.5 +1,1
+        lf 8.5,11.5 +-1,1
+    } 
 }
 
 cube = lf +0,0 +2,0 +0,2 +-2,0 +0,-2
 
-{
-    %glider
+icon glider = {
     p 6,2 @cube p 10,6 @cube
     p 2,10 @cube p +4,0 @cube p +4,0 @cube
 }
@@ -238,41 +246,45 @@ window_2 = lf +0,0 +1,0 +0,1 +-1,0 +0,-1
 window_3 = lf +0,0 +1,0 +0,2 +-1,0 +0,-2
 window_4 = lf +0,0 +1,0 +0,3 +-1,0 +0,-3
 
-{
+icon temp = {
     lf 3,3 +9,0 +0,8 +-9,0 +0,-8
-    r p 2,4 @roof p 5,7 @window_3 p 9,9 @window_4 a
+    { r p 2,4 @roof p 5,7 @window_3 p 9,9 @window_4 }
     p 2,3 @roof
 }
-{
+icon temp = {
     lf 3,2 +9,0 +0,12 +-9,0 +0,-12
-    r p 2,3 @roof p 2,9 @roof  
-    p 5,5 @window_3 p 9,5 @window_3 
-    p 5,11 @window_3 p 9,12 @window_4 a
+    {
+        r p 2,3 @roof p 2,9 @roof  
+        p 5,5 @window_3 p 9,5 @window_3 
+        p 5,11 @window_3 p 9,12 @window_4
+    }
     p 2,2 @roof
 }
-{
+icon temp = {
     lf 3,2 +9,0 +0,12 +-9,0 +0,-12
-    r p 2,2 @roof 
-    p 5,5 @window_2 p 9,5 @window_2
-    p 5,8 @window_2 p 9,8 @window_2
-    p 5,11 @window_2 p 9,12 @window_4 a
+    {
+        r p 2,2 @roof 
+        p 5,5 @window_2 p 9,5 @window_2
+        p 5,8 @window_2 p 9,8 @window_2
+        p 5,11 @window_2 p 9,12 @window_4
+    }
     p 2,7 @roof_1 p 2,10 @roof_1 p 2,1 @roof
 }
 
-bed = l +0,0 +0,6 l +0,-2 +13,0 l +0,-2 +0,4 lf +0,-4 +-7,-1 +0,3 +7,0 w 2 l +-10.5,-2.5 +1,0 w 1
+bed = l +0,0 +0,6 l +0,-2 +13,0 l +0,-2 +0,4 lf +0,-4 +-7,-1 +0,3 +7,0 { w 2 l +-10.5,-2.5 +1,0 }
 
-{
+icon temp = {
     l 1,2 +13,0
     p 1,4 @bed
     l 1,12 +13,0
 }
-{
+icon temp = {
     p 1,4 @bed p 1,4 @bed
 }
-{
+icon temp = {
     p 1,1 @bed p 1,7 @bed l 14,5 +0,5
 }
-{
+icon temp = {
     lf 8,2 +-4,6 +4,0 +-1,5 +4,-6 +-4,0 +1,-5
 }
 
@@ -280,280 +292,308 @@ seat = l 4,8 +6,0 l +-3,0 +0,6
 c_l = l 1,8 +1,6 l +-0.5,-3 +3.5,0 +-0.5,3
 c_r = l 13,8 +-1,6 l +0.5,-3 +-3.5,0 +0.5,3
 
-{
+icon temp = {
     @seat @c_l @c_r
 }
 
 roof = lf 1,3 +6,-2 +6,2 +-12,0
 pr = l +2,-1 +0,1
 
-{
+icon temp = {
     @roof
-} {
+} 
+icon temp = {
     @roof l 1,3 +0,1 l 13,3 +0,1
-} {
+}
+icon temp = {
     p -2,2 @pr @pr @pr @pr @pr @pr @pr
-} {
+}
+icon temp = {
     @roof l 2,3 +0,8 l 12,3 +0,8
-} {
+}
+icon temp = {
     lf 7,1 +5,2 +-5,2 +0,-4
     lf 6,7 +2,0 +2,3 +-6,0 +2,-3
     lf 3,12 +8,0 +0,1 +-8,0 +0,-1
-} {
+}
+icon temp = {
     lf 7.5,1 +3.5,2 +-7,0 +3.5,-2
     lf 5,5 +5,0 +0,7 +-5,0 +0,-7
     l 4,14 +7,0
-} {
-    %camera
+}
+icon camera = {
     lf 6,3 +3,0 +1,2 +2,0 +0,6 +-9,0 +0,-6 +2,0 +1,-2
-    l 3,3 +1,0   r c 7.5,7.5 4 a
-} {
+    l 3,3 +1,0   { r c 7.5,7.5 4 }
+}
+icon temp = {
     s 1,1 +12,0
 }
 
-person = c +0,0 2 l +-3,2 +6,0 s +-5,0 +4,3 r s +-5,-2 +1,4 s +4,-4 +1,4 l +-3,-2 +0,4 a l +-1,-4 +0,2 l +2,-2 +0,2
+person = c +0,0 2 l +-3,2 +6,0 s +-5,0 +4,3 { r s +-5,-2 +1,4 s +4,-4 +1,4 l +-3,-2 +0,4 } l +-1,-4 +0,2 l +2,-2 +0,2
 
-{ p 5,4 @person p 10,4 @person }
-{ p 7,4 @person }
+icon temp = { p 5,4 @person p 10,4 @person }
+icon temp = { p 7,4 @person }
 
-{
-    %pyramid
+icon pyramid = {
     lf 7,4 +6,6 +-12,0 +6,-6
-} {
-    %smoke_2
+}
+icon smoke_2 = {
     l 6,6 +5,0 l +-4,2 +1,0
-} {
-    %credit_card
-    w 3 s 3,5 +9,5 w 1 
-    r s 3,5 +9,5 a
+} 
+icon credit_card = {
+    { w 3 s 3,5 +9,5 }
+    { r s 3,5 +9,5 }
     s 2,6 +11,1
     l 7,9 +1,0 l +2,0 +1,0
-} {
-    %old_tv
+} 
+icon old_tv = {    
     s 2,3 +8,7
-    r s +-7,-5 +4,3 l +2,-3 l +0,2 a
+    { r s +-7,-5 +4,3 l +2,-3 +0,2 }
     c 6,3 3
     l +0,0 +-3,-3
     l +6,0 +-3,3
-} {
-    %burger
-    w 5 s 5,5 +5,4 w 1
-    r l 2,6 +11,0 l 2,8 +2,0
-    l 4,8 +3.5,2 +3.5,-2 +2,0 a
+} 
+icon burger = {    
+    { w 5 s 5,5 +5,4 }
+    { 
+        r l 2,6 +11,0 l 2,8 +2,0
+        l 4,8 +3.5,2 +3.5,-2 +2,0
+    }
     l 2,7 +11,0
 }
 
-{
-    %ice_cream_3_scoops
+
+icon ice_cream_3_scoops = {    
     c 7.5,3.5 4 c 5.5,5.5 4 c 9.5,5.5 4
-    lf 7.5,5 +2,2 +-2,6 +-2,-6   r l 3,7 +9,0 a
-} {
-    %ice_cream_2_scoops
-    c 6,5.5 4 c 9,5.5 4 lf 7.5,5 +2,2 +-2,6 +-2,-6   r l 3,7 +9,0 a
-} {
-    %ice_cream
-    c 7.5,3.5 6 s 5,3.5 +5,6.5   w 2 l 7.5,10.5 +0,3 w 1
-    r w 2 l 6.5,5.5 +0,2 w 1   l 9,7 +0,1   w 0 s 5.5,7.5 +4,2 w 1 a
+    lf 7.5,5 +2,2 +-2,6 +-2,-6   { r l 3,7 +9,0 }
+} 
+icon ice_cream_2_scoops = {    
+    c 6,5.5 4 c 9,5.5 4 lf 7.5,5 +2,2 +-2,6 +-2,-6   { r l 3,7 +9,0 }
+} 
+icon ice_cream = {    
+    c 7.5,3.5 6 s 5,3.5 +5,6.5   { w 2 l 7.5,10.5 +0,3 }
+    { r { w 2 l 6.5,5.5 +0,2 }   l 9,7 +0,1   { w 0 s 5.5,7.5 +4,2 } }
     l 8,7 +0,1
-} {
-    %fork_and_knife
+} 
+icon fork_and_knife = {    
     l 4,2 +0,5 l 6,2 +0,11 l 8,2 +0,5 s 4,7 +4,0.5 s 4.5,7 +3,2
-    r c 4,9.5 3 c 8,9.5 3 a
-    w 2 l 10.5,2.5 +0,6 w 1   l 11,6 +0,7
-} {
-    %couch
-    w 2 s 2.5,4.5 +9,5 w 1
-    r c 1.5,7.5 4 c 12.5,7.5 4 l 1,8 +12,0 a
+    { r c 4,9.5 3 c 8,9.5 3 }
+    { w 2 l 10.5,2.5 +0,6 }   l 11,6 +0,7
+} 
+icon couch = {    
+    { w 2 s 2.5,4.5 +9,5 }
+    { r c 1.5,7.5 4 c 12.5,7.5 4 l 1,8 +12,0 }
     c 1.5,7.5 2 c 12.5,7.5 2
     s 2,9 +10,1
     l 2,9 +0,-1.5 l 12,9 +0,-1.5
     l 2,10 +0,1 l 12,10 +0,1
-} {
+} 
+icon temp = {
     c 7,6 7
-    ar 7,6 5 -1.97 1.16
+    a 7,6 5 -1.97 1.16
     l 7,11 +0,2 l +-3,0 +6,0
 }
 
-{ lf 5,11 +0,-9 +5,3 +-5,3 }
+icon temp = { lf 5,11 +0,-9 +5,3 +-5,3 }
 
 triangle_ul = lf +0,-3 +3,5 +-6,0 +3,-5 p +0,3
 triangle_us = lf +0,-2 +2,3 +-4,0 +2,-3 p +0,2
 triangle_dl = lf +0,3 +3,-5 +-6,0 +3,5 p +0,-3
 triangle_ds = lf +0,2 +2,-3 +-4,0 +2,3 p +0,-2
 
-{ p 7,7 @triangle_ul }
-{ p 7,7 @triangle_us }
-{ p 7,7 @triangle_dl }
-{ p 7,7 @triangle_ds }
+icon temp = { p 7,7 @triangle_ul }
+icon temp = { p 7,7 @triangle_us }
+icon temp = { p 7,7 @triangle_dl }
+icon temp = { p 7,7 @triangle_ds }
 
 seamark_ns = @triangle_us p +0,3 @triangle_us
 seamark_ss = @triangle_ds p +0,3 @triangle_ds
 seamark_ws = @triangle_us p +0,2 @triangle_ds
 seamark_es = @triangle_ds p +0,4 @triangle_us
 
-{ p 7,6 @seamark_ns }
-{ p 7,5 @seamark_ss }
-{ p 7,6 @seamark_ws }
-{ p 7,5 @seamark_es }
+icon temp = { p 7,6 @seamark_ns }
+icon temp = { p 7,5 @seamark_ss }
+icon temp = { p 7,6 @seamark_ws }
+icon temp = { p 7,5 @seamark_es }
 
 seamark_nl = @triangle_ul p +0,5 @triangle_ul
 seamark_sl = @triangle_dl p +0,5 @triangle_dl
 seamark_wl = @triangle_ul p +0,4 @triangle_dl
 seamark_el = @triangle_dl p +0,6 @triangle_ul
 
-{ p 7,5 @seamark_nl }
-{ p 7,4 @seamark_sl }
-{ p 7,5 @seamark_wl }
-{ p 7,4 @seamark_el }
+icon temp = { p 7,5 @seamark_nl }
+icon temp = { p 7,4 @seamark_sl }
+icon temp = { p 7,5 @seamark_wl }
+icon temp = { p 7,4 @seamark_el }
 
-{
-    %train
-    w 2 s 3.5,2.5 +8,8 w 1
-    r s 4,9 +1,1 s 10,9 +1,1 s 4,4 +7,3 a
+
+icon train = {    
+    { w 2 s 3.5,2.5 +8,8 }
+    { r s 4,9 +1,1 s 10,9 +1,1 s 4,4 +7,3 }
     l 2,14 +11,0
     l 4,14 +0,-1
     l 11,14 +0,-1
-} {
-    %tram
+} 
+icon tram = {    
     l 5,13 +0,-1
     l 10,13 +0,-1
-    w 2 s 4.5,3.5 +6,8 w 1
+    { w 2 s 4.5,3.5 +6,8 }
     l 7,3 +-2,-2 +5,0 +-2,2
-    r s 5,4 +5,4 c 7.5,10.5 2 a
-} {
-    %bowling_ball
+    { r s 5,4 +5,4 c 7.5,10.5 2 }
+} 
+icon bowling_ball = {    
     c 7,7 11
-    r
-    c 7,5 1.414
-    c 7,3 1.414
-    c 5,4 1.414
-    a
-} {
-    %drawer
+    { 
+        r
+        c 7,5 1.414
+        c 7,3 1.414
+        c 5,4 1.414
+    }
+} 
+icon drawer = {    
     lf 3,2 +9,0 +0,10 +-9,0 +0,-10
     l 4,12 +0,1
     l 11,12 +0,1
-    r
-    l 7,3  +1,0
-    l 2,5 +11,0
-    l 7,7  +1,0
-    l 2,9 +11,0
-    l 7,11 +1,0
-    a
-} {
-    %watches
+    {
+        r
+        l 7,3  +1,0
+        l 2,5 +11,0
+        l 7,7  +1,0
+        l 2,9 +11,0
+        l 7,11 +1,0
+    }
+} 
+icon watches = {    
     lf 4,1 +6,0 +0,12 +-6,0 +0,-12
     c 7,7 9
-    r
-    c 7,7 7
-    l 7,12
-    a
+    {
+        r
+        c 7,7 7
+    }
     l 7,7 +0,-2
     l 7,7 +2,0
-} {
-    %cliff
+} 
+icon cliff = {    
     lf 7,6 +2,1 +1,5 +1,0 +1,-8 +-3,-1 +-7,0 +0,9 +4,0 +1,-6
-} {
-    %apartments_1_story
+} 
+icon apartments_1_story = {    
     l 2,3 13,3
     s 3,4 12,11
-    r
-    l 2,4 13,4
-    s 5,7 6,9
-    s 9,9 10,12
-    a
-} {
-    %apartments_1_story_gabled_roof
+    {
+        r
+        l 2,4 13,4
+        s 5,7 6,9
+        s 9,9 10,12
+    }
+} 
+icon apartments_1_story_gabled_roof = {    
     lf 3,12 12,12 12,5 13,5 7.5,2 2,5 3,5 3,12
-    r
-    s 5,8 6,10
-    s 9,10 10,13
-    a
-} {
-    %apartments_1_story_gabled_roof
+    {
+        r
+        s 5,8 6,10
+        s 9,10 10,13
+    }
+} 
+icon apartments_1_story_gabled_roof = {    
     lf 3,12 12,12 12,5 3,2 3,12
-    r
-    s 5,8 6,10
-    s 9,10 10,13
-    a
+    {
+        r
+        s 5,8 6,10
+        s 9,10 10,13
+    }
 }
 
 window = lf +0,0 +1,0 +0,2 +-1,0 +0,-2
 window_small = lf +0,0 +1,0 +0,1 +-1,0 +0,-1
 door = lf +0,0 +1,0 +0,3 +-1,0 +0,-3
-{
+icon temp = {
     l 2,3 13,3
     s 3,4 12,11
-    r
-    l 2,4 13,4
-    p 5,7 @window
-    p 9,9 @door
-    a
-} {
+    {
+        r
+        l 2,4 13,4
+        p 5,7 @window
+        p 9,9 @door
+    }
+} 
+icon temp = {
     lf 3,12 12,12 12,6 13,6 7.5,2 2,6 3,6 3,12
-    r
-    p 5,8 @window
-    p 9,10 @door
-    a
-} {
+    {
+        r
+        p 5,8 @window
+        p 9,10 @door
+    }
+} 
+icon temp = {
     lf 3,12 12,12 12,6 3,2 3,12
-    r
-    p 5,8 @window
-    p 9,10 @door
-    a
-} {
+    {
+        r
+        p 5,8 @window
+        p 9,10 @door
+    }
+} 
+icon temp = {
     l 2,1 +11,0
     s 3,2 12,13
-    r
-    l 2,2 +11,0
-    p 5,4 @window
-    p 9,4 @window
-    l 2,8 +11,0
-    p 5,10 @window
-    p 9,11 @door
-    a
-} {
+    {
+        r
+        l 2,2 +11,0
+        p 5,4 @window
+        p 9,4 @window
+        l 2,8 +11,0
+        p 5,10 @window
+        p 9,11 @door
+    }
+} 
+icon temp = {
     lf 3,14 12,14 12,4 13,4 7.5,1 2,4 3,4 3,14
-    r
-    p 5,5 @window
-    p 9,5 @window
-    l 2,9 +11,0
-    p 5,11 @window
-    p 9,12 @door
-    a
-} {
+    {
+        r
+        p 5,5 @window
+        p 9,5 @window
+        l 2,9 +11,0
+        p 5,11 @window
+        p 9,12 @door
+    }
+} 
+icon temp = {
     lf 3,1 +0,13 +9,0 +0,-10 +-9,-3
-    r
-    p 5,5 @window
-    p 9,6 @window_small
-    l 2,9 +11,0
-    p 5,11 @window
-    p 9,12 @door
-    a
-} {
+    {
+        r
+        p 5,5 @window
+        p 9,6 @window_small
+        l 2,9 +11,0
+        p 5,11 @window
+        p 9,12 @door
+    }
+} 
+icon temp = {
     l 2,1 +11,0
     s 3,2 12,14
     l 2.5,7 +10,0
     l 2.5,10 +10,0
-    r
-    l 2,2 +11,0
-    p 5,5 @window_small
-    p 9,5 @window_small
-    p 5,8 @window_small
-    p 9,8 @window_small
-    p 5,11 @window_small
-    p 9,12 @door
-    a
-} {
+    {
+        r
+        l 2,2 +11,0
+        p 5,5 @window_small
+        p 9,5 @window_small
+        p 5,8 @window_small
+        p 9,8 @window_small
+        p 5,11 @window_small
+        p 9,12 @door
+    }
+} 
+icon temp = {
     lf 3,14 12,14 12,4 13,4 7.5,1 2,4 3,4 3,14
     l 2.5,7 +10,0
     l 2.5,10 +10,0
-    r
-    p 5,5 @window_small
-    p 9,5 @window_small
-    p 5,8 @window_small
-    p 9,8 @window_small
-    p 5,11 @window_small
-    p 9,12 @door
-    a
+    {
+        r
+        p 5,5 @window_small
+        p 9,5 @window_small
+        p 5,8 @window_small
+        p 9,8 @window_small
+        p 5,11 @window_small
+        p 9,12 @door
+    }
 }

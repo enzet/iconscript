@@ -12,8 +12,9 @@ from pathlib import Path
 from typing import override
 
 import antlr4
+import shapely
 import svgwrite
-from shapely.geometry import Geometry, LineString, Point, Polygon
+from shapely.geometry import LineString, Point, Polygon
 from shapely.ops import unary_union
 
 from iconscript.parser.IconScriptLexer import IconScriptLexer
@@ -25,11 +26,15 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 @dataclass
 class IconCollector(IconScriptListener):
-    """Collect icons from an IconScript file."""
+    """Collect icons from an iconscript file."""
 
-    variables: dict[str, IconScriptParser.commandsContext]
-    icons: list[tuple[str, list[tuple[str, Polygon, float]]]]
-    current_icon: IconScriptParser.iconContext | None = None
+    variables: dict[str, IconScriptParser.CommandsContext] = field(
+        default_factory=dict
+    )
+    icons: list[tuple[str, list[tuple[str, Polygon, float]]]] = field(
+        default_factory=list
+    )
+    current_icon: IconScriptParser.IconContext | None = None
     current_icon_name: str | None = None
     current_shapes: list[tuple[str, Polygon, float]] = field(
         default_factory=list
@@ -37,20 +42,20 @@ class IconCollector(IconScriptListener):
     current_position: tuple[float, float] = (0.0, 0.0)
     current_width: float = 1.0
     icon_counter: int = 0
-    pending_commands: list[IconScriptParser.commandsContext] = field(
+    pending_commands: list[IconScriptParser.CommandsContext] = field(
         default_factory=list
     )
     in_icon: bool = False
 
     @override
-    def exitAssignment(self, ctx: IconScriptParser.assignmentContext) -> None:
+    def exitAssignment(self, ctx: IconScriptParser.AssignmentContext) -> None:
         """Store variable assignment: `name = commands`."""
         name: str = ctx.IDENTIFIER().getText()
-        commands_context: IconScriptParser.commandsContext = ctx.commands()
+        commands_context: IconScriptParser.CommandsContext = ctx.commands()
         self.variables[name] = commands_context
 
     @override
-    def enterIcon(self, ctx: IconScriptParser.iconContext) -> None:
+    def enterIcon(self, ctx: IconScriptParser.IconContext) -> None:
         """Start processing an icon."""
         self.current_shapes = []
         self.current_icon_name = None
@@ -59,9 +64,14 @@ class IconCollector(IconScriptListener):
         self.current_width = 1.0
 
     @override
-    def exitIcon(self, ctx: IconScriptParser.iconContext) -> None:
+    def exitIcon(self, ctx: IconScriptParser.IconContext) -> None:
         """End processing an icon."""
-        name = self.current_icon_name or f"icon_{self.icon_counter}"
+        name: str = self.current_icon_name
+        if name == "temp":
+            name = f"icon_{self.icon_counter}"
+            self.icon_counter += 1
+        if name in [x for x, _ in self.icons]:
+            logger.warning("Icon `%s` already defined.", name)
         self.icons.append((name, self.current_shapes))
         self.icon_counter += 1
         self.current_shapes = []
@@ -69,17 +79,17 @@ class IconCollector(IconScriptListener):
         self.in_icon = False
 
     @override
-    def exitName(self, ctx: IconScriptParser.nameContext) -> None:
+    def exitName(self, ctx: IconScriptParser.NameContext) -> None:
         """Process `%name` command."""
         self.current_icon_name = ctx.IDENTIFIER().getText()
 
     @override
-    def exitLine(self, ctx: IconScriptParser.lineContext) -> None:
+    def exitLine(self, ctx: IconScriptParser.LineContext) -> None:
         """Process `l` (line) or `lf` (line filled) command."""
         positions: list[tuple[float, float]] = [
             self._parse_position(p) for p in ctx.position()
         ]
-        if len(positions) >= 2: # noqa: PLR2004
+        if len(positions) >= 2:  # noqa: PLR2004
             line: LineString = LineString(positions)
             command_token: str = ctx.getChild(0).getText()
             if command_token == "lf":  # noqa: S105
@@ -90,7 +100,7 @@ class IconCollector(IconScriptListener):
                 self.current_shapes.append(("line", line, self.current_width))
 
     @override
-    def exitRectangle(self, ctx: IconScriptParser.rectangleContext) -> None:
+    def exitRectangle(self, ctx: IconScriptParser.RectangleContext) -> None:
         """Process `s` (rectangle) command."""
         position_1: tuple[float, float] = self._parse_position(ctx.position(0))
         position_2: tuple[float, float] = self._parse_position(ctx.position(1))
@@ -107,7 +117,7 @@ class IconCollector(IconScriptListener):
         self.current_shapes.append(("rect", rect, self.current_width))
 
     @override
-    def exitCircle(self, ctx: IconScriptParser.circleContext) -> None:
+    def exitCircle(self, ctx: IconScriptParser.CircleContext) -> None:
         """Process `c` (circle) command."""
         center: tuple[float, float] = self._parse_position(ctx.position())
         radius: float = float(ctx.FLOAT().getText())
@@ -115,30 +125,36 @@ class IconCollector(IconScriptListener):
         self.current_shapes.append(("circle", circle, self.current_width))
 
     @override
-    def exitSetPosition(self, ctx: IconScriptParser.setPositionContext) -> None:
+    def exitSetPosition(self, ctx: IconScriptParser.SetPositionContext) -> None:
         """Process `p` (set position) command."""
         self.current_position = self._parse_position(ctx.position())
 
     @override
-    def exitSetWidth(self, ctx: IconScriptParser.setWidthContext) -> None:
+    def exitSetWidth(self, ctx: IconScriptParser.SetWidthContext) -> None:
         self.current_width = float(ctx.FLOAT().getText())
 
     @override
-    def exitCommand(self, ctx: IconScriptParser.commandContext) -> None:
+    def exitCommand(self, ctx: IconScriptParser.CommandContext) -> None:
         """Handle variable usage (e.g., `@foo`)."""
         if ctx.VARIABLE():
             variable_name: str = ctx.VARIABLE().getText()[1:]
             if variable_name in self.variables:
-                commands_ctx: IconScriptParser.commandsContext = self.variables[
+                commands_ctx: IconScriptParser.CommandsContext = self.variables[
                     variable_name
                 ]
                 walker: antlr4.ParseTreeWalker = antlr4.ParseTreeWalker()
                 walker.walk(self, commands_ctx)
             else:
-                logger.warning("Variable `@{varname}` not defined.")
+                logger.warning(
+                    "Variable `@%s` not defined at %d:%d.",
+                    variable_name,
+                    ctx.start.line,
+                    ctx.start.column,
+                )
+                self.pending_commands.append(ctx)
 
     def _parse_position(
-        self, ctx: IconScriptParser.positionContext
+        self, ctx: IconScriptParser.PositionContext
     ) -> tuple[float, float]:
         """Handle relative and absolute positions."""
 
@@ -154,7 +170,7 @@ class IconCollector(IconScriptListener):
         return x, y
 
 
-def shapely_to_svg_path(geometry: Geometry) -> str:
+def shapely_to_svg_path(geometry: shapely.Geometry) -> str:
     """Convert a Shapely geometry to an SVG path.
 
     Only handles Polygon and LineString for brevity.
@@ -235,7 +251,7 @@ def iconscript_to_svg(input_file: Path, output_directory: Path) -> None:
         drawing: svgwrite.Drawing = svgwrite.Drawing(
             str(svg_path), profile="tiny"
         )
-        all_geometries: list[Geometry] = []
+        all_geometries: list[shapely.Geometry] = []
         svg_paths: list[str] = []
 
         for shape_type, shape, width in shapes:
@@ -267,29 +283,33 @@ def iconscript_to_svg(input_file: Path, output_directory: Path) -> None:
         drawing.add(drawing.path(d=full_path_data, fill="black", stroke="none"))
         drawing.save()
 
-        logger.info("SVG file written to `%s`.", svg_path)
+        logger.debug("SVG file written to `%s`.", svg_path)
 
 
 def main() -> None:
     """Script entry point."""
 
+    logging.basicConfig(level=logging.INFO)
+
     parser: argparse.ArgumentParser = argparse.ArgumentParser(
         description="Convert iconscript files to SVG."
     )
     parser.add_argument("-i", "--input", nargs="*", help="Input file names")
-    parser.add_argument("-o", "--output", help="Output directory", default="icons")
+    parser.add_argument(
+        "-o", "--output", help="Output directory", default="icons"
+    )
     arguments: argparse.Namespace = parser.parse_args()
 
     inputs: list[Path]
     if arguments.input:
-        inputs = [Path(input) for input in arguments.input]
+        inputs = [Path(input_name) for input_name in arguments.input]
     else:
         inputs = Path().glob("*.iconscript")
 
     for input_path in inputs:
         logger.info("Processing `%s`...", input_path)
         try:
-            iconscript_to_svg(input_path, arguments.output)
+            iconscript_to_svg(input_path, Path(arguments.output))
         except Exception:
             logger.exception("Error processing `%s`.", input_path)
             return 1
