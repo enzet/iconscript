@@ -1,6 +1,3 @@
 #!/usr/bin/env bash
 
-cd parser-go
-go vet || { echo "FAIL"; exit 1; }
-go test || { echo "FAIL"; exit 1; }
-cd ..
+.githooks/check

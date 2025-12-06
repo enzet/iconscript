@@ -18,14 +18,8 @@ else
     # Generate parser from grammar.
     echo "Generating parser from grammar..."
     cd "$PROJECT_ROOT/grammar"
-    $ANTLR_CMD -Dlanguage=Go -o ../parser-go/parser IconScript.g4
+    $ANTLR_CMD -Dlanguage=JavaScript -o ../parser IconScript.g4
     cd "$PROJECT_ROOT"
 fi
-
-# Run Go checks in parser-go directory.
-cd "$PROJECT_ROOT/parser-go"
-go build || { echo "FAIL: go build"; exit 1; }
-go vet || { echo "FAIL: go vet"; exit 1; }
-go test || { echo "FAIL: go test"; exit 1; }
 
 exit 0

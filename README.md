@@ -7,15 +7,10 @@ project to automate pictogram generation.
 
 This project consists of several parts:
   - iconscript language grammar, written in ANTLR4,
-  - web interface for interactively creating `*.iconscript` files,
-  - SVG generator (Python) that converts drawing commands to SVG files,
-  - IconScript parser (Go) that converts `*.iconscript` files to drawing
-    commands.
+  - web interface for interactively creating `*.iconscript` files.
 
 ```
 web interface -> iconscript files
-iconscript files -> (parser-go) -> drawing commands
-iconscript files -> (parser-python) -> SVG files
 ```
 
 ## Web interface
@@ -38,46 +33,6 @@ live-server
 ```shell
 ./generate-grammars.sh
 ```
-
-## Python part
-
-Parses iconscript files and converts them to SVG files.
-
-**Requires:** Python 3.12, ANTLR 4.13.2.
-
-Install:
-
-```shell
-cd parser-python
-pip install .
-```
-
-Run:
-
-```shell
-iconscript -i $INPUT_FILE -o $OUTPUT_DIRECTORY
-```
-
-## Go part
-
-**Requires:** Go 1.22, ANTLR 4.13.2.
-
-Install:
-
-```shell
-cd parser-go
-cd ../grammar
-antlr4 -Dlanguage=Go -o ../parser-go/parser IconScript.g4
-cd ../parser-go
-go build
-```
-
-```shell
-cd parser-go
-go run main.go -i $INPUT_FILE
-```
-
-You may also test installation with `go test`.
 
 ## Syntax
 
