@@ -21,12 +21,12 @@ icon : 'icon' name '=' '{' commands '}' | 'icon' name '=' command ;
 command
     : name 
     | VARIABLE
-    | 'r'
     | arc
     | circle
     | line
     | rectangle
     | setPosition
+    | setRemove
     | setWidth ;
 
 // Figures.
@@ -41,3 +41,4 @@ name : IDENTIFIER ;
 // Set context.
 setPosition : 'p' position ;
 setWidth : 'w' FLOAT ;
+setRemove : 'r' ;

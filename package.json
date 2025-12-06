@@ -7,7 +7,8 @@
         "format": "prettier --write \"**/*.js\" \"**/*.mjs\"",
         "format:check": "prettier --check \"**/*.js\" \"**/*.mjs\"",
         "test": "node test-suite.js",
-        "generate": "node generate-icons-antlr.mjs"
+        "generate": "node generate-icons-antlr.mjs",
+        "generate-icons-list": "node generate-icons-list.mjs"
     },
     "keywords": [
         "svg",

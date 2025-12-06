@@ -19,7 +19,7 @@ import (
 
 // Figure is a simple 2D figure on the surface.
 type Figure interface {
-	setWidth(width float32)
+	// All figure types implement this interface.
 }
 
 // Line is a polyline through a set of positions.
@@ -29,28 +29,16 @@ type Line struct {
 	width     float32
 }
 
-func (line *Line) setWidth(width float32) {
-	line.width = width
-}
-
 type Rectangle struct {
 	start Position
 	end   Position
 	width float32
 }
 
-func (rectangle *Rectangle) setWidth(width float32) {
-	rectangle.width = width
-}
-
 type Circle struct {
 	center Position
 	radius float32
 	width  float32
-}
-
-func (circle *Circle) setWidth(width float32) {
-	circle.width = width
 }
 
 // Arc is a part of a circle.
@@ -62,10 +50,6 @@ type Arc struct {
 	width      float32
 }
 
-func (arc *Arc) setWidth(width float32) {
-	arc.width = width
-}
-
 // Icon is a 2-dimensional shape, described by the number of figures, that
 // should be united or subtracted.
 type Icon struct {
@@ -73,31 +57,33 @@ type Icon struct {
 	figures []Figure
 }
 
-// Get string representation of an icon.
-func (icon Icon) String() string {
-
-	result := icon.name + "\n"
-	for _, figure := range icon.figures {
-		result += fmt.Sprintf("    %s\n", figure)
-	}
-	return result
-}
-
 // Context describes current state of the drawing process.
 type Context struct {
 	currentPosition *Position
 	currentWidth    float32
-	unnamedIconId   int
 	isUnionMode     bool
+}
 
-	currentIcon *Icon
-	icons       []*Icon
+func (context *Context) Clear() {
+	context.currentWidth = 1.0
+	context.currentPosition = &Position{0, 0}
+	context.isUnionMode = true
 }
 
 // Parser listener, that stores current parser state as well.
-type iconScriptListener struct {
+type IconScriptListener struct {
 	*parser.BaseIconScriptListener
-	context *Context
+
+	unnamedIconId int
+	currentIcon   *Icon
+	icons         []*Icon
+
+	// Stack of contexts.
+	contexts []*Context
+}
+
+func (listener *IconScriptListener) getContext() *Context {
+	return listener.contexts[len(listener.contexts)-1]
 }
 
 // Position is a 2-dimensional point on the plane.
@@ -154,127 +140,148 @@ func parsePosition(positionContext parser.IPositionContext,
 }
 
 // ExitLine constructs line and adds it to the current icon.
-func (listener *iconScriptListener) ExitLine(context *parser.LineContext) {
+func (listener *IconScriptListener) ExitLine(context *parser.LineContext) {
 
-	line := new(Line)
-	line.setWidth(listener.context.currentWidth)
 	positions := context.AllPosition()
-	line.positions = make([]Position, len(positions))
 	command := context.GetChild(0).GetPayload().(*antlr.CommonToken).GetText()
 
-	if command == "lf" {
-		line.isFilled = true
+	line := &Line{
+		positions: make([]Position, len(positions)),
+		isFilled:  command == "lf",
+		width:     listener.getContext().currentWidth,
 	}
+
 	for i, position := range positions {
-		line.positions[i] = parsePosition(position, listener.context)
+		line.positions[i] = parsePosition(position, listener.getContext())
 	}
-	if listener.context.currentIcon != nil {
-		listener.context.currentIcon.figures =
-			append(listener.context.currentIcon.figures, line)
+	if listener.currentIcon != nil {
+		listener.currentIcon.figures =
+			append(listener.currentIcon.figures, line)
 	}
 }
 
 // ExitRectangle constructs a rectangle and adds it to the current icon.
-func (listener *iconScriptListener) ExitRectangle(
+func (listener *IconScriptListener) ExitRectangle(
 	context *parser.RectangleContext) {
 
-	rectangle := new(Rectangle)
-	rectangle.setWidth(listener.context.currentWidth)
 	positions := context.AllPosition()
 
-	rectangle.start = parsePosition(positions[0], listener.context)
-	rectangle.end = parsePosition(positions[1], listener.context)
+	rectangle := &Rectangle{
+		start: parsePosition(positions[0], listener.getContext()),
+		end:   parsePosition(positions[1], listener.getContext()),
+		width: listener.getContext().currentWidth,
+	}
 
-	if listener.context.currentIcon != nil {
-		listener.context.currentIcon.figures =
-			append(listener.context.currentIcon.figures, rectangle)
+	if listener.currentIcon != nil {
+		listener.currentIcon.figures =
+			append(listener.currentIcon.figures, rectangle)
 	}
 }
 
 // ExitCircle constructs acircle and adds it to the current icon.
-func (listener *iconScriptListener) ExitCircle(context *parser.CircleContext) {
+func (listener *IconScriptListener) ExitCircle(context *parser.CircleContext) {
 
-	circle := new(Circle)
-	circle.setWidth(listener.context.currentWidth)
+	circle := &Circle{
+		center: parsePosition(context.Position(), listener.getContext()),
+		radius: parseFloat(context.FLOAT().GetText()),
+		width:  listener.getContext().currentWidth,
+	}
 
-	circle.center = parsePosition(context.Position(), listener.context)
-	circle.radius = parseFloat(context.FLOAT().GetText())
-
-	if listener.context.currentIcon != nil {
-		listener.context.currentIcon.figures =
-			append(listener.context.currentIcon.figures, circle)
+	if listener.currentIcon != nil {
+		listener.currentIcon.figures =
+			append(listener.currentIcon.figures, circle)
 	}
 }
 
 // ExitArc constructs an arc and adds it to the current icon.
-func (listener *iconScriptListener) ExitArc(context *parser.ArcContext) {
+func (listener *IconScriptListener) ExitArc(context *parser.ArcContext) {
 
-	arc := new(Arc)
-	arc.setWidth(listener.context.currentWidth)
 	floats := context.AllFLOAT()
 
-	arc.center = parsePosition(context.Position(), listener.context)
-	arc.radius = parseFloat(floats[0].GetText())
-	arc.startAngle = parseFloat(floats[1].GetText())
-	arc.endAngle = parseFloat(floats[2].GetText())
+	arc := &Arc{
+		center:     parsePosition(context.Position(), listener.getContext()),
+		radius:     parseFloat(floats[0].GetText()),
+		startAngle: parseFloat(floats[1].GetText()),
+		endAngle:   parseFloat(floats[2].GetText()),
+		width:      listener.getContext().currentWidth,
+	}
 
-	if listener.context.currentIcon != nil {
-		listener.context.currentIcon.figures =
-			append(listener.context.currentIcon.figures, arc)
+	if listener.currentIcon != nil {
+		listener.currentIcon.figures =
+			append(listener.currentIcon.figures, arc)
 	}
 }
 
 // ExitSetPosition updates current position.
-func (listener *iconScriptListener) ExitSetPosition(
+func (listener *IconScriptListener) ExitSetPosition(
 	context *parser.SetPositionContext) {
 
-	parsePosition(context.Position(), listener.context)
+	parsePosition(context.Position(), listener.getContext())
 }
 
-// ExitsetWidth sets current width.
-func (listener *iconScriptListener) ExitsetWidth(
+// ExitSetWidth sets current width.
+func (listener *IconScriptListener) ExitSetWidth(
 	context *parser.SetWidthContext) {
 
-	listener.context.currentWidth = parseFloat(context.FLOAT().GetText())
+	listener.getContext().currentWidth = parseFloat(context.FLOAT().GetText())
+}
+
+func (listener *IconScriptListener) EnterScope(context *parser.ScopeContext) {
+
+	newContext := listener.getContext() // Shallow copy.
+	newContext.currentPosition = listener.getContext().currentPosition
+
+	listener.contexts = append(listener.contexts, newContext)
+}
+
+func (listener *IconScriptListener) ExitScope(context *parser.ScopeContext) {
+
+	listener.contexts = listener.contexts[:len(listener.contexts)-1]
 }
 
 // ExitName stores icon name.
-func (listener *iconScriptListener) ExitName(context *parser.NameContext) {
-	listener.context.currentIcon.name = context.IDENTIFIER().GetText()
+func (listener *IconScriptListener) ExitName(context *parser.NameContext) {
+
+	name := context.IDENTIFIER().GetText()
+	if name == "temp" {
+		name = fmt.Sprintf("icon_%d", listener.unnamedIconId)
+		listener.unnamedIconId++
+	}
+	listener.currentIcon.name = name
 }
 
 // EnterIcon creates a new icon.
-func (listener *iconScriptListener) EnterIcon(_ *parser.IconContext) {
-	listener.context.currentIcon = new(Icon)
+func (listener *IconScriptListener) EnterIcon(_ *parser.IconContext) {
+	listener.currentIcon = new(Icon)
 }
 
 // ExitIcon adds constructed icon to the final set.
-func (listener *iconScriptListener) ExitIcon(_ *parser.IconContext) {
+func (listener *IconScriptListener) ExitIcon(_ *parser.IconContext) {
 
-	if listener.context.currentIcon.name == "" {
-		listener.context.currentIcon.name =
-			fmt.Sprintf("icon%d", listener.context.unnamedIconId)
-		listener.context.unnamedIconId++
-	}
-	listener.context.icons =
-		append(listener.context.icons, listener.context.currentIcon)
+	listener.icons =
+		append(listener.icons, listener.currentIcon)
 
-	listener.context.currentIcon = nil
+	listener.currentIcon = nil
+	listener.getContext().Clear()
 }
 
 // Parse iconscript using ANTLR.
-func parse(stream antlr.CharStream) (*Context, error) {
+func parse(stream antlr.CharStream) (*IconScriptListener, error) {
 
 	lexer := parser.NewIconScriptLexer(stream)
 	tokenStream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
 	p := parser.NewIconScriptParser(tokenStream)
 
-	listener := new(iconScriptListener)
-	listener.context = &Context{new(Position), 1.0, 0, false, nil, nil}
+	listener := &IconScriptListener{
+		contexts:      []*Context{{currentPosition: &Position{0, 0}, currentWidth: 1.0, isUnionMode: true}},
+		unnamedIconId: 0,
+		currentIcon:   nil,
+		icons:         nil,
+	}
 
 	antlr.ParseTreeWalkerDefault.Walk(listener, p.Script())
 
-	return listener.context, nil
+	return listener, nil
 }
 
 // Convert GEOS geometry to SVG path string.
@@ -600,7 +607,7 @@ func main() {
 	// Initialize GEOS context.
 	geosCtx := geos.NewContext()
 
-	var parsed *Context
+	var parsed *IconScriptListener
 	var err error
 
 	if *commands == "" {

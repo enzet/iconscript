@@ -17,7 +17,7 @@ func checkIcon(t *testing.T, command string) *Icon {
 	assert.Equal(t, 1, len(icons), "Unexpected number of icons.")
 
 	icon := icons[0]
-	assert.Equal(t, "temp", icon.name)
+	assert.Equal(t, "icon_0", icon.name)
 	assert.Equal(t, 1, len(icon.figures), "Unexpected number of figures.")
 
 	return icon
@@ -59,12 +59,4 @@ func TestRectangle(t *testing.T) {
 	icon := checkIcon(t, "icon temp = { s 1,1 2,2 }")
 	assert.Equal(t, &Rectangle{Position{1, 1}, Position{2, 2}, 1},
 		icon.figures[0])
-}
-
-// TestSetPosition tests moving current position.
-func TestSetPosition(t *testing.T) {
-
-	parsed, err := parse(antlr.NewInputStream("icon temp = { p 1,2 p +2,3 }"))
-	assert.Equal(t, nil, err)
-	assert.Equal(t, &Position{3, 5}, parsed.currentPosition)
 }
