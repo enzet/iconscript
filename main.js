@@ -178,6 +178,9 @@ function combine(object) {
  */
 function combineFill() {
     if (fill) {
+        if (!shape) {
+            shape = new Path({fillColor: "blue", insert: false});
+        }
         if (uniting) {
             shape = shape.unite(fill);
         } else {

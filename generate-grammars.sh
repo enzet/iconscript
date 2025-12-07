@@ -6,8 +6,7 @@ set -e
 PROJECT_ROOT="$(pwd)"
 GRAMMAR_FILE="$PROJECT_ROOT/grammar/IconScript.g4"
 
-PYTHON_OUTPUT_DIR="$PROJECT_ROOT/parser-python/iconscript/parser"
-GO_OUTPUT_DIR="$PROJECT_ROOT/parser-go/parser"
+OUTPUT_DIR="$PROJECT_ROOT/grammar"
 
 # Check if ANTLR is installed.
 if ! command -v antlr4 &> /dev/null && ! command -v antlr &> /dev/null; then
@@ -31,26 +30,14 @@ if [ ! -f "$GRAMMAR_FILE" ]; then
 fi
 
 # Create output directories if they don't exist.
-mkdir -p "$PYTHON_OUTPUT_DIR"
-mkdir -p "$GO_OUTPUT_DIR"
+mkdir -p "$OUTPUT_DIR"
 
-# Remove old generated files (but keep __init__.py if it exists).
-if [ -d "$PYTHON_OUTPUT_DIR" ]; then
-    find "$PYTHON_OUTPUT_DIR" -type f \( -name "*.py" -o -name "*.interp" -o -name "*.tokens" \) ! -name "__init__.py" -delete
-fi
-if [ -d "$GO_OUTPUT_DIR" ]; then
-    find "$GO_OUTPUT_DIR" -type f \( -name "*.go" -o -name "*.interp" -o -name "*.tokens" \) -delete
+# Remove old generated files.
+if [ -d "$OUTPUT_DIR" ]; then
+    find "$OUTPUT_DIR" -type f \( -name "*.js" -o -name "*.interp" -o -name "*.tokens" \) -delete
 fi
 
 cd "$PROJECT_ROOT"
-$ANTLR_CMD -Dlanguage=Python3 -o "$PYTHON_OUTPUT_DIR" "$GRAMMAR_FILE"
-$ANTLR_CMD -Dlanguage=Go -o "$GO_OUTPUT_DIR" "$GRAMMAR_FILE"
+$ANTLR_CMD -Dlanguage=JavaScript -o "$OUTPUT_DIR" "$GRAMMAR_FILE"
 
-# Create __init__.py if it doesn't exist for Python.
-if [ ! -f "$PYTHON_OUTPUT_DIR/__init__.py" ]; then
-    touch "$PYTHON_OUTPUT_DIR/__init__.py"
-fi
-
-echo "Grammars generated:"
-echo "  - Python: $PYTHON_OUTPUT_DIR"
-echo "  - Go: $GO_OUTPUT_DIR"
+echo "Grammars generated into $OUTPUT_DIR"
