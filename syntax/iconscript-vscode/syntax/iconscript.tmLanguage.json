@@ -1,0 +1,49 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "iconscript",
+    "patterns": [
+        {"include": "#comments"},
+        {"include": "#keywords"},
+        {"include": "#commands"},
+        {"include": "#variables"},
+        {"include": "#numbers"},
+        {"include": "#positions"},
+        {"include": "#operators"},
+        {"include": "#identifiers"}
+    ],
+    "repository": {
+        "comments": {
+            "name": "comment.line.iconscript",
+            "match": "(^#.*$)"
+        },
+        "keywords": {
+            "name": "keyword.control.iconscript",
+            "match": "\\bicon\\b"
+        },
+        "commands": {
+            "name": "keyword.other.iconscript",
+            "match": "\\b(l|lf|c|s|a|p|w|r)\\b"
+        },
+        "variables": {
+            "name": "variable.other.readwrite.iconscript",
+            "match": "@[a-zA-Z_][a-zA-Z0-9_]*"
+        },
+        "numbers": {
+            "name": "constant.numeric.iconscript",
+            "match": "-?\\d+(\\.\\d*)?"
+        },
+        "positions": {
+            "name": "constant.numeric.position.iconscript",
+            "match": "\\+?\\d+(\\.\\d*)?,\\s*\\d+(\\.\\d*)?"
+        },
+        "operators": {
+            "name": "keyword.operator.iconscript",
+            "match": "[={}]"
+        },
+        "identifiers": {
+            "name": "variable.other.iconscript",
+            "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b"
+        }
+    },
+    "scopeName": "source.iconscript"
+}

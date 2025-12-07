@@ -1,0 +1,31 @@
+{
+    "name": "iconscript",
+    "version": "0.1.0",
+    "displayName": "Iconscript",
+    "description": "Syntax highlighting for iconscript language",
+    "publisher": "iconscript",
+    "engines": {"vscode": "^1.74.0"},
+    "categories": ["Programming Languages"],
+    "contributes": {
+        "languages": [
+            {
+                "id": "iconscript",
+                "aliases": ["Iconscript", "iconscript"],
+                "extensions": [".iconscript"],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "iconscript",
+                "scopeName": "source.iconscript",
+                "path": "./syntax/iconscript.tmLanguage.json"
+            }
+        ],
+        "configurationDefaults": {
+            "[iconscript]": {
+                "editor.wordBasedSuggestions": "off"
+            }
+        }
+    }
+}
