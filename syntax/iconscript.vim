@@ -7,7 +7,7 @@ endif
 
 syn case match
 
-syn match iconscriptComment "^%[^\n]*"
+syn match iconscriptComment "^#.*$"
 syn keyword iconscriptKeyword icon
 syn keyword iconscriptCommand l lf c s a p w r
 syn match iconscriptVariable "@[a-zA-Z_][a-zA-Z0-9_]*"

@@ -9,6 +9,7 @@ grammar IconScript;
 VARIABLE : '@' IDENTIFIER ;
 FLOAT : '-'? [0-9]+ ( '.' [0-9]* )? ;
 IDENTIFIER : [a-zA-Z_][a-zA-Z0-9_]* ;
+COMMENT : '#' ~[\r\n]* -> skip ;
 WS : [ \t\r\n] -> skip ;
 
 script : expression* ;

@@ -8,6 +8,7 @@ icons/
 
 # Parsers, generated from `IconScript.g4` by ANTLR4.
 grammar/*.interp
+grammar/*.js
 grammar/*.tokens
 parser-go/parser-go
 parser-go/parser/

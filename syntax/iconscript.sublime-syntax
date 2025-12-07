@@ -14,5 +14,5 @@ contexts:
       scope: constant.numeric
     - match: '[{}=]'
       scope: punctuation.definition.argument
-    - match: '%[a-z0-9_]*'
+    - match: '(^#.*$)'
       scope: comment
