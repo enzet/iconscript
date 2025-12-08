@@ -1,8 +1,8 @@
 flag = l 1,13 1,3 13,3 13,11 1,11
-triangle_r = l 1,3 7,7 1,11
-triangle_l = l 13,3 7,7 13,11
-triangle_rf = lf 1,3 7,7 1,11
-triangle_lf = lf 13,3 7,7 13,11
+triangle_l = l 1,3 7,7 1,11
+triangle_r = l 13,3 7,7 13,11
+triangle_lf = lf 1,3 7,7 1,11
+triangle_rf = lf 13,3 7,7 13,11
 line_h = l 1,7 +12,0
 line_h1 = lf 1,6 +12,0
 line_h2 = lf 13,8 +-12,0
@@ -11,35 +11,39 @@ line_v1 = lf 5,3 +0,8
 line_v2 = lf 9,11 +0,-8
 line = l +0,0 +12,0
 
-icon flag = { @flag }
-icon flag_cross = { @flag lf 1,11 1,3 13,3 13,11 }
-icon flag_triangle_r = { @flag @triangle_r }
-icon flag_triangle_rf = { @flag @triangle_rf }
-icon flag_triangle_l = { @flag @triangle_l }
-icon flag_triangle_lf = { @flag @triangle_lf }
-icon flag_line_h = { @flag @line_h }
-icon flag_line_h1 = { @flag @line_h1 @line_h2 }
-icon flag_line_v = { @flag @line_v }
-icon flag_line_v1 = { @flag @line_v1 @line_v2 }
-icon flag_line_h_v = { @flag @line_h @line_v }
-icon temp = { @flag @line_h1 @line_h2 lf 6,3 6,11 8,11 8,3 }
-icon temp = { @flag p 1,5 @line p 1,7 @line p 1,9 @line }
-
-icon flag_usa = {
-    @flag p 1,5 @line p 1,7 @line p 1,9 @line s 1,3 +6,4
-    { r c 2,4 1 c 4,4 1 c 6,4 1 c 2,6 1 c 4,6 1 c 6,6 1 }
-}
-
 bend = l 1,3 13,11
 bend_s = l 1,11 13,3
 bend_w = lf 2,3 13,10 12,11 1,4
 bend_sw = lf 1,10 12,3 13,4 2,11
 
+icon flag_solid = { @flag }
+icon flag_canton = { @flag lf 1,3 +6,0 +0,4 +-6,0 }
+icon flag_usa = {
+    @flag p 1,5 @line p 1,7 @line p 1,9 @line s 1,3 +6,4
+    { r c 2,4 1 c 4,4 1 c 6,4 1 c 2,6 1 c 4,6 1 c 6,6 1 }
+}
+icon flag_triangle_flanche = { @flag @triangle_lf }
+icon flag_symmetric_cross = { @flag @line_h @line_v }
+icon flag_saltire = { @flag @bend @bend_s }
+
+# Not-checked.
+
+icon flag_triangle_l = { @flag @triangle_l }
+icon flag_triangle_r = { @flag @triangle_r }
+icon flag_triangle_rf = { @flag @triangle_rf }
+icon flag_line_h = { @flag @line_h }
+icon flag_line_h1 = { @flag @line_h1 @line_h2 }
+icon flag_line_v = { @flag @line_v }
+icon flag_line_v1 = { @flag @line_v1 @line_v2 }
+icon aa = { @flag @line_h1 @line_h2 lf 6,3 6,11 8,11 8,3 }
+icon temp = { @flag p 1,5 @line p 1,7 @line p 1,9 @line }
+
+
 icon flag_bend = { @flag @bend }
 icon flag_bend_s = { @flag @bend_s }
-icon flag_bend_bend_s = { @flag @bend @bend_s }
 icon flag_bend_w = { @flag @bend_w }
 icon flag_bend_sw = { @flag @bend_sw }
 icon flag_bend_w_bend_sw = { @flag @bend_w @bend_sw }
 icon flag_bend_bend_w_bend_sw = { @flag @bend_w @bend_sw }
 icon temp = { @flag l 7,5 +2,1 +0,2 +-2,1 +-2,-1 +0,-2 }
+
