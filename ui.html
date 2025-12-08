@@ -40,7 +40,7 @@
             border-radius: 4px;
             display: flex;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 10px;
             align-items: flex-start;
         }
         .icon-container {
@@ -49,6 +49,7 @@
             align-items: center;
             border: 1px solid #eee;
             background-color: #fafafa;
+            width: 148px; /* 128px + 20px padding */
         }
         .icon-container svg {
             display: block;
@@ -58,9 +59,15 @@
             font-size: 12px;
             margin-top: 5px;
             text-align: center;
+            font-family: "JetBrains Mono", monospace;
         }
         label {
             user-select: none;
+        }
+        .control-point {
+            fill: black;
+            stroke: none;
+            r: 0.1;
         }
     </style>
     <script type="text/javascript" src="bundled-parser.min.js"></script>

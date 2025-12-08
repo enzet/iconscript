@@ -86,7 +86,7 @@
             const iconscriptCode = codeTextarea.value.trim();
 
             if (!iconscriptCode) {
-                showInfo("Please enter some IconScript code.");
+                showInfo("Please enter some iconscript code.");
                 loadingIndicator.style.display = "none";
                 return;
             }
@@ -134,6 +134,334 @@
             }
         }
 
+        function extractControlPoints(pathData) {
+            const points = [];
+            if (!pathData) return points;
+
+            const commands = pathData.match(/[MLHVCSQTAZmlhvcsqtaz]|[+-]?\d*\.?\d+(?:[eE][+-]?\d+)?/g) || [];
+            if (commands.length === 0) return points;
+
+            let x = 0, y = 0;
+            let prevX = 0, prevY = 0;
+            let controlX = 0, controlY = 0;
+            let startX = 0, startY = 0;
+            let lastCommand = null;
+            let lastIsRelative = false;
+
+            for (let i = 0; i < commands.length; i++) {
+                const cmd = commands[i];
+                let command = null;
+                let isRelative = false;
+
+                if (cmd.match(/[MLHVCSQTAZmlhvcsqtaz]/)) {
+                    command = cmd.toUpperCase();
+                    isRelative = cmd === cmd.toLowerCase();
+                    lastCommand = command;
+                    lastIsRelative = isRelative;
+                } else if (lastCommand && lastCommand !== "Z") {
+                    // Implicit command repetition.
+                    command = lastCommand;
+                    isRelative = lastIsRelative;
+                    i--; // Don't advance, process this number.
+                } else {
+                    continue;
+                }
+
+                switch (command) {
+                    case "M":
+                        if (i + 1 < commands.length) {
+                            const newX = parseFloat(commands[++i]);
+                            const newY = parseFloat(commands[++i]);
+                            if (!isNaN(newX) && !isNaN(newY)) {
+                                if (isRelative) {
+                                    x += newX;
+                                    y += newY;
+                                } else {
+                                    x = newX;
+                                    y = newY;
+                                }
+                                startX = x;
+                                startY = y;
+                                points.push({x, y, type: "move"});
+                                // After `M`, subsequent numbers are treated as
+                                // `L` commands.
+                                lastCommand = "L";
+                            }
+                        }
+                        break;
+                    case "L":
+                        if (i + 1 < commands.length) {
+                            const newX = parseFloat(commands[++i]);
+                            const newY = parseFloat(commands[++i]);
+                            if (!isNaN(newX) && !isNaN(newY)) {
+                                if (isRelative) {
+                                    x += newX;
+                                    y += newY;
+                                } else {
+                                    x = newX;
+                                    y = newY;
+                                }
+                                points.push({x, y, type: "line"});
+                            }
+                        }
+                        break;
+                    case "H":
+                        if (i < commands.length) {
+                            const newX = parseFloat(commands[++i]);
+                            if (!isNaN(newX)) {
+                                if (isRelative) {
+                                    x += newX;
+                                } else {
+                                    x = newX;
+                                }
+                                points.push({x, y, type: "line"});
+                            }
+                        }
+                        break;
+                    case "V":
+                        if (i < commands.length) {
+                            const newY = parseFloat(commands[++i]);
+                            if (!isNaN(newY)) {
+                                if (isRelative) {
+                                    y += newY;
+                                } else {
+                                    y = newY;
+                                }
+                                points.push({x, y, type: "line"});
+                            }
+                        }
+                        break;
+                    case "C":
+                        if (i + 5 < commands.length) {
+                            const x1 = parseFloat(commands[++i]);
+                            const y1 = parseFloat(commands[++i]);
+                            const x2 = parseFloat(commands[++i]);
+                            const y2 = parseFloat(commands[++i]);
+                            const newX = parseFloat(commands[++i]);
+                            const newY = parseFloat(commands[++i]);
+                            if (!isNaN(newX) && !isNaN(newY)) {
+                                let absX1, absY1, absX2, absY2, absX, absY;
+                                if (isRelative) {
+                                    absX1 = x + x1;
+                                    absY1 = y + y1;
+                                    absX2 = x + x2;
+                                    absY2 = y + y2;
+                                    absX = x + newX;
+                                    absY = y + newY;
+                                    x = absX;
+                                    y = absY;
+                                } else {
+                                    absX1 = x1;
+                                    absY1 = y1;
+                                    absX2 = x2;
+                                    absY2 = y2;
+                                    absX = newX;
+                                    absY = newY;
+                                    x = absX;
+                                    y = absY;
+                                }
+                                points.push(
+                                    {x: absX1, y: absY1, type: "control"},
+                                    {x: absX2, y: absY2, type: "control"},
+                                    {x, y, type: "curve"}
+                                );
+                                controlX = x;
+                                controlY = y;
+                            }
+                        }
+                        break;
+                    case "S":
+                        if (i + 3 < commands.length) {
+                            const x2s = parseFloat(commands[++i]);
+                            const y2s = parseFloat(commands[++i]);
+                            const newX = parseFloat(commands[++i]);
+                            const newY = parseFloat(commands[++i]);
+                            if (!isNaN(newX) && !isNaN(newY)) {
+                                // Calculate reflection of previous control
+                                // point.
+                                let prevControlX, prevControlY;
+                                if (isRelative) {
+                                    prevControlX = 2 * x - controlX;
+                                    prevControlY = 2 * y - controlY;
+                                    const absX2s = x + x2s;
+                                    const absY2s = y + y2s;
+                                    const absX = x + newX;
+                                    const absY = y + newY;
+                                    x = absX;
+                                    y = absY;
+                                    points.push(
+                                        {x: prevControlX, y: prevControlY, type: "control"},
+                                        {x: absX2s, y: absY2s, type: "control"},
+                                        {x, y, type: "curve"}
+                                    );
+                                } else {
+                                    prevControlX = 2 * x - controlX;
+                                    prevControlY = 2 * y - controlY;
+                                    x = newX;
+                                    y = newY;
+                                    points.push(
+                                        {x: prevControlX, y: prevControlY, type: "control"},
+                                        {x: x2s, y: y2s, type: "control"},
+                                        {x, y, type: "curve"}
+                                    );
+                                }
+                                controlX = x;
+                                controlY = y;
+                            }
+                        }
+                        break;
+                    case "Q":
+                        if (i + 3 < commands.length) {
+                            const qx1 = parseFloat(commands[++i]);
+                            const qy1 = parseFloat(commands[++i]);
+                            const newX = parseFloat(commands[++i]);
+                            const newY = parseFloat(commands[++i]);
+                            if (!isNaN(newX) && !isNaN(newY)) {
+                                let absQx1, absQy1, absX, absY;
+                                if (isRelative) {
+                                    absQx1 = x + qx1;
+                                    absQy1 = y + qy1;
+                                    absX = x + newX;
+                                    absY = y + newY;
+                                    x = absX;
+                                    y = absY;
+                                } else {
+                                    absQx1 = qx1;
+                                    absQy1 = qy1;
+                                    absX = newX;
+                                    absY = newY;
+                                    x = absX;
+                                    y = absY;
+                                }
+                                points.push(
+                                    {x: absQx1, y: absQy1, type: "control"},
+                                    {x, y, type: "quadratic"}
+                                );
+                                controlX = x;
+                                controlY = y;
+                            }
+                        }
+                        break;
+                    case "T":
+                        if (i + 1 < commands.length) {
+                            const newX = parseFloat(commands[++i]);
+                            const newY = parseFloat(commands[++i]);
+                            if (!isNaN(newX) && !isNaN(newY)) {
+                                // Calculate reflection of previous control
+                                // point.
+                                let qPrevControlX, qPrevControlY, absX, absY;
+                                if (isRelative) {
+                                    qPrevControlX = 2 * x - controlX;
+                                    qPrevControlY = 2 * y - controlY;
+                                    absX = x + newX;
+                                    absY = y + newY;
+                                    x = absX;
+                                    y = absY;
+                                } else {
+                                    qPrevControlX = 2 * x - controlX;
+                                    qPrevControlY = 2 * y - controlY;
+                                    absX = newX;
+                                    absY = newY;
+                                    x = absX;
+                                    y = absY;
+                                }
+                                points.push(
+                                    {x: qPrevControlX, y: qPrevControlY, type: "control"},
+                                    {x, y, type: "quadratic"}
+                                );
+                                controlX = x;
+                                controlY = y;
+                            }
+                        }
+                        break;
+                    case "Z":
+                        points.push({x, y, type: "close"});
+                        x = startX;
+                        y = startY;
+                        lastCommand = null;
+                        break;
+                    case "A":
+                        if (i + 6 < commands.length) {
+                            const rx = parseFloat(commands[++i]);
+                            const ry = parseFloat(commands[++i]);
+                            const xAxisRotation = parseFloat(commands[++i]);
+                            const largeArcFlag = parseFloat(commands[++i]);
+                            const sweepFlag = parseFloat(commands[++i]);
+                            const newX = parseFloat(commands[++i]);
+                            const newY = parseFloat(commands[++i]);
+                            if (!isNaN(newX) && !isNaN(newY)) {
+                                const startX = prevX;
+                                const startY = prevY;
+                                
+                                // Add the start point if it's not already
+                                // added.
+                                if (points.length === 0 || points[points.length - 1].type !== "move") {
+                                    points.push({x: startX, y: startY, type: "arc-start"});
+                                }
+                                
+                                if (isRelative) {
+                                    x += newX;
+                                    y += newY;
+                                } else {
+                                    x = newX;
+                                    y = newY;
+                                }
+                                points.push({x, y, type: "arc-end"});
+                            }
+                        }
+                        break;
+                }
+
+                prevX = x;
+                prevY = y;
+            }
+
+            // Return points (extract just `x`, `y` for compatibility).
+            return points.map(p => ({x: p.x, y: p.y}));
+        }
+
+        function extractPolygonPoints(svgElement) {
+
+            const points = [];
+            
+            const polygons = svgElement.querySelectorAll("polygon");
+            polygons.forEach(polygon => {
+                const pointsAttr = polygon.getAttribute("points");
+                if (pointsAttr) {
+                    // Points: `x1,y1 x2,y2 x3,y3` or `x1,y1, x2,y2, x3,y3`.
+                    const coords = pointsAttr.match(/[-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?/g);
+                    if (coords && coords.length >= 2) {
+                        for (let i = 0; i < coords.length - 1; i += 2) {
+                            const x = parseFloat(coords[i]);
+                            const y = parseFloat(coords[i + 1]);
+                            if (!isNaN(x) && !isNaN(y)) {
+                                points.push({x, y});
+                            }
+                        }
+                    }
+                }
+            });
+
+            const polylines = svgElement.querySelectorAll("polyline");
+            polylines.forEach(polyline => {
+                const pointsAttr = polyline.getAttribute("points");
+                if (pointsAttr) {
+                    const coords = pointsAttr.match(/[-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?/g);
+                    if (coords && coords.length >= 2) {
+                        for (let i = 0; i < coords.length - 1; i += 2) {
+                            const x = parseFloat(coords[i]);
+                            const y = parseFloat(coords[i + 1]);
+                            if (!isNaN(x) && !isNaN(y)) {
+                                points.push({x, y});
+                            }
+                        }
+                    }
+                }
+            });
+
+            return points;
+        }
+
         function displayIcon(svgString, iconName) {
             const iconContainer = document.createElement("div");
             iconContainer.className = "icon-container";
@@ -143,17 +471,90 @@
             const svgElement = svgWrapper.querySelector("svg");
 
             if (svgElement) {
-                svgElement.setAttribute("width", "64px");
-                svgElement.setAttribute("height", "64px");
-                svgElement.style.width = "64px";
-                svgElement.style.height = "64px";
+                svgElement.setAttribute("width", "128px");
+                svgElement.setAttribute("height", "128px");
+                svgElement.style.width = "128px";
+                svgElement.style.height = "128px";
+
+                // Extract control points from paths and points from
+                // polygons/polylines.
+                const allPoints = [];
+                
+                // Change fill color from black to blue for all path elements.
+                const pathElements = svgElement.querySelectorAll("path");
+                pathElements.forEach(path => {
+                    path.setAttribute("fill", "#DDDDDD");
+                });
+                
+                // Extract from path elements.
+                const pathElement = svgElement.querySelector("path");
+                if (pathElement) {
+                    const pathData = pathElement.getAttribute("d");
+                    const controlPoints = extractControlPoints(pathData);
+                    allPoints.push(...controlPoints);
+                }
+                
+                // Extract from polygon and polyline elements.
+                const polygonPoints = extractPolygonPoints(svgElement);
+                allPoints.push(...polygonPoints);
+
+                // Get the viewBox, circles should use the same coordinate
+                // system as the path.
+                const viewBox = svgElement.getAttribute("viewBox");
+                let viewBoxX = 0;
+                let viewBoxY = 0;
+                let viewBoxWidth = 16;
+                let viewBoxHeight = 16;
+                if (viewBox) {
+                    const parts = viewBox.split(" ");
+                    if (parts.length >= 4) {
+                        viewBoxX = parseFloat(parts[0]) || 0;
+                        viewBoxY = parseFloat(parts[1]) || 0;
+                        viewBoxWidth = parseFloat(parts[2]) || 16;
+                        viewBoxHeight = parseFloat(parts[3]) || 16;
+                    }
+                }
+
+                // Remove duplicates from combined points.
+                const uniquePoints = [];
+                const threshold = 0.1;
+                for (const point of allPoints) {
+                    let isDuplicate = false;
+                    for (const existing of uniquePoints) {
+                        const dx = Math.abs(point.x - existing.x);
+                        const dy = Math.abs(point.y - existing.y);
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        if (distance < threshold) {
+                            isDuplicate = true;
+                            break;
+                        }
+                    }
+                    if (!isDuplicate) {
+                        uniquePoints.push(point);
+                    }
+                }
+
+                // Add dots for each point. Use the same coordinate system as
+                // the path (viewBox coordinates).
+                // The browser will automatically scale them when rendering.
+                uniquePoints.forEach(point => {
+                    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    circle.setAttribute("cx", point.x);
+                    circle.setAttribute("cy", point.y);
+                    // Make the circle radius relative to viewBox (0.125 = 2px at 16px viewBox)
+                    circle.setAttribute("r", "0.125");
+                    circle.setAttribute("fill", "red");
+                    circle.setAttribute("stroke", "none");
+                    circle.setAttribute("class", "control-point");
+                    svgElement.appendChild(circle);
+                });
 
                 iconContainer.appendChild(svgElement);
 
                 if (iconName) {
                     const nameLabel = document.createElement("div");
                     nameLabel.className = "icon-name";
-                    nameLabel.textContent = iconName;
+                    nameLabel.textContent = iconName.replace(/_/g, " ");
                     iconContainer.appendChild(nameLabel);
                 }
 
