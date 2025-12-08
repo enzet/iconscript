@@ -164,7 +164,7 @@ var filled = false;
  */
 function combine(object) {
     if (!shape) {
-        shape = new Path({fillColor: "blue", insert: false});
+        shape = new Path({insert: false});
     }
     if (uniting) {
         shape = shape.unite(object, (insert = false));
