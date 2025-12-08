@@ -26,8 +26,20 @@
             return;
         }
 
+        // Load saved content from `localStorage`.
+        const STORAGE_KEY = "iconscript-code";
+        const savedCode = localStorage.getItem(STORAGE_KEY);
+        if (savedCode) {
+            codeTextarea.value = savedCode;
+            if (autoGenerateCheckbox.checked) {
+                setTimeout(() => generateIcons(), 100);
+            }
+        }
+
         let debounceTimer = null;
+        let saveTimer = null;
         const DEBOUNCE_DELAY = 500; // Milliseconds.
+        const SAVE_DELAY = 1000; // Save to localStorage after 1 second of no changes.
 
         generateBtn.addEventListener("click", function() {
             generateIcons();
@@ -41,6 +53,14 @@
         });
 
         codeTextarea.addEventListener("input", function() {
+            // Save to `localStorage` (debounced).
+            if (saveTimer) {
+                clearTimeout(saveTimer);
+            }
+            saveTimer = setTimeout(function() {
+                localStorage.setItem(STORAGE_KEY, codeTextarea.value);
+            }, SAVE_DELAY);
+
             if (autoGenerateCheckbox.checked) {
                 if (debounceTimer) {
                     clearTimeout(debounceTimer);
@@ -64,11 +84,16 @@
 
         clearBtn.addEventListener("click", function() {
             codeTextarea.value = "";
+            localStorage.removeItem(STORAGE_KEY);
             clearPreview();
             clearMessages();
             if (debounceTimer) {
                 clearTimeout(debounceTimer);
                 debounceTimer = null;
+            }
+            if (saveTimer) {
+                clearTimeout(saveTimer);
+                saveTimer = null;
             }
             loadingIndicator.style.display = "none";
         });
