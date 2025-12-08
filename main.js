@@ -178,9 +178,6 @@ function combine(object) {
  */
 function combineFill() {
     if (fill) {
-        if (!shape) {
-            shape = new Path({fillColor: "blue", insert: false});
-        }
         if (uniting) {
             shape = shape.unite(fill);
         } else {
@@ -191,132 +188,148 @@ function combineFill() {
 }
 
 /**
- * Parse shape description file line by line.
+ * Process a command from the parsed AST and draw it.
+ */
+function processCommand(command) {
+    if (command.type === "line") {
+        combineFill();
+        filled = false;
+        fill = new Path();
+        fill.fillColor = sketchColor;
+        fill.opacity = sketchOpacity;
+
+        var last = null;
+        for (var i = 0; i < command.positions.length; i++) {
+            var coordinates = toCoordinates(command.positions[i]);
+            addPoint(coordinates, 1);
+
+            if (last) {
+                addLine(last, coordinates);
+            }
+            last = coordinates;
+        }
+    } else if (command.type === "line_filled") {
+        combineFill();
+        filled = true;
+        fill = new Path();
+        fill.fillColor = sketchColor;
+        fill.opacity = sketchOpacity;
+
+        var last = null;
+        for (var i = 0; i < command.positions.length; i++) {
+            var coordinates = toCoordinates(command.positions[i]);
+            addPoint(coordinates, 1);
+
+            if (filled) {
+                fill.add(coordinates);
+            }
+            if (last) {
+                addLine(last, coordinates);
+            }
+            last = coordinates;
+        }
+    } else if (command.type === "line_single") {
+        var coordinates = toCoordinates(command.position);
+        addPoint(coordinates, 1);
+        if (current) {
+            addLine(current, coordinates);
+        }
+        current = coordinates;
+    } else if (command.type === "circle") {
+        var center = toCoordinates(command.position);
+        var radius = command.radius;
+        addPoint(center, radius);
+    } else if (command.type === "arc") {
+        var center = toCoordinates(command.position);
+        var radius = command.radius;
+        var startAngle = command.startAngle;
+        var endAngle = command.endAngle;
+        addArc(center, radius, startAngle, endAngle);
+    } else if (command.type === "rectangle") {
+        var point1 = toCoordinates(command.position1);
+        var point2 = toCoordinates(command.position2);
+        addRectangle(point1, point2);
+    } else if (command.type === "setPosition") {
+        current = toCoordinates(command.position);
+    } else if (command.type === "setWidth") {
+        width = command.width;
+    } else if (command.type === "remove") {
+        combineFill();
+        uniting = false;
+    } else if (command.type === "add") {
+        combineFill();
+        uniting = true;
+    }
+}
+
+/**
+ * Process commands (scopes are already flattened by the parser).
+ */
+function processCommands(commands) {
+    for (var i = 0; i < commands.length; i++) {
+        processCommand(commands[i]);
+    }
+}
+
+/**
+ * Parse shape description file using ANTLR parser.
  */
 function parse() {
     project.activeLayer.removeChildren();
     view.draw();
-    var current = new Path.Circle([0, 0], 10);
 
     shift = new Point(2.5 * scale, 2.5 * scale);
+    current = new Point(0, 0);
+    width = 1.0;
+    uniting = true;
+    shape = null;
+    fill = null;
+    filled = false;
 
     addGrid();
 
-    var lines = area.value.split("\n");
-    var variables = {};
-
-    var lexemes = [];
-
-    var i;
-    var j;
-
-    for (i = 0; i < lines.length; i++) {
-        parts = lines[i].trim().split(" ");
-        if (parts[1] === "=") {
-            variables[parts[0]] = []; // parts.slice(2);
-            for (j = 2; j < parts.length; j++) {
-                part = parts[j];
-                if (part[0] === "@") {
-                    variables[parts[0]] = variables[parts[0]].concat(
-                        variables[part.slice(1)]
-                    );
-                } else {
-                    variables[parts[0]].push(part);
-                }
-            }
-        } else {
-            for (j = 0; j < parts.length; j++) {
-                part = parts[j];
-                if (part[0] === "@") {
-                    lexemes = lexemes.concat(variables[part.slice(1)]);
-                } else {
-                    lexemes.push(part);
-                }
-            }
-        }
+    // Check if bundled parser is available.
+    if (typeof IconScriptParser === "undefined") {
+        console.error("IconScriptParser not found. Make sure bundled-parser.min.js is loaded.");
+        return;
     }
 
-    var mode = null;
+    try {
+        // Parse the iconscript code using the bundled parser.
+        var icons = IconScriptParser.parseIconsFile(area.value);
 
-    for (i = 0; i < lexemes.length; i++) {
-        var lexeme = lexemes[i];
-
-        var center;
-        var radius;
-
-        if (lexeme === "}" && shape) {
-            combineFill();
-            fakeShape = new Path({insert: true});
-            fakeShape = fakeShape.unite(shape);
-            fakeShape.translate([0, scale * size]);
-            fakeShape.opacity = finalOpacity;
-            fakeShape.fillColor = finalColor;
-
-            shift += new Point(scale * size, 0);
-            if (shift.x > scale * columns * size) {
-                shift += new Point(0, scale * size * 2);
-                shift.x = 2.5 * scale;
-            }
-            shape.selected = true;
-            // console.log(shape.exportSVG());
+        // Process each icon.
+        for (var i = 0; i < icons.length; i++) {
+            var icon = icons[i];
             shape = null;
-        } else if (lexeme === "l" || lexeme === "lf") {
-            combineFill();
-            filled = lexeme === "lf";
-            fill = new Path();
-            fill.fillColor = sketchColor;
-            fill.opacity = sketchOpacity;
-
-            var last = null;
-
-            mode = "line";
-        } else if (mode === "width") {
-            width = Number(lexeme);
-            mode = null;
-        } else if (lexeme === "p") {
-            current = toCoordinates(lexemes[i + 1]);
-            i++;
-        } else if (lexeme === "r") {
-            combineFill();
-            uniting = false;
-        } else if (lexeme === "a") {
-            combineFill();
+            fill = null;
+            filled = false;
+            current = new Point(0, 0);
             uniting = true;
-        } else if (lexeme === "w") {
-            width = Number(lexemes[i + 1]);
-            i++;
-        } else if (lexeme === "c") {
-            center = toCoordinates(lexemes[i + 1]);
-            radius = Number(lexemes[i + 2]);
-            addPoint(center, radius);
-            i += 2;
-        } else if (lexeme === "ar") {
-            center = toCoordinates(lexemes[i + 1]);
-            radius = Number(lexemes[i + 2]);
-            p1 = Number(lexemes[i + 3]);
-            p2 = Number(lexemes[i + 4]);
-            addArc(center, radius, p1, p2);
-            i += 4;
-        } else if (lexeme === "s") {
-            point_1 = toCoordinates(lexemes[i + 1]);
-            point_2 = toCoordinates(lexemes[i + 2]);
-            addRectangle(point_1, point_2);
-            i += 2;
-        } else if (lexeme.includes(",")) {
-            coordinates = toCoordinates(lexeme);
+            width = 1.0;
 
-            if (mode === "line") {
-                addPoint(coordinates, 1);
+            // Process all commands for this icon.
+            processCommands(icon.commands);
 
-                if (filled) {
-                    fill.add(coordinates);
+            // Finish the icon.
+            if (shape) {
+                combineFill();
+                var fakeShape = new Path({insert: true});
+                fakeShape = fakeShape.unite(shape);
+                fakeShape.translate([0, scale * size]);
+                fakeShape.opacity = finalOpacity;
+                fakeShape.fillColor = finalColor;
+
+                shift += new Point(scale * size, 0);
+                if (shift.x > scale * columns * size) {
+                    shift += new Point(0, scale * size * 2);
+                    shift.x = 2.5 * scale;
                 }
-                if (last) {
-                    addLine(last, coordinates);
-                }
-                last = coordinates;
+                shape = null;
             }
         }
+    } catch (error) {
+        console.error("Parse error:", error);
     }
 }
 

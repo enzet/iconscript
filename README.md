@@ -1,13 +1,11 @@
 # iconscript
 
-iconscript is a language for describing simple pixel-wise pictograms.
+iconscript is a pretty simple language for describing simple pixel-wise
+pictograms in the style of the [Röntgen](https://github.com/enzet/Roentgen)
+project.
 
-The language is created for the [Röntgen](https://github.com/enzet/Roentgen)
-project to automate pictogram generation.
-
-This project consists of several parts:
-  - iconscript language grammar, written in ANTLR4,
-  - web interface for interactively creating `*.iconscript` files.
+The grammar of the language is described in the ANTLR4 `grammar/IconScript.g4`
+file.
 
 ```
 web interface -> iconscript files
@@ -46,11 +44,13 @@ live-server
 `<position>` is 2D coordinates in the form `<x>,<y>` or `+<x>,<y>` (`+` means
 that the position is relative to the __position__).
 
-| Command | Description |
-|---|---|
-| `r` | Set removing mode |
-| `w <float>` | Set __width__ to a value |
-| `p <position>` | Set __position__ to a value |
+| Context command | Description                 |
+|-----------------|-----------------------------|
+| `r`             | Set removing mode           |
+| `w <float>`     | Set __width__ to a value    |
+| `p <position>`  | Set __position__ to a value |
+
+| Action command | Description |
 | `l [<position>]` | Draw lines between positions |
 | `lf [<position>]` | Draw filled lines between positions |
 | `c <position> <float>` | Draw circle specified by center point and radius |
@@ -62,12 +62,20 @@ that the position is relative to the __position__).
 Variables can be defined with `<variable> = [<command>]` and accessed with
 `@<variable>`.
 
+### Scopes
+
+Scopes group commands together using `{` and `}`. They can be nested and are used
+to incapsulate context changes.
+
 ### Example
 
 ```iconscript
-cube = lf +0,0 +2,0 +0,2 +-2,0 +0,-2
+square = lf +0,0 +2,0 +0,2 +-2,0 +0,-2
 icon glider = {
-    p 6,2   @cube p +4,4 @cube
-    p +-8,4 @cube p +4,0 @cube p +4,0 @cube
+    p 6,2   @square p +4,4 @square
+    p +-8,4 @square p +4,0 @square p +4,0 @square
 }
 ```
+
+This code defines a square (`lf`, filled line — polygon with 5 points). It then
+reuses `square` variable 5 times to draw a glider.

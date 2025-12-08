@@ -2,13 +2,14 @@
     "name": "iconscript",
     "version": "0.1.0",
     "description": "iconscript, a language for generating SVG icons",
-    "main": "generate-icons-antlr.mjs",
+    "main": "generate-svg.mjs",
     "scripts": {
         "format": "prettier --write \"**/*.js\" \"**/*.mjs\"",
         "format:check": "prettier --check \"**/*.js\" \"**/*.mjs\"",
         "test": "node test-suite.js",
-        "generate": "node generate-icons-antlr.mjs",
-        "generate-icons-list": "node generate-icons-list.mjs"
+        "generate": "node generate-svg.mjs",
+        "build:parser": "node build-parser.mjs",
+        "build:parser:min": "node build-parser.mjs --minify"
     },
     "keywords": [
         "svg",
@@ -19,10 +20,12 @@
     "author": "Sergey Vartanov",
     "license": "MIT",
     "devDependencies": {
+        "esbuild": "^0.19.0",
         "prettier": "^3.0.0"
     },
     "dependencies": {
         "antlr4": "^4.13.0",
-        "paper": "^0.12.17"
+        "paper": "^0.12.17",
+        "paperjs-offset": "^1.0.8"
     }
 }

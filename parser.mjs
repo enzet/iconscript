@@ -1,13 +1,16 @@
-#!/usr/bin/env node
+/**
+ * Browser-compatible entry point for IconScript parser.
+ * This file exports only the functions needed for browser use,
+ * excluding Node.js-specific code (file system, command-line args).
+ */
 
-import fs from "fs";
-import path from "path";
 import antlr4 from "antlr4";
 import paper from "paper";
 
 // Import the generated parser (ES6 modules).
 import IconScriptLexer from "./grammar/IconScriptLexer.js";
 import IconScriptParser from "./grammar/IconScriptParser.js";
+import GeneratedIconScriptListener from "./grammar/IconScriptListener.js";
 
 const scale = 1.0;
 const width = 1.0;
@@ -16,7 +19,6 @@ const width = 1.0;
  * Simple 2D point.
  */
 class Point {
-
     constructor(x, y) {
         this.x = x;
         this.y = y;
@@ -31,7 +33,6 @@ class Point {
  * Icon generator.
  */
 class IconGenerator {
-
     constructor() {
         this.variables = {};
         this.currentPoint = new Point(0, 0);
@@ -89,7 +90,6 @@ class IconGenerator {
     }
 
     lineToPath(lineData) {
-
         const x1 = lineData.from.x;
         const y1 = lineData.from.y;
         const x2 = lineData.to.x;
@@ -100,7 +100,6 @@ class IconGenerator {
     }
 
     circleToPath(circleData) {
-
         const cx = circleData.center.x;
         const cy = circleData.center.y;
         const r = circleData.radius;
@@ -117,7 +116,6 @@ class IconGenerator {
     }
 
     createThickLinePath(x1, y1, x2, y2, thickness) {
-
         // Create a thick line by offsetting the line perpendicular to its
         // direction.
         const dx = x2 - x1;
@@ -428,9 +426,6 @@ class IconGenerator {
     }
 }
 
-// Import the generated listener.
-import GeneratedIconScriptListener from "./grammar/IconScriptListener.js";
-
 // Custom listener to extract commands from the AST.
 class IconScriptListener extends GeneratedIconScriptListener {
     constructor() {
@@ -466,10 +461,6 @@ class IconScriptListener extends GeneratedIconScriptListener {
                 name: this.currentIcon.name,
                 commands: processedCommands,
             });
-            console.log(
-                `Icon completed - name: ${this.currentIcon.name}, ` +
-                    `commands: ${processedCommands.length}`
-            );
             this.currentIcon = null;
         }
     }
@@ -484,7 +475,6 @@ class IconScriptListener extends GeneratedIconScriptListener {
                 : fullText;
 
             this.currentIcon.name = name;
-            console.log(`Setting icon name: ${this.currentIcon.name}`);
         }
     }
 
@@ -706,66 +696,10 @@ function parseIconsFile(content) {
     const tree = parser.script();
 
     const listener = new IconScriptListener();
-    console.log("Walker available:", typeof antlr4.tree.ParseTreeWalker);
-    console.log("Walker DEFAULT:", typeof antlr4.tree.ParseTreeWalker.DEFAULT);
-    console.log(
-        "Walker walk method:",
-        typeof antlr4.tree.ParseTreeWalker.DEFAULT.walk
-    );
     antlr4.tree.ParseTreeWalker.DEFAULT.walk(listener, tree);
-
-    console.log(`Parsed ${listener.icons.length} icons`);
-    console.log(`Found ${Object.keys(listener.variables).length} variables`);
 
     return listener.icons;
 }
 
-function generateIcons(inputFile = "icons.txt") {
-    try {
-        // Read the specified file or default to `icons.txt`..
-        const iconsContent = fs.readFileSync(inputFile, "utf8");
-        const icons = parseIconsFile(iconsContent);
-
-        // Ensure icons directory exists.
-        if (!fs.existsSync("icons")) {
-            fs.mkdirSync("icons");
-        }
-
-        const generator = new IconGenerator();
-        let iconCount = 0;
-
-        for (let i = 0; i < icons.length; i++) {
-            const icon = icons[i];
-            const svg = generator.processCommands(icon.commands);
-
-            if (svg) {
-                // Generate filename.
-                let filename;
-                if (icon.name) {
-                    filename = `${icon.name}.svg`;
-                } else {
-                    filename = `icon_${i}.svg`;
-                }
-
-                const filepath = path.join("icons", filename);
-                fs.writeFileSync(filepath, svg);
-                console.log(`Generated: ${filename}`);
-                iconCount++;
-            }
-        }
-
-        console.log(
-            `\nGenerated ${iconCount} SVG files in the icons directory.`
-        );
-    } catch (error) {
-        console.error("Error:", error.message);
-        process.exit(1);
-    }
-}
-
-// Run the generator.
-const inputFile = process.argv[2] || "icons.txt";
-generateIcons(inputFile);
-
-// Export for testing
+// Export for browser use.
 export {IconGenerator, parseIconsFile};

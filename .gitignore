@@ -4,15 +4,17 @@ grammar/.antlr/
 node_modules/
 
 # Output files.
-icons/
+output/
 
 # Parsers, generated from `IconScript.g4` by ANTLR4.
 grammar/*.interp
 grammar/*.js
 grammar/*.tokens
-parser-go/parser-go
-parser-go/parser/
-parser-python/iconscript/parser/
+
+# Bundled JavaScript files.
+bundled-parser.js
+bundled-parser.min.js
+bundled-parser.min.js.map
 
 # WIP.
 webassembly/
