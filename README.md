@@ -29,7 +29,7 @@ live-server
 ## ANTLR4 parser generation
 
 ```shell
-./generate-grammars.sh
+./generate-grammar.sh
 ```
 
 ## Syntax

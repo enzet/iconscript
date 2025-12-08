@@ -7,16 +7,55 @@ if ! command -v antlr4 &> /dev/null && ! command -v antlr &> /dev/null; then
     echo "Error: ANTLR is not installed or not in PATH." >&2
     echo "Please install ANTLR." >&2
     exit 1
-else
-    ANTLR_CMD="antlr4"
-    if ! command -v antlr4 &> /dev/null; then
-        ANTLR_CMD="antlr"
-    fi
-
-    echo "Generating parser from grammar..."
-    cd "$PROJECT_ROOT/grammar"
-    $ANTLR_CMD -Dlanguage=JavaScript IconScript.g4
-    cd "$PROJECT_ROOT"
 fi
 
-exit 0
+
+# Clean up.
+
+find "$PROJECT_ROOT/grammar" \
+    -type f \( -name "*.js" -o -name "*.interp" -o -name "*.tokens" \) \
+    -delete
+rm -f "$PROJECT_ROOT/bundled-parser.js"
+rm -f "$PROJECT_ROOT/bundled-parser.min.js"
+rm -f "$PROJECT_ROOT/bundled-parser.min.js.map"
+rm -rf "$PROJECT_ROOT/output"
+
+
+# Check grammar generation.
+
+"$PROJECT_ROOT/generate-grammar.sh" &> /dev/null
+if [ ! -f "$PROJECT_ROOT/grammar/IconScriptLexer.js" ]; then
+    echo "Error: grammar was not created." >&2
+    exit 1
+fi
+echo "Grammar generated."
+
+
+# Check parser build.
+
+npm run build:parser:min &> /dev/null
+# Check that `bundled-parser.min.js` was created.
+if [ ! -f "$PROJECT_ROOT/bundled-parser.min.js" ]; then
+    echo "Error: bundled-parser.min.js was not created." >&2
+    exit 1
+fi
+echo "Bundled minified parser created."
+
+
+# Check SVG icons creation.
+
+mkdir -p "$PROJECT_ROOT/output"
+mkdir -p "$PROJECT_ROOT/output/main"
+npm run generate -- \
+    -i "$PROJECT_ROOT/test/main.iconscript" \
+    -o "$PROJECT_ROOT/output/main" &> /dev/null
+
+if [ ! -d "$PROJECT_ROOT/output" ]; then
+    echo "Error: output directory was not created." >&2
+    exit 1
+fi
+if [ ! -s "$PROJECT_ROOT/output" ]; then
+    echo "Error: output directory is empty." >&2
+    exit 1
+fi
+echo "SVG icons created."

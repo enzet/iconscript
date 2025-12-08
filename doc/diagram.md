@@ -8,7 +8,7 @@ flowchart TD
     bu([ ])
     gi[generate-svg.mjs]
     mj[main.js]
-    gr -->|generate-grammars.sh| ag
+    gr -->|generate-grammar.sh| ag
     an -.-> ag
     bp -.-> gi
     ag -.-> bp
