@@ -151,7 +151,7 @@ class Scope {
         if (pos.relative) {
             position = this.position.add(new Point(x, y));
         } else {
-            position = new Point(x, y);
+            position = new Point(x + 0.5, y + 0.5);
         }
         this.position = position;
 
