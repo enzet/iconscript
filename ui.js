@@ -32,12 +32,33 @@
 
         // Load saved content from `localStorage`.
         const STORAGE_KEY = "iconscript-code";
+        const AUTO_GENERATE_KEY = "iconscript-auto-generate";
+        const SHOW_GRID_KEY = "iconscript-show-grid";
+        const SHOW_CONTROL_POINTS_KEY = "iconscript-show-control-points";
+
         const savedCode = localStorage.getItem(STORAGE_KEY);
         if (savedCode) {
             codeTextarea.value = savedCode;
-            if (autoGenerateCheckbox.checked) {
-                setTimeout(() => generateIcons(), 100);
-            }
+        }
+
+        // Load checkbox states from localStorage.
+        const savedAutoGenerate = localStorage.getItem(AUTO_GENERATE_KEY);
+        if (savedAutoGenerate !== null) {
+            autoGenerateCheckbox.checked = savedAutoGenerate === "true";
+        }
+
+        const savedShowGrid = localStorage.getItem(SHOW_GRID_KEY);
+        if (savedShowGrid !== null) {
+            showGridCheckbox.checked = savedShowGrid === "true";
+        }
+
+        const savedShowControlPoints = localStorage.getItem(SHOW_CONTROL_POINTS_KEY);
+        if (savedShowControlPoints !== null) {
+            showControlPointsCheckbox.checked = savedShowControlPoints === "true";
+        }
+
+        if (autoGenerateCheckbox.checked && savedCode) {
+            setTimeout(() => generateIcons(), 100);
         }
 
         let debounceTimer = null;
@@ -79,6 +100,7 @@
         });
 
         autoGenerateCheckbox.addEventListener("change", function() {
+            localStorage.setItem(AUTO_GENERATE_KEY, this.checked.toString());
             if (!this.checked && debounceTimer) {
                 clearTimeout(debounceTimer);
                 debounceTimer = null;
@@ -87,10 +109,12 @@
         });
 
         showGridCheckbox.addEventListener("change", function() {
+            localStorage.setItem(SHOW_GRID_KEY, this.checked.toString());
             toggleGridVisibility(this.checked);
         });
 
         showControlPointsCheckbox.addEventListener("change", function() {
+            localStorage.setItem(SHOW_CONTROL_POINTS_KEY, this.checked.toString());
             toggleControlPointsVisibility(this.checked);
         });
 
