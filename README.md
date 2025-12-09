@@ -51,6 +51,7 @@ that the position is relative to the __position__).
 | `p <position>`  | Set __position__ to a value |
 
 | Action command | Description |
+|---|---|
 | `l [<position>]` | Draw lines between positions |
 | `lf [<position>]` | Draw filled lines between positions |
 | `c <position> <float>` | Draw circle specified by center point and radius |
