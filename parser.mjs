@@ -13,11 +13,8 @@ import IconScriptParser from "./grammar/IconScriptParser.js";
 import GeneratedIconScriptListener from "./grammar/IconScriptListener.js";
 
 const scale = 1.0;
-const width = 1.0;
+const defaultWidth = 1.0;
 
-/**
- * Simple 2D point.
- */
 class Point {
     constructor(x, y) {
         this.x = x;
@@ -30,442 +27,211 @@ class Point {
 }
 
 /**
- * Icon generator.
+ * Combine paths using Paper.js.
+ *
+ * @param {array} paths paths to combine (union or subtract)
+ * @param {array} modes modes to apply to paths (true for add, false for remove)
+ * @returns {string} combined path
  */
-class IconGenerator {
-    constructor() {
-        this.variables = {};
-        this.currentPoint = new Point(0, 0);
-        this.width = width;
-        this.uniting = true;
-        this.shape = null;
-        this.fill = null;
-        this.filled = false;
-        this.elements = [];
-    }
+function unionPathsWithModes(paths, modes) {
 
-    toCoordinates(position) {
-        if (position.startsWith("+")) {
-            const coords = position.slice(1).split(",");
-            const p = new Point(Number(coords[0]), Number(coords[1]));
-            this.currentPoint = this.currentPoint.add(p);
-        } else {
-            const coords = position.split(",");
-            const p = new Point(Number(coords[0]), Number(coords[1]));
-            this.currentPoint = p;
-        }
-        return this.currentPoint.add(new Point(0.5, 0.5));
-    }
+    if (paths.length === 0) return null;
+    if (paths.length === 1) return paths[0];
 
-    addPoint(position, diameter) {
-        const center = position;
-        const radius = diameter / 2;
+    // Initialize Paper.js.
+    paper.setup(new paper.Size(100, 100));
 
-        this.elements.push({
-            type: "circle",
-            center: center,
-            radius: radius,
-            mode: this.uniting,
-        });
-    }
-
-    addLine(from, to) {
-        this.elements.push({
-            type: "line",
-            from: from,
-            to: to,
-            strokeWidth: this.width || 1,
-            mode: this.uniting,
-        });
-    }
-
-    addFilledPolylineFromCoordinates(coordinates) {
-        if (coordinates.length >= 2) {
-            this.elements.push({
-                type: "filledPolyline",
-                points: coordinates,
-                mode: this.uniting,
-            });
-        }
-    }
-
-    lineToPath(lineData) {
-        const x1 = lineData.from.x;
-        const y1 = lineData.from.y;
-        const x2 = lineData.to.x;
-        const y2 = lineData.to.y;
-        const strokeWidth = lineData.strokeWidth;
-
-        return this.createThickLinePath(x1, y1, x2, y2, strokeWidth);
-    }
-
-    circleToPath(circleData) {
-        const cx = circleData.center.x;
-        const cy = circleData.center.y;
-        const r = circleData.radius;
-
-        if (isNaN(cx) || isNaN(cy) || isNaN(r)) {
-            console.warn("Invalid circle coordinates:", cx, cy, r);
-            return null;
-        }
-
-        return (
-            `M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy} ` +
-            `A ${r} ${r} 0 0 1 ${cx - r} ${cy} Z`
-        );
-    }
-
-    createThickLinePath(x1, y1, x2, y2, thickness) {
-        // Create a thick line by offsetting the line perpendicular to its
-        // direction.
-        const dx = x2 - x1;
-        const dy = y2 - y1;
-        const length = Math.sqrt(dx * dx + dy * dy);
-
-        if (length === 0) return null;
-
-        // Normalize the direction vector.
-        const nx = dx / length;
-        const ny = dy / length;
-
-        // Perpendicular vector.
-        const px = -ny;
-        const py = nx;
-
-        // Create a rectangle path.
-        const halfThickness = thickness / 2;
-        const x1a = x1 + px * halfThickness;
-        const y1a = y1 + py * halfThickness;
-        const x1b = x1 - px * halfThickness;
-        const y1b = y1 - py * halfThickness;
-        const x2a = x2 + px * halfThickness;
-        const y2a = y2 + py * halfThickness;
-        const x2b = x2 - px * halfThickness;
-        const y2b = y2 - py * halfThickness;
-
-        // Create a simpler path that might work better with subtraction.
-        return (
-            `M ${x1a} ${y1a} L ${x2a} ${y2a} L ${x2b} ${y2b} ` +
-            `L ${x1b} ${y1b} Z`
-        );
-    }
-
-    /**
-     * Combine paths.
-     *
-     * @param {array} paths paths to combine (union or subtract)
-     * @param {array} modes modes to apply to paths (true for add, false for
-     *     remove)
-     * @returns {string} combined path
-     */
-    unionPathsWithModes(paths, modes) {
-        if (paths.length === 0) return null;
-        if (paths.length === 1) return paths[0];
-
-        // Initialize Paper.js.
-        paper.setup(new paper.Size(100, 100));
-
-        try {
-            // Convert SVG paths to Paper.js paths.
-            const paperPaths = paths
-                .map(pathData => {
-                    try {
-                        return new paper.Path(pathData);
-                    } catch (e) {
-                        console.warn(
-                            "Failed to parse path:",
-                            pathData,
-                            e.message
-                        );
-                        return null;
-                    }
-                })
-                .filter(path => path !== null);
-
-            if (paperPaths.length === 0) return null;
-            if (paperPaths.length === 1) return paperPaths[0].pathData;
-
-            // Perform operations based on individual path modes.
-            let result = paperPaths[0];
-            for (let i = 1; i < paperPaths.length; i++) {
+    try {
+        // Convert SVG paths to Paper.js paths.
+        const paperPaths = paths
+            .map(pathData => {
                 try {
-                    if (modes[i]) {
-                        // Add mode - use union operation.
-                        result = result.unite(paperPaths[i]);
-                    } else {
-                        // Remove mode - use difference operation.
-                        result = result.subtract(paperPaths[i]);
-                    }
+                    return new paper.Path(pathData);
                 } catch (e) {
-                    console.warn(`Operation failed for path ${i}:`, e.message);
-                    // Skip this path if the operation fails.
-                    continue;
+                    console.warn("Failed to parse path:", pathData, e.message);
+                    return null;
                 }
-            }
+            })
+            .filter(path => path !== null);
 
-            // Get the combined path data.
-            const combinedPathData = result.pathData;
+        if (paperPaths.length === 0) return null;
+        if (paperPaths.length === 1) return paperPaths[0].pathData;
 
-            // Clean up Paper.js objects.
-            paperPaths.forEach(path => path.remove());
-            result.remove();
-
-            return combinedPathData;
-        } catch (e) {
-            console.warn("Path operation failed:", e.message);
-            return paths.join(" ");
-        }
-    }
-
-    addArc(center, r, p1, p2) {
-        // Create multiple line segments to approximate the arc.
-        const segments = 10; // Number of line segments to approximate the arc.
-        const angleStep = (p2 - p1) / segments;
-
-        let currentAngle = p1;
-        let lastPoint = this.arcPoint(center, currentAngle, r);
-
-        for (let i = 1; i <= segments; i++) {
-            currentAngle += angleStep;
-            const currentPoint = this.arcPoint(center, currentAngle, r);
-            this.addLine(lastPoint, currentPoint);
-            lastPoint = currentPoint;
-        }
-    }
-
-    arcPoint(center, angle, radius) {
-        return new Point(
-            center.x + Math.cos(angle) * radius * scale,
-            center.y - Math.sin(angle) * radius * scale
-        );
-    }
-
-    addRectangle(from, to) {
-        // Create the four corners of the rectangle.
-        const p1 = new Point(from.x, to.y);
-        const p2 = new Point(to.x, from.y);
-
-        // Add circles at all four corners.
-        this.addPoint(from, this.width || 1);
-        this.addPoint(p1, this.width || 1);
-        this.addPoint(to, this.width || 1);
-        this.addPoint(p2, this.width || 1);
-
-        // Add stroke lines to form the rectangle outline.
-        this.addLine(from, p1);
-        this.addLine(p1, to);
-        this.addLine(to, p2);
-        this.addLine(p2, from);
-
-        // Add filled rectangle as a filled polyline.
-        const rectanglePoints = [from, p1, to, p2, from];
-        this.addFilledPolylineFromCoordinates(rectanglePoints);
-    }
-
-    combineFill() {
-        if (this.fill) {
-            const fillPath = this.fill.getPathData();
-            this.shape = this.shape ? this.shape + " " + fillPath : fillPath;
-            this.fill = null;
-        }
-    }
-
-    generateSVG(iconName) {
-        if (this.elements.length === 0) return null;
-
-        // Combine all elements into a single path using union operations.
-        const combinedPath = this.combineAllElements();
-
-        if (!combinedPath) return null;
-
-        const svg =
-            `<?xml version="1.0" encoding="utf-8" ?>` +
-            `<svg baseProfile="tiny" ` +
-            `height="16px" version="1.2" width="16px" viewBox="0 0 16 16" ` +
-            `xmlns="http://www.w3.org/2000/svg" ` +
-            `xmlns:ev="http://www.w3.org/2001/xml-events" ` +
-            `xmlns:xlink="http://www.w3.org/1999/xlink"><defs />` +
-            `<path d="${combinedPath}" fill="black" stroke="none" /></svg>`;
-        return svg;
-    }
-
-    combineAllElements() {
-        const paths = [];
-        const modes = [];
-
-        // Process all elements in order.
-        for (const element of this.elements) {
-            let path = null;
-
-            if (element.type === "line") {
-                path = this.lineToPath(element);
-            } else if (element.type === "filledPolyline") {
-                // Convert points to path string.
-                const points = element.points;
-                if (points.length >= 2) {
-                    path = `M ${points[0].x} ${points[0].y}`;
-                    for (let i = 1; i < points.length; i++) {
-                        path += ` L ${points[i].x} ${points[i].y}`;
-                    }
-                    path += " Z"; // Close the path for filling.
+        // Perform operations based on individual path modes.
+        let result = paperPaths[0];
+        for (let i = 1; i < paperPaths.length; i++) {
+            try {
+                if (modes[i]) {
+                    result = result.unite(paperPaths[i]);
+                } else {
+                    result = result.subtract(paperPaths[i]);
                 }
-            } else if (element.type === "circle") {
-                path = this.circleToPath(element);
-            }
-
-            if (path) {
-                paths.push(path);
-                modes.push(element.mode);
+            } catch (e) {
+                console.warn(`Operation failed for path ${i}:`, e.message);
+                continue;
             }
         }
+        const combinedPathData = result.pathData;
 
-        if (paths.length === 0) return null;
+        // Clean up Paper.js objects.
+        paperPaths.forEach(path => path.remove());
+        result.remove();
 
-        // Combine all paths using the tracked modes.
-        return this.unionPathsWithModes(paths, modes);
-    }
-
-    // Process commands from the parsed AST.
-    processCommands(commands) {
-        this.elements = []; // Unified array for all elements.
-        this.fill = null;
-        this.filled = false;
-        this.currentPoint = new Point(0, 0);
-        this.uniting = true;
-        this.width = width;
-
-        for (const command of commands) {
-            this.processCommand(command);
-        }
-
-        return this.generateSVG();
-    }
-
-    processCommand(command) {
-        if (command.type === "line") {
-            // Regular line - create individual line elements and circles on
-            // joints.
-            let last = null;
-            for (const position of command.positions) {
-                const coordinates = this.toCoordinates(position);
-                this.addPoint(coordinates, this.width || 1);
-
-                if (last) {
-                    this.addLine(last, coordinates);
-                }
-                last = coordinates;
-            }
-        } else if (command.type === "line_filled") {
-            // Filled line - create filled polyline with stroke lines and
-            // circles at all joints (except last).
-            const processedCoordinates = [];
-            let last = null;
-
-            for (const position of command.positions) {
-                const coordinates = this.toCoordinates(position);
-                processedCoordinates.push(coordinates);
-
-                // Add stroke lines between points.
-                if (last) {
-                    this.addLine(last, coordinates);
-                }
-                last = coordinates;
-            }
-            // Add the filled polyline.
-            this.addFilledPolylineFromCoordinates(processedCoordinates);
-
-            // Add circles at all connection points except the last one.
-            for (let i = 0; i < processedCoordinates.length - 1; i++) {
-                this.addPoint(processedCoordinates[i], this.width || 1);
-            }
-        } else if (command.type === "line_single") {
-            // Handle single line commands (l position)
-            const coordinates = this.toCoordinates(command.position);
-            this.addPoint(coordinates, this.width || 1);
-
-            // Draw line from current position to the new position
-            if (this.currentPoint) {
-                this.addLine(this.currentPoint, coordinates);
-            }
-            this.currentPoint = coordinates;
-        } else if (command.type === "circle") {
-            const center = this.toCoordinates(command.position);
-            const radius = command.radius;
-            this.addPoint(center, radius);
-        } else if (command.type === "arc") {
-            const center = this.toCoordinates(command.position);
-            const radius = command.radius;
-            const p1 = command.startAngle;
-            const p2 = command.endAngle;
-            this.addArc(center, radius, p1, p2);
-        } else if (command.type === "rectangle") {
-            const point1 = this.toCoordinates(command.position1);
-            const point2 = this.toCoordinates(command.position2);
-            this.addRectangle(point1, point2);
-        } else if (command.type === "setPosition") {
-            // For setPosition, we want to store the raw coordinates without the
-            // 0.5 offset.
-            if (command.position.startsWith("+")) {
-                const coords = command.position.slice(1).split(",");
-                const p = new Point(Number(coords[0]), Number(coords[1]));
-                this.currentPoint = this.currentPoint.add(p);
-            } else {
-                const coords = command.position.split(",");
-                const p = new Point(Number(coords[0]), Number(coords[1]));
-                this.currentPoint = p;
-            }
-        } else if (command.type === "setWidth") {
-            this.width = command.width;
-        } else if (command.type === "add") {
-            this.combineFill();
-            this.uniting = true;
-        } else if (command.type === "remove") {
-            this.combineFill();
-            this.uniting = false;
-        }
+        return combinedPathData;
+    } catch (e) {
+        console.warn("Path operation failed:", e.message);
+        return paths.join(" ");
     }
 }
 
-// Custom listener to extract commands from the AST.
+/**
+ * Create a thick line path.
+ */
+function createThickLinePath(x1, y1, x2, y2, thickness) {
+
+    // Create a thick line by offsetting the line perpendicular to its direction.
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const length = Math.sqrt(dx * dx + dy * dy);
+
+    if (length === 0) return null;
+
+    // Normalize the direction vector.
+    const nx = dx / length;
+    const ny = dy / length;
+
+    // Perpendicular vector.
+    const px = -ny;
+    const py = nx;
+
+    // Create a rectangle path.
+    const halfThickness = thickness / 2;
+    const x1a = x1 + px * halfThickness;
+    const y1a = y1 + py * halfThickness;
+    const x1b = x1 - px * halfThickness;
+    const y1b = y1 - py * halfThickness;
+    const x2a = x2 + px * halfThickness;
+    const y2a = y2 + py * halfThickness;
+    const x2b = x2 - px * halfThickness;
+    const y2b = y2 - py * halfThickness;
+
+    return (
+        `M ${x1a} ${y1a} L ${x2a} ${y2a} L ${x2b} ${y2b} ` +
+        `L ${x1b} ${y1b} Z`
+    );
+}
+
+/**
+ * Create a circle path.
+ */
+function createCirclePath(cx, cy, r) {
+    if (isNaN(cx) || isNaN(cy) || isNaN(r)) {
+        console.warn("Invalid circle coordinates:", cx, cy, r);
+        return null;
+    }
+
+    return (
+        `M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy} ` +
+        `A ${r} ${r} 0 0 1 ${cx - r} ${cy} Z`
+    );
+}
+
+class Scope {
+    constructor(uniting = true, width = defaultWidth, position = new Point(0, 0)) {
+        this.uniting = uniting;
+        this.width = width;
+        this.position = position;
+    }
+
+    getPosition(pos) {
+        const x = parseFloat(pos.x.text);
+        const y = parseFloat(pos.y.text);
+
+        let position;
+        if (pos.relative) {
+            position = this.position.add(new Point(x, y));
+        } else {
+            position = new Point(x, y);
+        }
+        this.position = position;
+
+        return position;
+    }
+
+    deepCopy() {
+        return new Scope(
+            this.uniting,
+            this.width,
+            new Point(this.position.x, this.position.y),
+        );
+    }
+}
+
+// Custom listener to generate SVG directly from AST.
 class IconScriptListener extends GeneratedIconScriptListener {
     constructor() {
         super();
         this.variables = {};
         this.icons = [];
         this.currentIcon = null;
+        this.paths = [];
+        this.modes = [];
+
+        this.scopes = [new Scope()];
+    }
+
+    getScope() {
+        return this.scopes[this.scopes.length - 1];
     }
 
     // Enter a parse tree produced by IconScriptParser#assignment.
     enterAssignment(ctx) {
         const varName = ctx.left.text;
-        const commands = this.extractCommands(ctx.right);
-        this.variables[varName] = commands;
+        // Store variable commands for later expansion.
+        this.variables[varName] = ctx.right;
     }
 
     // Enter a parse tree produced by IconScriptParser#icon.
     enterIcon(ctx) {
         this.currentIcon = {
             name: null,
-            commands: [],
+            svg: "",
         };
+        this.paths = [];
+        this.modes = [];
+        this.scopes = [new Scope()];
+    }
+
+    enterScope(ctx) {
+        this.scopes.push(this.scopes[this.scopes.length - 1].deepCopy());
+    }
+
+    exitScope(ctx) {
+        this.scopes.pop();
     }
 
     // Exit a parse tree produced by IconScriptParser#icon.
     exitIcon(ctx) {
         if (this.currentIcon) {
-            // Process variables in the icon.
-            const processedCommands = this.processVariables(
-                this.currentIcon.commands
-            );
-            this.icons.push({
-                name: this.currentIcon.name,
-                commands: processedCommands,
-            });
+            // Combine all paths into a single SVG path.
+            const combinedPath = unionPathsWithModes(this.paths, this.modes);
+
+            if (combinedPath) {
+                this.currentIcon.svg =
+                    `<?xml version="1.0" encoding="utf-8" ?>` +
+                    `<svg baseProfile="tiny" ` +
+                    `height="16px" version="1.2" width="16px" viewBox="0 0 16 16" ` +
+                    `xmlns="http://www.w3.org/2000/svg" ` +
+                    `xmlns:ev="http://www.w3.org/2001/xml-events" ` +
+                    `xmlns:xlink="http://www.w3.org/1999/xlink"><defs />` +
+                    `<path d="${combinedPath}" fill="black" stroke="none" /></svg>`;
+            }
+
+            this.icons.push(this.currentIcon);
             this.currentIcon = null;
         }
     }
 
-    // Enter a parse tree produced by IconScriptParser#name.
     enterName(ctx) {
         if (this.currentIcon) {
             // Extract from the full text (remove the % prefix).
@@ -478,204 +244,187 @@ class IconScriptListener extends GeneratedIconScriptListener {
         }
     }
 
-    // Enter a parse tree produced by IconScriptParser#command.
-    enterCommand(ctx) {
-        if (!this.currentIcon) return;
-
-        if (ctx.name()) {
-            // This is a name command (comment).
-            return;
-        }
-
-        let command = null;
-
-        if (ctx.VARIABLE()) {
-            // Variable reference - will be processed later.
-            const varName = ctx.getText().slice(1); // Remove `@`.
-            command = {type: "variable", name: varName};
-        } else if (ctx.getText() === "a") {
-            command = {type: "add"};
-        } else if (ctx.getText() === "r") {
-            command = {type: "remove"};
-        } else if (ctx.line()) {
-            command = this.processLineCommand(ctx.line());
-        } else if (ctx.circle()) {
-            command = this.processCircleCommand(ctx.circle());
-        } else if (ctx.arc()) {
-            command = this.processArcCommand(ctx.arc());
-        } else if (ctx.rectangle()) {
-            command = this.processRectangleCommand(ctx.rectangle());
-        } else if (ctx.setPosition()) {
-            command = this.processSetPositionCommand(ctx.setPosition());
-        } else if (ctx.setWidth()) {
-            command = this.processSetWidthCommand(ctx.setWidth());
-        }
-
-        if (command) {
-            this.currentIcon.commands.push(command);
-        }
-    }
-
-    processLineCommand(ctx) {
+    // Exit a parse tree produced by IconScriptParser#line.
+    exitLine(ctx) {
         const isFilled = ctx.getText().includes("lf");
-        const positions = [];
+        const positions = ctx.position();
+        const coordinates = [];
 
-        for (const pos of ctx.position()) {
-            const relative = pos.relative ? "+" : "";
-            const x = pos.x.text;
-            const y = pos.y.text;
-            positions.push(`${relative}${x},${y}`);
+        for (const pos of positions) {
+            coordinates.push(this.getScope().getPosition(pos));
         }
 
-        // If there's only one position, treat it as a single line command.
-        if (positions.length === 1) {
-            return {
-                type: "line_single",
-                position: positions[0],
-            };
-        }
+        if (coordinates.length === 0) return;
 
-        return {
-            type: isFilled ? "line_filled" : "line",
-            positions: positions,
-        };
-    }
-
-    processCircleCommand(ctx) {
-        const pos = ctx.position();
-        const relative = pos.relative ? "+" : "";
-        const x = pos.x.text;
-        const y = pos.y.text;
-        const position = `${relative}${x},${y}`;
-
-        // Get the radius from the FLOAT token.
-        const floatToken = ctx.FLOAT();
-        const radius = parseFloat(floatToken ? floatToken.getText() : "0");
-
-        return {
-            type: "circle",
-            position: position,
-            radius: radius,
-        };
-    }
-
-    processArcCommand(ctx) {
-        const pos = ctx.position();
-        const relative = pos.relative ? "+" : "";
-        const x = pos.x.text;
-        const y = pos.y.text;
-        const position = `${relative}${x},${y}`;
-        const radius = parseFloat(ctx.FLOAT(0).text);
-        const startAngle = parseFloat(ctx.FLOAT(1).text);
-        const endAngle = parseFloat(ctx.FLOAT(2).text);
-
-        return {
-            type: "arc",
-            position: position,
-            radius: radius,
-            startAngle: startAngle,
-            endAngle: endAngle,
-        };
-    }
-
-    processRectangleCommand(ctx) {
-        const pos1 = ctx.position(0);
-        const pos2 = ctx.position(1);
-
-        const relative1 = pos1.relative ? "+" : "";
-        const x1 = pos1.x.text;
-        const y1 = pos1.y.text;
-        const position1 = `${relative1}${x1},${y1}`;
-
-        const relative2 = pos2.relative ? "+" : "";
-        const x2 = pos2.x.text;
-        const y2 = pos2.y.text;
-        const position2 = `${relative2}${x2},${y2}`;
-
-        return {
-            type: "rectangle",
-            position1: position1,
-            position2: position2,
-        };
-    }
-
-    processSetPositionCommand(ctx) {
-        const pos = ctx.position();
-        const relative = pos.relative ? "+" : "";
-        const x = pos.x.text;
-        const y = pos.y.text;
-        const position = `${relative}${x},${y}`;
-
-        return {
-            type: "setPosition",
-            position: position,
-        };
-    }
-
-    processSetWidthCommand(ctx) {
-        const width = parseFloat(ctx.FLOAT().getText());
-        return {
-            type: "setWidth",
-            width: width,
-        };
-    }
-
-    extractCommands(ctx) {
-        const commands = [];
-        for (const command of ctx.command()) {
-            // Process each command similar to enterCommand.
-            let processedCommand = null;
-
-            if (command.VARIABLE()) {
-                const varName = command.getText().slice(1); // Remove @.
-                processedCommand = {type: "variable", name: varName};
-            } else if (command.getText() === "a") {
-                processedCommand = {type: "add"};
-            } else if (command.getText() === "r") {
-                processedCommand = {type: "remove"};
-            } else if (command.line()) {
-                processedCommand = this.processLineCommand(command.line());
-            } else if (command.circle()) {
-                processedCommand = this.processCircleCommand(command.circle());
-            } else if (command.arc()) {
-                processedCommand = this.processArcCommand(command.arc());
-            } else if (command.rectangle()) {
-                processedCommand = this.processRectangleCommand(
-                    command.rectangle()
-                );
-            } else if (command.setPosition()) {
-                processedCommand = this.processSetPositionCommand(
-                    command.setPosition()
-                );
-            } else if (command.setWidth()) {
-                processedCommand = this.processSetWidthCommand(
-                    command.setWidth()
-                );
-            }
-
-            if (processedCommand) {
-                commands.push(processedCommand);
+        // Add circles at all points.
+        for (const coord of coordinates) {
+            const circlePath = createCirclePath(coord.x, coord.y, this.getScope().width / 2);
+            if (circlePath) {
+                this.paths.push(circlePath);
+                this.modes.push(this.getScope().uniting);
             }
         }
-        return commands;
-    }
 
-    processVariables(commands) {
-        const processed = [];
-        for (const command of commands) {
-            if (command.type === "variable") {
-                const varCommands = this.variables[command.name];
-                if (varCommands) {
-                    // Process the variable commands recursively.
-                    const processedVarCommands =
-                        this.processVariables(varCommands);
-                    processed.push(...processedVarCommands);
-                }
-            } else {
-                processed.push(command);
+        // Add lines between consecutive points.
+        for (let i = 0; i < coordinates.length - 1; i++) {
+            const from = coordinates[i];
+            const to = coordinates[i + 1];
+            const linePath = createThickLinePath(
+                from.x, from.y, to.x, to.y, this.getScope().width
+            );
+            if (linePath) {
+                this.paths.push(linePath);
+                this.modes.push(this.getScope().uniting);
             }
         }
-        return processed;
+
+        // If filled, add a filled polyline.
+        if (isFilled && coordinates.length >= 2) {
+            let filledPath = `M ${coordinates[0].x} ${coordinates[0].y}`;
+            for (let i = 1; i < coordinates.length; i++) {
+                filledPath += ` L ${coordinates[i].x} ${coordinates[i].y}`;
+            }
+            filledPath += " Z";
+            this.paths.push(filledPath);
+            this.modes.push(this.getScope().uniting);
+        }
+    }
+
+    // Exit a parse tree produced by IconScriptParser#circle.
+    exitCircle(ctx) {
+        const center = this.getScope().getPosition(ctx.position());
+        const radius = parseFloat(ctx.FLOAT().getText());
+        const circlePath = createCirclePath(center.x, center.y, radius / 2);
+
+        if (circlePath) {
+            this.paths.push(circlePath);
+            this.modes.push(this.getScope().uniting);
+        }
+    }
+
+    // Exit a parse tree produced by IconScriptParser#arc.
+    exitArc(ctx) {
+        const pos = ctx.position();
+        const x = parseFloat(pos.x.text);
+        const y = parseFloat(pos.y.text);
+        let center;
+
+        if (pos.relative) {
+            center = this.currentPoint.add(new Point(x, y));
+        } else {
+            center = new Point(x, y);
+        }
+
+        // Convert to center coordinates.
+        center = center.add(new Point(0.5, 0.5));
+        this.currentPoint = center.add(new Point(-0.5, -0.5));
+
+        const radius = parseFloat(ctx.FLOAT(0).getText());
+        const startAngle = parseFloat(ctx.FLOAT(1).getText());
+        const endAngle = parseFloat(ctx.FLOAT(2).getText());
+
+        // Create multiple line segments to approximate the arc.
+        const segments = 10;
+        const angleStep = (endAngle - startAngle) / segments;
+
+        let currentAngle = startAngle;
+        let lastPoint = this.arcPoint(center, currentAngle, radius * scale);
+
+        for (let i = 1; i <= segments; i++) {
+            currentAngle += angleStep;
+            const currentPoint = this.arcPoint(center, currentAngle, radius * scale);
+            const linePath = createThickLinePath(
+                lastPoint.x,
+                lastPoint.y,
+                currentPoint.x,
+                currentPoint.y,
+                this.getScope().width
+            );
+            if (linePath) {
+                this.paths.push(linePath);
+                this.modes.push(this.getScope().uniting);
+            }
+            lastPoint = currentPoint;
+        }
+    }
+
+    arcPoint(center, angle, radius) {
+        return new Point(
+            center.x + Math.cos(angle) * radius,
+            center.y - Math.sin(angle) * radius
+        );
+    }
+
+    // Exit a parse tree produced by IconScriptParser#rectangle.
+    exitRectangle(ctx) {
+        const point1 = this.getScope().getPosition(ctx.position(0));
+        const point2 = this.getScope().getPosition(ctx.position(1));
+        const p1 = new Point(point1.x, point2.y);
+        const p2 = new Point(point2.x, point1.y);
+
+        // Add circles at all four corners.
+        const corners = [point1, p1, point2, p2];
+        for (const corner of corners) {
+            const circlePath = createCirclePath(
+                corner.x, corner.y, this.getScope().width / 2);
+            if (circlePath) {
+                this.paths.push(circlePath);
+                this.modes.push(this.getScope().uniting);
+            }
+        }
+
+        // Add stroke lines to form the rectangle outline.
+        const lines = [
+            [point1, p1],
+            [p1, point2],
+            [point2, p2],
+            [p2, point1],
+        ];
+
+        for (const [from, to] of lines) {
+            const linePath = createThickLinePath(
+                from.x,
+                from.y,
+                to.x,
+                to.y,
+                this.getScope().width
+            );
+            if (linePath) {
+                this.paths.push(linePath);
+                this.modes.push(this.getScope().uniting);
+            }
+        }
+
+        // Add filled rectangle as a filled polyline.
+        const rectanglePath =
+            `M ${point1.x} ${point1.y} L ${p1.x} ${p1.y} ` +
+            `L ${point2.x} ${point2.y} L ${p2.x} ${p2.y} Z`;
+        this.paths.push(rectanglePath);
+        this.modes.push(this.getScope().uniting);
+    }
+
+    exitSetPosition(ctx) {
+        this.getScope().getPosition(ctx.position());
+    }
+
+    exitSetWidth(ctx) {
+        this.getScope().width = parseFloat(ctx.FLOAT().getText());
+    }
+
+    exitSetRemove(ctx) {
+        this.getScope().uniting = false;
+    }
+
+    enterCommand(ctx) {
+        if (ctx.VARIABLE()) {
+            // Variable reference - expand it by walking its parse tree.
+            const varName = ctx.getText().slice(1); // Remove `@`.
+            const varCommands = this.variables[varName];
+            if (varCommands) {
+                // Walk the variable commands to trigger exit methods.
+                antlr4.tree.ParseTreeWalker.DEFAULT.walk(this, varCommands);
+            }
+        }
     }
 }
 
@@ -702,4 +451,4 @@ function parseIconsFile(content) {
 }
 
 // Export for browser use.
-export {IconGenerator, parseIconsFile};
+export {parseIconsFile};

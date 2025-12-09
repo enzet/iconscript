@@ -105,7 +105,6 @@
             }
 
             clearMessages();
-            clearPreview();
             loadingIndicator.style.display = "block";
 
             const iconscriptCode = codeTextarea.value.trim();
@@ -124,13 +123,16 @@
                     loadingIndicator.style.display = "none";
                     return;
                 }
-                const generator = new IconScriptParser.IconGenerator();
+
+                // Only clear preview if parsing was successful.
+                clearPreview();
+
                 let successCount = 0;
                 let errorCount = 0;
 
                 parsedIcons.forEach((icon, index) => {
                     try {
-                        const svg = generator.processCommands(icon.commands);
+                        const svg = icon.svg;
 
                         if (svg) {
                             displayIcon(svg, icon.name || `icon_${index}`);
@@ -508,7 +510,7 @@
                 // Change fill color from black to blue for all path elements.
                 const pathElements = svgElement.querySelectorAll("path");
                 pathElements.forEach(path => {
-                    path.setAttribute("fill", `rgba(var(--fg-color), 0.5)`);
+                    path.setAttribute("fill", `rgba(var(--fg-color), 0.2)`);
                 });
                 
                 // Extract from path elements.
