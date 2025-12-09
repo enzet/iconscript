@@ -1,16 +1,21 @@
+:root {
+    --border-opacity: 0.1;
+}
 body {
     font-family: sans;
     margin: 0;
 }
 .container {
     display: flex;
-    gap: 10px;
-    max-width: 1400px;
-    margin: 0 auto;
+    margin: 0;
+    border-top:  1px solid rgba(var(--fg-color), var(--border-opacity));
+    border-bottom: 1px solid rgba(var(--fg-color), var(--border-opacity));
 }
 .editor-panel {
     flex: 1;
     min-width: 400px;
+    padding: 16px;
+    border-right: 1px solid rgba(var(--fg-color), var(--border-opacity));
 }
 .preview-panel {
     flex: 1;
@@ -35,8 +40,6 @@ textarea {
     display: flex;
     flex-direction: column;
     align-items: center;
-    border-right: 1px solid #eee;
-    border-bottom: 1px solid #eee;
     width: 148px; /* 128px + 20px padding */
 }
 .icon-container svg {
@@ -48,12 +51,13 @@ textarea {
     margin-top: 5px;
     text-align: center;
     font-family: "JetBrains Mono", monospace;
+    padding: 0 8px;
 }
 label {
     user-select: none;
 }
 .control-point {
-    fill: black;
+    fill: rgba(var(--fg-color));
     stroke: none;
     r: 0.1;
 }

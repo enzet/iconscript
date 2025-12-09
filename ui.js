@@ -508,7 +508,7 @@
                 // Change fill color from black to blue for all path elements.
                 const pathElements = svgElement.querySelectorAll("path");
                 pathElements.forEach(path => {
-                    path.setAttribute("fill", "#DDDDDD");
+                    path.setAttribute("fill", `rgba(var(--fg-color), 0.5)`);
                 });
                 
                 // Extract from path elements.
