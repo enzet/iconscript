@@ -542,6 +542,23 @@
                     }
                 }
 
+                const gridSize = 15;
+                const dotSpacingX = viewBoxWidth / (gridSize + 1);
+                const dotSpacingY = viewBoxHeight / (gridSize + 1);
+                for (let i = 1; i <= gridSize; i++) {
+                    for (let j = 1; j <= gridSize; j++) {
+                        const dot = document.createElementNS(
+                            "http://www.w3.org/2000/svg", "circle");
+                        dot.setAttribute("cx", viewBoxX + i * dotSpacingX);
+                        dot.setAttribute("cy", viewBoxY + j * dotSpacingY);
+                        dot.setAttribute("r", "0.1");
+                        dot.setAttribute("fill", "rgba(var(--fg-color), 0.3)");
+                        dot.setAttribute("stroke", "none");
+                        dot.setAttribute("class", "grid-dot");
+                        svgElement.appendChild(dot);
+                    }
+                }
+
                 // Remove duplicates from combined points.
                 const uniquePoints = [];
                 const threshold = 0.1;
