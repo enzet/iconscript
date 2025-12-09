@@ -18,9 +18,17 @@ the style of the \ref {#roentgen} {Röntgen} project.
         <div class="controls">
             <button id="generate-btn">Generate Icons</button>
             <button id="clear-btn">Clear</button>
-            <label style="margin-left: 5px; cursor: pointer;">
+            <label class="checkbox-control">
                 <input type="checkbox" id="auto-generate" checked>
                 Auto-generate while typing
+            </label>
+            <label class="checkbox-control">
+                <input type="checkbox" id="show-grid" checked>
+                Show grid
+            </label>
+            <label class="checkbox-control">
+                <input type="checkbox" id="show-control-points" checked>
+                Show control points
             </label>
         </div>
         <div id="loading-indicator">Generating...</div>

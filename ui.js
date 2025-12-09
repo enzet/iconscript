@@ -15,7 +15,11 @@
         const codeTextarea = document.getElementById("iconscript-code");
         const generateBtn = document.getElementById("generate-btn");
         const clearBtn = document.getElementById("clear-btn");
+
         const autoGenerateCheckbox = document.getElementById("auto-generate");
+        const showGridCheckbox = document.getElementById("show-grid");
+        const showControlPointsCheckbox = document.getElementById("show-control-points");
+
         const previewArea = document.getElementById("preview-area");
         const errorMessage = document.getElementById("error-message");
         const infoMessage = document.getElementById("info-message");
@@ -80,6 +84,14 @@
                 debounceTimer = null;
                 loadingIndicator.style.display = "none";
             }
+        });
+
+        showGridCheckbox.addEventListener("change", function() {
+            toggleGridVisibility(this.checked);
+        });
+
+        showControlPointsCheckbox.addEventListener("change", function() {
+            toggleControlPointsVisibility(this.checked);
         });
 
         clearBtn.addEventListener("click", function() {
@@ -509,8 +521,10 @@
                 
                 // Change fill color from black to blue for all path elements.
                 const pathElements = svgElement.querySelectorAll("path");
+                const controlPointsVisible = showControlPointsCheckbox.checked;
+                const pathOpacity = controlPointsVisible ? 0.2 : 1;
                 pathElements.forEach(path => {
-                    path.setAttribute("fill", `rgba(var(--fg-color), 0.2)`);
+                    path.setAttribute("fill", `rgba(var(--fg-color), ${pathOpacity})`);
                 });
                 
                 // Extract from path elements.
@@ -555,6 +569,9 @@
                         dot.setAttribute("fill", "rgba(var(--fg-color), 0.3)");
                         dot.setAttribute("stroke", "none");
                         dot.setAttribute("class", "grid-dot");
+                        if (!showGridCheckbox.checked) {
+                            dot.style.display = "none";
+                        }
                         svgElement.appendChild(dot);
                     }
                 }
@@ -590,6 +607,9 @@
                     circle.setAttribute("fill", "red");
                     circle.setAttribute("stroke", "none");
                     circle.setAttribute("class", "control-point");
+                    if (!showControlPointsCheckbox.checked) {
+                        circle.style.display = "none";
+                    }
                     svgElement.appendChild(circle);
                 });
 
@@ -629,6 +649,31 @@
             const div = document.createElement("div");
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        function toggleGridVisibility(visible) {
+            const allSvgs = previewArea.querySelectorAll("svg");
+            allSvgs.forEach(svg => {
+                const gridDots = svg.querySelectorAll(".grid-dot");
+                gridDots.forEach(dot => {
+                    dot.style.display = visible ? "" : "none";
+                });
+            });
+        }
+
+        function toggleControlPointsVisibility(visible) {
+            const allSvgs = previewArea.querySelectorAll("svg");
+            allSvgs.forEach(svg => {
+                const controlPoints = svg.querySelectorAll(".control-point");
+                controlPoints.forEach(point => {
+                    point.style.display = visible ? "" : "none";
+                });
+                const pathElements = svg.querySelectorAll("path");
+                const pathOpacity = visible ? 0.2 : 1;
+                pathElements.forEach(path => {
+                    path.setAttribute("fill", `rgba(var(--fg-color), ${pathOpacity})`);
+                });
+            });
         }
     }
 })();
