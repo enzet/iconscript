@@ -1,0 +1,54 @@
+pole = l 7,2 8,2 l 7,14 8,14 l 7,2 7,14 l 8,2 8,14
+line = p +-11,2 l +0,0 +11,0
+conductors = l +-11,1.5 +0,1 l +11,-1 +0,1
+
+icon temp = {@pole p 13,1 @line @conductors}
+icon temp = {@pole p 13,1 @line @line @conductors}
+icon temp = {@pole p 13,1 @line @line @line @conductors}
+icon temp = {@pole p 13,1 @line @line @line @line @conductors}
+icon temp = {@pole p 13,0 @line @line @line @line @line @conductors}
+
+line = l 4.5,13 9.5,13
+tower = l 4,14 +2,-4 +0,-8 +2,0 +0,8 +2,4 @line
+tower_1 = l 4,14 +2,-4 +0,-9 +2,0 +0,9 +2,4 @line
+tower_2 = l 4,14 +2,-4 +0,-6 +1,-3 +1,3 +0,6 +2,4 @line
+arm = l +0,0 +2,0 +3.5,3 +-9,0 +3.5,-3
+arm_r = l +2,0 +3.5,3 +-5,0
+arm_l = l +0,0 +-3.5,3 +5,0
+arm_s = l +0,0 +2,0 +3,3 +-8,0 +3,-3
+arm_w = l +0,0 +2,0 +4,3 +-10,0 +4,-3
+
+icon temp = {@tower p 6,2 @arm p 6,7 @arm}
+icon temp = {@tower p 6,2 @arm_s p 6,7 @arm_w}
+icon temp = {@tower p 6,2 @arm_w p 6,7 @arm_s}
+icon temp = {@tower_1 p 6,1 @arm p 6,4 @arm p 6,7 @arm}
+icon temp = {@tower_1 p 6,1 @arm_s p 6,4 @arm_w p 6,7 @arm_s}
+icon temp = {@tower p 6,2 @arm_l p 6,7 @arm}
+icon temp = {@tower_1 p 6,1 @arm_l p 6,4 @arm_r p 6,7 @arm_l}
+icon temp = {@tower_2 l 6,10 +2,0 p 6,4 @arm}
+icon temp = {@tower_2 l 6,10 +2,0 l 8,4 +-5,0 l 8,7 +-5,0 l 8,10 +-5,0}
+icon temp = {@tower_2 l 6,10 +2,0 l 11,4 +-8,0 l 11,6 +-8,0 l 11,8 +-8,0 l 11,10 +-8,0}
+
+tower = l 7,9 +-1,2 +0,3 l 7,9 +1,2 +0,3 l 7,9 +-4,-3 +3,5 l 7,9 +4,-3 +-3,5 l 6,13 +2,0
+
+icon temp = {@tower l 3,6 +0,-3 l 11,6 +0,-3 l 1.5,4 +11,0}
+icon temp = {@tower l 3,6 +0,-4 l 11,6 +0,-4 l 1.5,3 +11,0 l 1.5,5 +11,0} 
+icon temp = {@tower l 3,6 +0,-5 l 11,6 +0,-5 l 1.5,2 +11,0 l 1.5,4 +11,0 l 1.5,6 +11,0}
+
+cond = l +0,0 +0,1 l +5,-1 +0,1 l +5,-1 +0,1
+cond_i = l +3,0 +0,1 l +4,-1 +0,1
+pole = l 4,2 +0,12 l 10,2 +0,12
+pole_1 = l 4,2 +-1,12 l 10,2 +1,12
+pole_2 = l 3,2 +-1,12 l 11,2 +1,12
+arm = l +0,0 +10,0
+
+icon temp = {@pole p 2,3 @arm p 2,4.5 @cond}
+icon temp = {@pole p 2,3 @arm p 2,5 @arm p 2,6.5 @cond}
+icon temp = {@pole p 2,3 @arm p 2,5 @arm p 2,7 @arm p 2,8.5 @cond}
+icon temp = {@pole p 2,3 @arm p 2,5 @arm p 2,7 @arm p 2,8.5 @cond}
+icon temp = {@pole_1 p 2,3 @arm p 2,4.5 @cond}
+icon temp = {@pole_1 p 2,3 @arm p 2,5 @arm p 2,6.5 @cond}
+icon temp = {@pole_1 p 2,3 @arm p 2,5 @arm p 2,7 @arm p 2,8.5 @cond}
+icon temp = {@pole_2 p 2,3 @arm p 2,4.5 @cond_i}
+icon temp = {@pole_2 p 2,3 @arm p 2,5 @arm p 2,6.5 @cond_i}
+icon temp = {@pole_2 p 2,3 @arm p 2,5 @arm p 2,7 @arm p 2,8.5 @cond_i}
