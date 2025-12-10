@@ -642,7 +642,8 @@
                 if (iconName) {
                     const nameLabel = document.createElement("div");
                     nameLabel.className = "icon-name";
-                    nameLabel.textContent = iconName.replace(/_/g, " ");
+                    nameLabel.textContent =
+                        iconName.replace(/_/g, " ").toUpperCase();
                     iconContainer.appendChild(nameLabel);
                 }
 
@@ -701,3 +702,11 @@
         }
     }
 })();
+
+function updateIconStyle() {
+    const gridDots = document.querySelectorAll(".grid-dot");
+    gridDots.forEach(dot => {
+        dot.setAttribute("r", "0.1");
+        dot.setAttribute("stroke", "none");
+    });
+}

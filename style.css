@@ -20,6 +20,7 @@ body {
 .preview-panel {
     flex: 1;
     min-width: 400px;
+    padding: 16px;
 }
 textarea {
     width: 100%;
@@ -48,7 +49,7 @@ textarea {
 }
 .icon-name {
     font-size: 12px;
-    margin-top: 5px;
+    margin-bottom: 8px;
     text-align: center;
     font-family: "JetBrains Mono", monospace;
     padding: 0 8px;
