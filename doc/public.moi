@@ -1,8 +1,8 @@
 \1 {iconscript} {iconscript}
 
 \style {iconscript.css}
-\javascript {iconscript-bundled-parser.min.js}
-\javascript {iconscript-ui.js}
+\javascript {iconscript-parser.bundle.min.js}
+\javascript {iconscript-ui.bundle.min.js}
 
 iconscript is a simple language for describing simple pixel-wise pictograms in
 the style of the \ref {#roentgen} {Röntgen} project.

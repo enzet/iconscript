@@ -12,9 +12,9 @@ grammar/*.js
 grammar/*.tokens
 
 # Bundled JavaScript files.
-bundled-parser.js
-bundled-parser.min.js
-bundled-parser.min.js.map
+*.bundle.js
+*.bundle.min.js
+*.bundle.min.js.map
 
 # WIP.
 webassembly/

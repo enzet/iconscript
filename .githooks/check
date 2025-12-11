@@ -15,9 +15,9 @@ fi
 find "$PROJECT_ROOT/grammar" \
     -type f \( -name "*.js" -o -name "*.interp" -o -name "*.tokens" \) \
     -delete
-rm -f "$PROJECT_ROOT/bundled-parser.js"
-rm -f "$PROJECT_ROOT/bundled-parser.min.js"
-rm -f "$PROJECT_ROOT/bundled-parser.min.js.map"
+rm -f "$PROJECT_ROOT/parser.bundle.js"
+rm -f "$PROJECT_ROOT/parser.bundle.min.js"
+rm -f "$PROJECT_ROOT/parser.bundle.min.js.map"
 rm -rf "$PROJECT_ROOT/output"
 
 
@@ -34,9 +34,9 @@ echo "Grammar generated."
 # Check parser build.
 
 npm run build:parser:min &> /dev/null
-# Check that `bundled-parser.min.js` was created.
-if [ ! -f "$PROJECT_ROOT/bundled-parser.min.js" ]; then
-    echo "Error: bundled-parser.min.js was not created." >&2
+# Check that `parser.bundle.min.js` was created.
+if [ ! -f "$PROJECT_ROOT/parser.bundle.min.js" ]; then
+    echo "Error: parser.bundle.min.js was not created." >&2
     exit 1
 fi
 echo "Bundled minified parser created."

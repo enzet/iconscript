@@ -2,6 +2,17 @@
  * UI for iconscript SVG icon generator.
  */
 
+interface ControlPoint {
+    x: number;
+    y: number;
+    type?: "move" | "line" | "control" | "curve" | "quadratic" | "close" | "arc-start" | "arc-end";
+}
+
+interface SimplePoint {
+    x: number;
+    y: number;
+}
+
 (function() {
     "use strict";
 
@@ -11,19 +22,19 @@
         init();
     }
 
-    function init() {
-        const codeTextarea = document.getElementById("iconscript-code");
-        const generateBtn = document.getElementById("generate-btn");
-        const clearBtn = document.getElementById("clear-btn");
+    function init(): void {
+        const codeTextarea = document.getElementById("iconscript-code") as HTMLTextAreaElement;
+        const generateBtn = document.getElementById("generate-btn") as HTMLButtonElement;
+        const clearBtn = document.getElementById("clear-btn") as HTMLButtonElement;
 
-        const autoGenerateCheckbox = document.getElementById("auto-generate");
-        const showGridCheckbox = document.getElementById("show-grid");
-        const showControlPointsCheckbox = document.getElementById("show-control-points");
+        const autoGenerateCheckbox = document.getElementById("auto-generate") as HTMLInputElement;
+        const showGridCheckbox = document.getElementById("show-grid") as HTMLInputElement;
+        const showControlPointsCheckbox = document.getElementById("show-control-points") as HTMLInputElement;
 
-        const previewArea = document.getElementById("preview-area");
-        const errorMessage = document.getElementById("error-message");
-        const infoMessage = document.getElementById("info-message");
-        const loadingIndicator = document.getElementById("loading-indicator");
+        const previewArea = document.getElementById("preview-area") as HTMLDivElement;
+        const errorMessage = document.getElementById("error-message") as HTMLDivElement;
+        const infoMessage = document.getElementById("info-message") as HTMLDivElement;
+        const loadingIndicator = document.getElementById("loading-indicator") as HTMLDivElement;
 
         if (typeof IconScriptParser === "undefined") {
             showError("Error: bundled-parser.min.js is not loaded. Please make sure the file exists.");
@@ -61,8 +72,8 @@
             setTimeout(() => generateIcons(), 100);
         }
 
-        let debounceTimer = null;
-        let saveTimer = null;
+        let debounceTimer: number | null = null;
+        let saveTimer: number | null = null;
         const DEBOUNCE_DELAY = 500; // Milliseconds.
         const SAVE_DELAY = 1000; // Save to localStorage after 1 second of no changes.
 
@@ -70,7 +81,7 @@
             generateIcons();
         });
 
-        codeTextarea.addEventListener("keydown", function(e) {
+        codeTextarea.addEventListener("keydown", function(e: KeyboardEvent) {
             if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
                 e.preventDefault();
                 generateIcons();
@@ -82,7 +93,7 @@
             if (saveTimer) {
                 clearTimeout(saveTimer);
             }
-            saveTimer = setTimeout(function() {
+            saveTimer = window.setTimeout(function() {
                 localStorage.setItem(STORAGE_KEY, codeTextarea.value);
             }, SAVE_DELAY);
 
@@ -91,7 +102,7 @@
                     clearTimeout(debounceTimer);
                 }
                 loadingIndicator.style.display = "block";
-                debounceTimer = setTimeout(function() {
+                debounceTimer = window.setTimeout(function() {
                     generateIcons();
                 }, DEBOUNCE_DELAY);
             } else {
@@ -134,7 +145,7 @@
             loadingIndicator.style.display = "none";
         });
 
-        function generateIcons() {
+        function generateIcons(): void {
             if (debounceTimer) {
                 clearTimeout(debounceTimer);
                 debounceTimer = null;
@@ -179,8 +190,9 @@
                         }
                     } catch (error) {
                         errorCount++;
+                        const errorMessage = error instanceof Error ? error.message : String(error);
                         console.error(`Error generating icon ${index}:`, error);
-                        showError(`Error generating icon ${index}: ${error.message}`);
+                        showError(`Error generating icon ${index}: ${errorMessage}`);
                     }
                 });
                 if (successCount > 0) {
@@ -190,30 +202,35 @@
                     showError(`Failed to generate ${errorCount} icon${errorCount !== 1 ? "s" : ""}.`);
                 }
             } catch (error) {
-                showError(`Parsing error: ${error.message}`);
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                showError(`Parsing error: ${errorMessage}`);
                 console.error("Parsing error:", error);
             } finally {
                 loadingIndicator.style.display = "none";
             }
         }
 
-        function extractControlPoints(pathData) {
-            const points = [];
-            if (!pathData) return points;
+        function extractControlPoints(pathData: string | null): SimplePoint[] {
+            const points: ControlPoint[] = [];
+            if (!pathData) return points.map(p => ({x: p.x, y: p.y}));
 
             const commands = pathData.match(/[MLHVCSQTAZmlhvcsqtaz]|[+-]?\d*\.?\d+(?:[eE][+-]?\d+)?/g) || [];
-            if (commands.length === 0) return points;
+            if (commands.length === 0) return points.map(p => ({x: p.x, y: p.y}));
 
-            let x = 0, y = 0;
-            let prevX = 0, prevY = 0;
-            let controlX = 0, controlY = 0;
-            let startX = 0, startY = 0;
-            let lastCommand = null;
+            let x = 0;
+            let y = 0;
+            let prevX = 0;
+            let prevY = 0;
+            let controlX = 0;
+            let controlY = 0;
+            let startX = 0;
+            let startY = 0;
+            let lastCommand: string | null = null;
             let lastIsRelative = false;
 
             for (let i = 0; i < commands.length; i++) {
                 const cmd = commands[i];
-                let command = null;
+                let command: string | null = null;
                 let isRelative = false;
 
                 if (cmd.match(/[MLHVCSQTAZmlhvcsqtaz]/)) {
@@ -303,7 +320,12 @@
                             const newX = parseFloat(commands[++i]);
                             const newY = parseFloat(commands[++i]);
                             if (!isNaN(newX) && !isNaN(newY)) {
-                                let absX1, absY1, absX2, absY2, absX, absY;
+                                let absX1: number;
+                                let absY1: number;
+                                let absX2: number;
+                                let absY2: number;
+                                let absX: number;
+                                let absY: number;
                                 if (isRelative) {
                                     absX1 = x + x1;
                                     absY1 = y + y1;
@@ -342,7 +364,8 @@
                             if (!isNaN(newX) && !isNaN(newY)) {
                                 // Calculate reflection of previous control
                                 // point.
-                                let prevControlX, prevControlY;
+                                let prevControlX: number;
+                                let prevControlY: number;
                                 if (isRelative) {
                                     prevControlX = 2 * x - controlX;
                                     prevControlY = 2 * y - controlY;
@@ -380,7 +403,10 @@
                             const newX = parseFloat(commands[++i]);
                             const newY = parseFloat(commands[++i]);
                             if (!isNaN(newX) && !isNaN(newY)) {
-                                let absQx1, absQy1, absX, absY;
+                                let absQx1: number;
+                                let absQy1: number;
+                                let absX: number;
+                                let absY: number;
                                 if (isRelative) {
                                     absQx1 = x + qx1;
                                     absQy1 = y + qy1;
@@ -412,7 +438,10 @@
                             if (!isNaN(newX) && !isNaN(newY)) {
                                 // Calculate reflection of previous control
                                 // point.
-                                let qPrevControlX, qPrevControlY, absX, absY;
+                                let qPrevControlX: number;
+                                let qPrevControlY: number;
+                                let absX: number;
+                                let absY: number;
                                 if (isRelative) {
                                     qPrevControlX = 2 * x - controlX;
                                     qPrevControlY = 2 * y - controlY;
@@ -453,15 +482,15 @@
                             const newX = parseFloat(commands[++i]);
                             const newY = parseFloat(commands[++i]);
                             if (!isNaN(newX) && !isNaN(newY)) {
-                                const startX = prevX;
-                                const startY = prevY;
-                                
+                                const arcStartX = prevX;
+                                const arcStartY = prevY;
+
                                 // Add the start point if it's not already
                                 // added.
                                 if (points.length === 0 || points[points.length - 1].type !== "move") {
-                                    points.push({x: startX, y: startY, type: "arc-start"});
+                                    points.push({x: arcStartX, y: arcStartY, type: "arc-start"});
                                 }
-                                
+
                                 if (isRelative) {
                                     x += newX;
                                     y += newY;
@@ -485,10 +514,10 @@
                 .map(p => ({x: p.x, y: p.y}));
         }
 
-        function extractPolygonPoints(svgElement) {
+        function extractPolygonPoints(svgElement: SVGElement): SimplePoint[] {
 
-            const points = [];
-            
+            const points: SimplePoint[] = [];
+
             const polygons = svgElement.querySelectorAll("polygon");
             polygons.forEach(polygon => {
                 const pointsAttr = polygon.getAttribute("points");
@@ -527,13 +556,13 @@
             return points;
         }
 
-        function displayIcon(svgString, iconName) {
+        function displayIcon(svgString: string, iconName: string | null): void {
             const iconContainer = document.createElement("div");
             iconContainer.className = "icon-container";
 
             const svgWrapper = document.createElement("div");
             svgWrapper.innerHTML = svgString;
-            const svgElement = svgWrapper.querySelector("svg");
+            const svgElement = svgWrapper.querySelector("svg") as SVGElement | null;
 
             if (svgElement) {
                 svgElement.setAttribute("width", "128px");
@@ -543,8 +572,8 @@
 
                 // Extract control points from paths and points from
                 // polygons/polylines.
-                const allPoints = [];
-                
+                const allPoints: SimplePoint[] = [];
+
                 // Change fill color from black to blue for all path elements.
                 const pathElements = svgElement.querySelectorAll("path");
                 const controlPointsVisible = showControlPointsCheckbox.checked;
@@ -552,7 +581,7 @@
                 pathElements.forEach(path => {
                     path.setAttribute("fill", `rgba(var(--fg-color), ${pathOpacity})`);
                 });
-                
+
                 // Extract from path elements.
                 const pathElement = svgElement.querySelector("path");
                 if (pathElement) {
@@ -560,7 +589,7 @@
                     const controlPoints = extractControlPoints(pathData);
                     allPoints.push(...controlPoints);
                 }
-                
+
                 // Extract from polygon and polyline elements.
                 const polygonPoints = extractPolygonPoints(svgElement);
                 allPoints.push(...polygonPoints);
@@ -589,8 +618,8 @@
                     for (let j = 1; j <= gridSize; j++) {
                         const dot = document.createElementNS(
                             "http://www.w3.org/2000/svg", "circle");
-                        dot.setAttribute("cx", viewBoxX + i * dotSpacingX);
-                        dot.setAttribute("cy", viewBoxY + j * dotSpacingY);
+                        dot.setAttribute("cx", String(viewBoxX + i * dotSpacingX));
+                        dot.setAttribute("cy", String(viewBoxY + j * dotSpacingY));
                         dot.setAttribute("r", "0.1");
                         dot.setAttribute("fill", "rgba(var(--fg-color), 0.3)");
                         dot.setAttribute("stroke", "none");
@@ -603,7 +632,7 @@
                 }
 
                 // Remove duplicates from combined points.
-                const uniquePoints = [];
+                const uniquePoints: SimplePoint[] = [];
                 const threshold = 0.1;
                 for (const point of allPoints) {
                     let isDuplicate = false;
@@ -626,8 +655,8 @@
                 // The browser will automatically scale them when rendering.
                 uniquePoints.forEach(point => {
                     const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                    circle.setAttribute("cx", point.x);
-                    circle.setAttribute("cy", point.y);
+                    circle.setAttribute("cx", String(point.x));
+                    circle.setAttribute("cy", String(point.y));
                     // Make the circle radius relative to viewBox (0.125 = 2px at 16px viewBox)
                     circle.setAttribute("r", "0.125");
                     circle.setAttribute("fill", "red");
@@ -653,47 +682,47 @@
             }
         }
 
-        function clearPreview() {
+        function clearPreview(): void {
             previewArea.innerHTML = "";
         }
 
-        function showError(message) {
+        function showError(message: string): void {
             errorMessage.innerHTML = `<div class="error">${escapeHtml(message)}</div>`;
             infoMessage.innerHTML = "";
         }
 
-        function showInfo(message) {
+        function showInfo(message: string): void {
             infoMessage.innerHTML = `<div class="info">${escapeHtml(message)}</div>`;
             errorMessage.innerHTML = "";
         }
 
-        function clearMessages() {
+        function clearMessages(): void {
             errorMessage.innerHTML = "";
             infoMessage.innerHTML = "";
         }
 
-        function escapeHtml(text) {
+        function escapeHtml(text: string): string {
             const div = document.createElement("div");
             div.textContent = text;
             return div.innerHTML;
         }
 
-        function toggleGridVisibility(visible) {
+        function toggleGridVisibility(visible: boolean): void {
             const allSvgs = previewArea.querySelectorAll("svg");
             allSvgs.forEach(svg => {
                 const gridDots = svg.querySelectorAll(".grid-dot");
                 gridDots.forEach(dot => {
-                    dot.style.display = visible ? "" : "none";
+                    (dot as HTMLElement).style.display = visible ? "" : "none";
                 });
             });
         }
 
-        function toggleControlPointsVisibility(visible) {
+        function toggleControlPointsVisibility(visible: boolean): void {
             const allSvgs = previewArea.querySelectorAll("svg");
             allSvgs.forEach(svg => {
                 const controlPoints = svg.querySelectorAll(".control-point");
                 controlPoints.forEach(point => {
-                    point.style.display = visible ? "" : "none";
+                    (point as HTMLElement).style.display = visible ? "" : "none";
                 });
                 const pathElements = svg.querySelectorAll("path");
                 const pathOpacity = visible ? 0.2 : 1;
@@ -705,7 +734,7 @@
     }
 })();
 
-function updateIconStyle() {
+function updateIconStyle(): void {
     const gridDots = document.querySelectorAll(".grid-dot");
     gridDots.forEach(dot => {
         dot.setAttribute("r", "0.1");

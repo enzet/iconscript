@@ -2,11 +2,17 @@
 
 import fs from "fs";
 import path from "path";
+import {fileURLToPath} from "url";
+import {dirname} from "path";
 
-// Import parser and generator from parser.mjs (shared code).
-import {parseIconsFile} from "./parser.mjs";
+// Import parser and generator from parser.ts (shared code).
+import {parseIconsFile} from "./parser.js";
+import type {Icon} from "./types.js";
 
-function generateIcons(inputFile = "main.iconscript", outputDir = "output") {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+function generateIcons(inputFile: string = "main.iconscript", outputDir: string = "output"): void {
     try {
         // Read the specified file or default to `main.iconscript`..
         const iconsContent = fs.readFileSync(inputFile, "utf8");
@@ -25,7 +31,7 @@ function generateIcons(inputFile = "main.iconscript", outputDir = "output") {
 
             if (svg) {
                 // Generate filename.
-                let filename;
+                let filename: string;
                 if (icon.name && icon.name !== "temp") {
                     filename = `${icon.name}.svg`;
                 } else {
@@ -43,13 +49,14 @@ function generateIcons(inputFile = "main.iconscript", outputDir = "output") {
             `\nGenerated ${iconCount} SVG files in the ${outputDir} directory.`
         );
     } catch (error) {
-        console.error("Error:", error.message);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error("Error:", errorMessage);
         process.exit(1);
     }
 }
 
 // Parse command-line arguments.
-function parseArgs() {
+function parseArgs(): {inputFile: string; outputDir: string} {
     let inputFile = "main.iconscript";
     let outputDir = "output";
 
@@ -72,7 +79,7 @@ function parseArgs() {
                 process.exit(1);
             }
         } else if (arg === "-h" || arg === "--help") {
-            console.log("Usage: generate-svg.mjs [-i <input-file>] [-o <output-dir>]");
+            console.log("Usage: generate-svg.ts [-i <input-file>] [-o <output-dir>]");
             console.log("");
             console.log("Options:");
             console.log("  -i, --input <file>    Input iconscript file (default: main.iconscript)");

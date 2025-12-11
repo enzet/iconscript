@@ -2,14 +2,17 @@
     "name": "iconscript",
     "version": "0.1.0",
     "description": "iconscript, a language for generating SVG icons",
-    "main": "generate-svg.mjs",
+    "main": "generate-svg.ts",
     "scripts": {
-        "format": "prettier --write \"**/*.js\" \"**/*.mjs\"",
-        "format:check": "prettier --check \"**/*.js\" \"**/*.mjs\"",
-        "test": "node test-suite.js",
-        "generate": "node generate-svg.mjs",
-        "build:parser": "node build-parser.mjs",
-        "build:parser:min": "node build-parser.mjs --minify"
+        "format": "prettier --write \"**/*.{js,mjs,ts}\"",
+        "format:check": "prettier --check \"**/*.{js,mjs,ts}\"",
+        "test": "tsx test-suite.js",
+        "generate": "tsx generate-svg.ts",
+        "build:parser": "tsx build-parser.ts",
+        "build:parser:min": "tsx build-parser.ts --minify",
+        "build:ui": "tsx build-ui.ts",
+        "build:ui:min": "tsx build-ui.ts --minify",
+        "build": "npm run build:parser:min && npm run build:ui:min"
     },
     "keywords": [
         "svg",
@@ -20,8 +23,11 @@
     "author": "Sergey Vartanov",
     "license": "MIT",
     "devDependencies": {
+        "@types/node": "^25.0.0",
         "esbuild": "^0.19.0",
-        "prettier": "^3.0.0"
+        "prettier": "^3.0.0",
+        "tsx": "^4.21.0",
+        "typescript": "^5.9.3"
     },
     "dependencies": {
         "antlr4": "^4.13.0",
