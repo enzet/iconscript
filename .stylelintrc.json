@@ -1,0 +1,19 @@
+{
+    "extends": ["stylelint-config-standard"],
+    "rules": {
+        "rule-empty-line-before": "never",
+        "color-function-notation": null,
+        "color-function-alias-notation": null,
+        "declaration-property-value-no-unknown": [
+            true,
+            {
+                "ignoreProperties": {
+                    "/^(r|cx|cy)$/": ["/.*/"]
+                }
+            }
+        ],
+        "font-family-no-missing-generic-family-keyword": null,
+        "length-zero-no-unit": null
+    },
+    "ignoreFiles": ["node_modules/**", "dist/**"]
+}

@@ -18,6 +18,6 @@ if ! command -v antlr4 &> /dev/null; then
     ANTLR_CMD="antlr"
 fi
 
-$ANTLR_CMD -Dlanguage=JavaScript -o "$OUTPUT_DIR" "$GRAMMAR_FILE"
+$ANTLR_CMD -Dlanguage=TypeScript -o "$OUTPUT_DIR" "$GRAMMAR_FILE"
 
 echo "Grammars generated into \`$OUTPUT_DIR\`."

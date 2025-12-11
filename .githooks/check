@@ -13,43 +13,46 @@ fi
 # Clean up.
 
 find "$PROJECT_ROOT/grammar" \
-    -type f \( -name "*.js" -o -name "*.interp" -o -name "*.tokens" \) \
+    -type f \( -name "*.ts" -o -name "*.interp" -o -name "*.tokens" \) \
     -delete
 rm -f "$PROJECT_ROOT/parser.bundle.js"
 rm -f "$PROJECT_ROOT/parser.bundle.min.js"
 rm -f "$PROJECT_ROOT/parser.bundle.min.js.map"
+rm -f "$PROJECT_ROOT/ui.bundle.js"
+rm -f "$PROJECT_ROOT/ui.bundle.min.js"
+rm -f "$PROJECT_ROOT/ui.bundle.min.js.map"
 rm -rf "$PROJECT_ROOT/output"
 
 
 # Check grammar generation.
 
+echo "Generating grammar..."
 "$PROJECT_ROOT/generate-grammar.sh" &> /dev/null
-if [ ! -f "$PROJECT_ROOT/grammar/IconScriptLexer.js" ]; then
+if [ ! -f "$PROJECT_ROOT/grammar/IconScriptLexer.ts" ]; then
     echo "Error: grammar was not created." >&2
     exit 1
 fi
-echo "Grammar generated."
 
 
 # Check parser build.
 
+echo "Building parser..."
 npm run build:parser:min &> /dev/null
 # Check that `parser.bundle.min.js` was created.
 if [ ! -f "$PROJECT_ROOT/parser.bundle.min.js" ]; then
     echo "Error: parser.bundle.min.js was not created." >&2
     exit 1
 fi
-echo "Bundled minified parser created."
 
 
 # Check SVG icons creation.
 
+echo "Creating SVG icons..."
 mkdir -p "$PROJECT_ROOT/output"
 mkdir -p "$PROJECT_ROOT/output/main"
 npm run generate -- \
-    -i "$PROJECT_ROOT/test/main.iconscript" \
-    -o "$PROJECT_ROOT/output/main" &> /dev/null
-
+    "$PROJECT_ROOT/test/main.iconscript" \
+    "$PROJECT_ROOT/output/main" &> /dev/null
 if [ ! -d "$PROJECT_ROOT/output" ]; then
     echo "Error: output directory was not created." >&2
     exit 1
@@ -58,4 +61,40 @@ if [ ! -s "$PROJECT_ROOT/output" ]; then
     echo "Error: output directory is empty." >&2
     exit 1
 fi
-echo "SVG icons created."
+
+
+# Check Prettier formatting.
+
+echo "Checking Prettier formatting..."
+if ! npm run format:check &> /dev/null; then
+    echo "Error: Prettier formatting check failed." >&2
+    echo "Run 'npm run format' to fix formatting issues." >&2
+    exit 1
+fi
+
+
+# Check ESLint for TypeScript files.
+
+echo "Checking ESLint for TypeScript files..."
+if ! npm run lint:ts &> /dev/null; then
+    echo "Error: ESLint check for TypeScript files failed." >&2
+    exit 1
+fi
+
+
+# Check ESLint for HTML files.
+
+echo "Checking ESLint for HTML files..."
+if ! npm run lint:html &> /dev/null; then
+    echo "Error: ESLint check for HTML files failed." >&2
+    exit 1
+fi
+
+
+# Check Stylelint for CSS files.
+
+echo "Checking Stylelint for CSS files..."
+if ! npm run lint:css &> /dev/null; then
+    echo "Error: Stylelint check for CSS files failed." >&2
+    exit 1
+fi

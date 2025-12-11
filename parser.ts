@@ -9,13 +9,26 @@ import {ParseTreeWalker} from "antlr4";
 import paper from "paper";
 
 // Import the generated parser (ES6 modules).
-// @ts-ignore - Generated ANTLR files don't have type definitions
-import IconScriptLexer from "./grammar/IconScriptLexer.js";
-// @ts-ignore - Generated ANTLR files don't have type definitions
-import IconScriptParser from "./grammar/IconScriptParser.js";
-// @ts-ignore - Generated ANTLR files don't have type definitions
-import GeneratedIconScriptListener from "./grammar/IconScriptListener.js";
+import IconScriptLexer from "./grammar/IconScriptLexer";
+import IconScriptParser from "./grammar/IconScriptParser";
+import GeneratedIconScriptListener from "./grammar/IconScriptListener";
 import type {Icon} from "./types.js";
+import type {
+    AssignmentContext,
+    IconContext,
+    NameContext,
+    LineContext,
+    CircleContext,
+    ArcContext,
+    RectangleContext,
+    SetPositionContext,
+    SetWidthContext,
+    SetRemoveContext,
+    CommandContext,
+    ScopeContext,
+    PositionContext,
+    CommandsContext,
+} from "./grammar/IconScriptParser.js";
 
 const scale = 1.0;
 const defaultWidth = 1.0;
@@ -42,7 +55,6 @@ class Point {
  * @returns combined path
  */
 function unionPathsWithModes(paths: string[], modes: boolean[]): string | null {
-
     if (paths.length === 0) return null;
     if (paths.length === 1) return paths[0];
 
@@ -56,8 +68,13 @@ function unionPathsWithModes(paths: string[], modes: boolean[]): string | null {
                 try {
                     return new paper.Path(pathData) as paper.Path;
                 } catch (e) {
-                    const errorMessage = e instanceof Error ? e.message : String(e);
-                    console.warn("Failed to parse path:", pathData, errorMessage);
+                    const errorMessage =
+                        e instanceof Error ? e.message : String(e);
+                    console.warn(
+                        "Failed to parse path:",
+                        pathData,
+                        errorMessage
+                    );
                     return null;
                 }
             })
@@ -100,8 +117,13 @@ function unionPathsWithModes(paths: string[], modes: boolean[]): string | null {
 /**
  * Create a thick line path.
  */
-function createThickLinePath(x1: number, y1: number, x2: number, y2: number, thickness: number): string | null {
-
+function createThickLinePath(
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    thickness: number
+): string | null {
     // Create a thick line by offsetting the line perpendicular to its direction.
     const dx = x2 - x1;
     const dy = y2 - y1;
@@ -128,10 +150,7 @@ function createThickLinePath(x1: number, y1: number, x2: number, y2: number, thi
     const x2b = x2 - px * halfThickness;
     const y2b = y2 - py * halfThickness;
 
-    return (
-        `M ${x1a} ${y1a} L ${x2a} ${y2a} L ${x2b} ${y2b} ` +
-        `L ${x1b} ${y1b} Z`
-    );
+    return `M ${x1a} ${y1a} L ${x2a} ${y2a} L ${x2b} ${y2b} L ${x1b} ${y1b} Z`;
 }
 
 /**
@@ -154,18 +173,22 @@ class Scope {
     width: number;
     position: Point;
 
-    constructor(uniting = true, width = defaultWidth, position = new Point(0, 0)) {
+    constructor(
+        uniting = true,
+        width = defaultWidth,
+        position = new Point(0, 0)
+    ) {
         this.uniting = uniting;
         this.width = width;
         this.position = position;
     }
 
-    getPosition(pos: any): Point {
-        const x = parseFloat(pos.x.text);
-        const y = parseFloat(pos.y.text);
+    getPosition(pos: PositionContext): Point {
+        const x = parseFloat(pos._x.text);
+        const y = parseFloat(pos._y.text);
 
         let position: Point;
-        if (pos.relative) {
+        if (pos._relative) {
             position = this.position.add(new Point(x, y));
         } else {
             position = new Point(x + 0.5, y + 0.5);
@@ -179,14 +202,14 @@ class Scope {
         return new Scope(
             this.uniting,
             this.width,
-            new Point(this.position.x, this.position.y),
+            new Point(this.position.x, this.position.y)
         );
     }
 }
 
 // Custom listener to generate SVG directly from AST.
 class IconScriptListener extends GeneratedIconScriptListener {
-    variables: Record<string, any>;
+    variables: Record<string, CommandsContext>;
     icons: Icon[];
     currentIcon: Icon | null;
     paths: string[];
@@ -211,14 +234,14 @@ class IconScriptListener extends GeneratedIconScriptListener {
     }
 
     // Enter a parse tree produced by IconScriptParser#assignment.
-    enterAssignment(ctx: any): void {
-        const varName = ctx.left.text;
+    enterAssignment = (ctx: AssignmentContext): void => {
+        const varName = ctx._left.text;
         // Store variable commands for later expansion.
-        this.variables[varName] = ctx.right;
-    }
+        this.variables[varName] = ctx._right;
+    };
 
     // Enter a parse tree produced by IconScriptParser#icon.
-    enterIcon(ctx: any): void {
+    enterIcon = (_ctx: IconContext): void => {
         this.currentIcon = {
             name: null,
             svg: "",
@@ -226,18 +249,18 @@ class IconScriptListener extends GeneratedIconScriptListener {
         this.paths = [];
         this.modes = [];
         this.scopes = [new Scope()];
-    }
+    };
 
-    enterScope(ctx: any): void {
+    enterScope = (_ctx: ScopeContext): void => {
         this.scopes.push(this.scopes[this.scopes.length - 1].deepCopy());
-    }
+    };
 
-    exitScope(ctx: any): void {
+    exitScope = (_ctx: ScopeContext): void => {
         this.scopes.pop();
-    }
+    };
 
     // Exit a parse tree produced by IconScriptParser#icon.
-    exitIcon(ctx: any): void {
+    exitIcon = (_ctx: IconContext): void => {
         if (this.currentIcon) {
             // Combine all paths into a single SVG path.
             const combinedPath = unionPathsWithModes(this.paths, this.modes);
@@ -256,9 +279,9 @@ class IconScriptListener extends GeneratedIconScriptListener {
             this.icons.push(this.currentIcon);
             this.currentIcon = null;
         }
-    }
+    };
 
-    enterName(ctx: any): void {
+    enterName = (ctx: NameContext): void => {
         if (this.currentIcon) {
             // Extract from the full text (remove the % prefix).
             const fullText = ctx.getText();
@@ -268,12 +291,12 @@ class IconScriptListener extends GeneratedIconScriptListener {
 
             this.currentIcon.name = name;
         }
-    }
+    };
 
     // Exit a parse tree produced by IconScriptParser#line.
-    exitLine(ctx: any): void {
+    exitLine = (ctx: LineContext): void => {
         const isFilled = ctx.getText().includes("lf");
-        const positions = ctx.position();
+        const positions = ctx.position_list();
         const coordinates: Point[] = [];
 
         for (const pos of positions) {
@@ -284,7 +307,11 @@ class IconScriptListener extends GeneratedIconScriptListener {
 
         // Add circles at all points.
         for (const coord of coordinates) {
-            const circlePath = createCirclePath(coord.x, coord.y, this.getScope().width / 2);
+            const circlePath = createCirclePath(
+                coord.x,
+                coord.y,
+                this.getScope().width / 2
+            );
             if (circlePath) {
                 this.paths.push(circlePath);
                 this.modes.push(this.getScope().uniting);
@@ -296,7 +323,11 @@ class IconScriptListener extends GeneratedIconScriptListener {
             const from = coordinates[i];
             const to = coordinates[i + 1];
             const linePath = createThickLinePath(
-                from.x, from.y, to.x, to.y, this.getScope().width
+                from.x,
+                from.y,
+                to.x,
+                to.y,
+                this.getScope().width
             );
             if (linePath) {
                 this.paths.push(linePath);
@@ -314,10 +345,10 @@ class IconScriptListener extends GeneratedIconScriptListener {
             this.paths.push(filledPath);
             this.modes.push(this.getScope().uniting);
         }
-    }
+    };
 
     // Exit a parse tree produced by IconScriptParser#circle.
-    exitCircle(ctx: any): void {
+    exitCircle = (ctx: CircleContext): void => {
         const center = this.getScope().getPosition(ctx.position());
         const radius = parseFloat(ctx.FLOAT().getText());
         const circlePath = createCirclePath(center.x, center.y, radius / 2);
@@ -326,16 +357,16 @@ class IconScriptListener extends GeneratedIconScriptListener {
             this.paths.push(circlePath);
             this.modes.push(this.getScope().uniting);
         }
-    }
+    };
 
     // Exit a parse tree produced by IconScriptParser#arc.
-    exitArc(ctx: any): void {
+    exitArc = (ctx: ArcContext): void => {
         const pos = ctx.position();
-        const x = parseFloat(pos.x.text);
-        const y = parseFloat(pos.y.text);
+        const x = parseFloat(pos._x.text);
+        const y = parseFloat(pos._y.text);
         let center: Point;
 
-        if (pos.relative) {
+        if (pos._relative) {
             center = this.currentPoint.add(new Point(x, y));
         } else {
             center = new Point(x, y);
@@ -358,7 +389,11 @@ class IconScriptListener extends GeneratedIconScriptListener {
 
         for (let i = 1; i <= segments; i++) {
             currentAngle += angleStep;
-            const currentPoint = this.arcPoint(center, currentAngle, radius * scale);
+            const currentPoint = this.arcPoint(
+                center,
+                currentAngle,
+                radius * scale
+            );
             const linePath = createThickLinePath(
                 lastPoint.x,
                 lastPoint.y,
@@ -372,7 +407,7 @@ class IconScriptListener extends GeneratedIconScriptListener {
             }
             lastPoint = currentPoint;
         }
-    }
+    };
 
     arcPoint(center: Point, angle: number, radius: number): Point {
         return new Point(
@@ -382,7 +417,7 @@ class IconScriptListener extends GeneratedIconScriptListener {
     }
 
     // Exit a parse tree produced by IconScriptParser#rectangle.
-    exitRectangle(ctx: any): void {
+    exitRectangle = (ctx: RectangleContext): void => {
         const point1 = this.getScope().getPosition(ctx.position(0));
         const point2 = this.getScope().getPosition(ctx.position(1));
         const p1 = new Point(point2.x, point1.y);
@@ -392,7 +427,10 @@ class IconScriptListener extends GeneratedIconScriptListener {
         const corners = [point1, p1, point2, p2];
         for (const corner of corners) {
             const circlePath = createCirclePath(
-                corner.x, corner.y, this.getScope().width / 2);
+                corner.x,
+                corner.y,
+                this.getScope().width / 2
+            );
             if (circlePath) {
                 this.paths.push(circlePath);
                 this.modes.push(this.getScope().uniting);
@@ -412,35 +450,36 @@ class IconScriptListener extends GeneratedIconScriptListener {
         this.modes.push(this.getScope().uniting);
         this.paths.push(rectanglePath2);
         this.modes.push(this.getScope().uniting);
-    }
+    };
 
-    exitSetPosition(ctx: any): void {
+    exitSetPosition = (ctx: SetPositionContext): void => {
         this.getScope().getPosition(ctx.position());
-    }
+    };
 
-    exitSetWidth(ctx: any): void {
+    exitSetWidth = (ctx: SetWidthContext): void => {
         this.getScope().width = parseFloat(ctx.FLOAT().getText());
-    }
+    };
 
-    exitSetRemove(ctx: any): void {
+    exitSetRemove = (_ctx: SetRemoveContext): void => {
         this.getScope().uniting = false;
-    }
+    };
 
-    enterCommand(ctx: any): void {
+    enterCommand = (ctx: CommandContext): void => {
         if (ctx.VARIABLE()) {
             // Variable reference - expand it by walking its parse tree.
             const varName = ctx.getText().slice(1); // Remove `@`.
             const varCommands = this.variables[varName];
             if (varCommands) {
                 // Walk the variable commands to trigger exit methods.
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 ParseTreeWalker.DEFAULT.walk(this as any, varCommands);
             }
         }
-    }
+    };
 }
 
 function parseIconsFile(content: string): Icon[] {
-    const input = new antlr4.InputStream(content);
+    const input = new antlr4.InputStream(content) as antlr4.CharStream;
     const lexer = new IconScriptLexer(input);
     const stream = new antlr4.CommonTokenStream(lexer);
     const parser = new IconScriptParser(stream);
@@ -448,7 +487,14 @@ function parseIconsFile(content: string): Icon[] {
     // Add error listener.
     parser.removeErrorListeners();
     parser.addErrorListener({
-        syntaxError: (recognizer: any, offendingSymbol: any, line: number, column: number, msg: string, e: any) => {
+        syntaxError: (
+            _recognizer: unknown,
+            _offendingSymbol: unknown,
+            line: number,
+            column: number,
+            msg: string,
+            _e: unknown
+        ) => {
             console.error(`Syntax error at line ${line}:${column} - ${msg}`);
         },
     });
@@ -456,6 +502,7 @@ function parseIconsFile(content: string): Icon[] {
     const tree = parser.script();
 
     const listener = new IconScriptListener();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ParseTreeWalker.DEFAULT.walk(listener as any, tree);
 
     return listener.icons;

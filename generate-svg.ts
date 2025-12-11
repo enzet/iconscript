@@ -2,17 +2,14 @@
 
 import fs from "fs";
 import path from "path";
-import {fileURLToPath} from "url";
-import {dirname} from "path";
 
 // Import parser and generator from parser.ts (shared code).
 import {parseIconsFile} from "./parser.js";
-import type {Icon} from "./types.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-function generateIcons(inputFile: string = "main.iconscript", outputDir: string = "output"): void {
+function generateIcons(
+    inputFile: string = "main.iconscript",
+    outputDir: string = "output"
+): void {
     try {
         // Read the specified file or default to `main.iconscript`..
         const iconsContent = fs.readFileSync(inputFile, "utf8");
@@ -30,14 +27,12 @@ function generateIcons(inputFile: string = "main.iconscript", outputDir: string 
             const svg = icon.svg;
 
             if (svg) {
-                // Generate filename.
                 let filename: string;
                 if (icon.name && icon.name !== "temp") {
                     filename = `${icon.name}.svg`;
                 } else {
                     filename = `icon_${i}.svg`;
                 }
-
                 const filepath = path.join(outputDir, filename);
                 fs.writeFileSync(filepath, svg);
                 console.log(`Generated: ${filename}`);
@@ -49,54 +44,16 @@ function generateIcons(inputFile: string = "main.iconscript", outputDir: string 
             `\nGenerated ${iconCount} SVG files in the ${outputDir} directory.`
         );
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
+        const errorMessage =
+            error instanceof Error ? error.message : String(error);
         console.error("Error:", errorMessage);
         process.exit(1);
     }
 }
 
-// Parse command-line arguments.
-function parseArgs(): {inputFile: string; outputDir: string} {
-    let inputFile = "main.iconscript";
-    let outputDir = "output";
+const inputFile = process.argv[2];
+const outputDir = process.argv[3];
 
-    for (let i = 2; i < process.argv.length; i++) {
-        const arg = process.argv[i];
-        if (arg === "-i" || arg === "--input") {
-            if (i + 1 < process.argv.length) {
-                inputFile = process.argv[i + 1];
-                i++;
-            } else {
-                console.error("Error: -i option requires a file path");
-                process.exit(1);
-            }
-        } else if (arg === "-o" || arg === "--output") {
-            if (i + 1 < process.argv.length) {
-                outputDir = process.argv[i + 1];
-                i++;
-            } else {
-                console.error("Error: -o option requires a directory path");
-                process.exit(1);
-            }
-        } else if (arg === "-h" || arg === "--help") {
-            console.log("Usage: generate-svg.ts [-i <input-file>] [-o <output-dir>]");
-            console.log("");
-            console.log("Options:");
-            console.log("  -i, --input <file>    Input iconscript file (default: main.iconscript)");
-            console.log("  -o, --output <dir>   Output directory for SVG files (default: output)");
-            console.log("  -h, --help            Show this help message");
-            process.exit(0);
-        } else if (!arg.startsWith("-")) {
-            // Backward compatibility: treat non-option argument as input file.
-            inputFile = arg;
-        }
-    }
-
-    return {inputFile, outputDir};
-}
-
-// Run the generator.
-const {inputFile, outputDir} = parseArgs();
 generateIcons(inputFile, outputDir);
 
 // Export for testing

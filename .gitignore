@@ -8,8 +8,8 @@ output/
 
 # Parsers, generated from `IconScript.g4` by ANTLR4.
 grammar/*.interp
-grammar/*.js
 grammar/*.tokens
+grammar/*.ts
 
 # Bundled JavaScript files.
 *.bundle.js
