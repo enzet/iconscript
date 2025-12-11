@@ -480,7 +480,9 @@
             }
 
             // Return points (extract just `x`, `y` for compatibility).
-            return points.map(p => ({x: p.x, y: p.y}));
+            return points
+                .filter(p => p.type !== "control")
+                .map(p => ({x: p.x, y: p.y}));
         }
 
         function extractPolygonPoints(svgElement) {
