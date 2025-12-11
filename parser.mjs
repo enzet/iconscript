@@ -359,8 +359,8 @@ class IconScriptListener extends GeneratedIconScriptListener {
     exitRectangle(ctx) {
         const point1 = this.getScope().getPosition(ctx.position(0));
         const point2 = this.getScope().getPosition(ctx.position(1));
-        const p1 = new Point(point1.x, point2.y);
-        const p2 = new Point(point2.x, point1.y);
+        const p1 = new Point(point2.x, point1.y);
+        const p2 = new Point(point1.x, point2.y);
 
         // Add circles at all four corners.
         const corners = [point1, p1, point2, p2];
@@ -372,34 +372,19 @@ class IconScriptListener extends GeneratedIconScriptListener {
                 this.modes.push(this.getScope().uniting);
             }
         }
-
-        // Add stroke lines to form the rectangle outline.
-        const lines = [
-            [point1, p1],
-            [p1, point2],
-            [point2, p2],
-            [p2, point1],
-        ];
-
-        for (const [from, to] of lines) {
-            const linePath = createThickLinePath(
-                from.x,
-                from.y,
-                to.x,
-                to.y,
-                this.getScope().width
-            );
-            if (linePath) {
-                this.paths.push(linePath);
-                this.modes.push(this.getScope().uniting);
-            }
-        }
+        const halfWidth = this.getScope().width / 2;
 
         // Add filled rectangle as a filled polyline.
-        const rectanglePath =
-            `M ${point1.x} ${point1.y} L ${p1.x} ${p1.y} ` +
-            `L ${point2.x} ${point2.y} L ${p2.x} ${p2.y} Z`;
-        this.paths.push(rectanglePath);
+        const rectanglePath1 =
+            `M ${point1.x - halfWidth} ${point1.y} L ${p1.x + halfWidth} ${p1.y} ` +
+            `L ${point2.x + halfWidth} ${point2.y} L ${p2.x - halfWidth} ${p2.y} Z`;
+        const rectanglePath2 =
+            `M ${point1.x} ${point1.y - halfWidth} L ${p1.x} ${p1.y - halfWidth} ` +
+            `L ${point2.x} ${point2.y + halfWidth} L ${p2.x} ${p2.y + halfWidth} Z`;
+
+        this.paths.push(rectanglePath1);
+        this.modes.push(this.getScope().uniting);
+        this.paths.push(rectanglePath2);
         this.modes.push(this.getScope().uniting);
     }
 
@@ -450,5 +435,4 @@ function parseIconsFile(content) {
     return listener.icons;
 }
 
-// Export for browser use.
 export {parseIconsFile};
