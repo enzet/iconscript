@@ -7,9 +7,9 @@ export default [
         ignores: [
             "node_modules/**",
             "dist/**",
-            "*.bundle.js",
-            "*.bundle.min.js",
-            "*.bundle.min.js.map",
+            "web/bundles/*.bundle.js",
+            "web/bundles/*.bundle.min.js",
+            "web/bundles/*.bundle.min.js.map",
             "grammar/*.ts",
             "output/**",
         ],

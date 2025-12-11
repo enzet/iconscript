@@ -4,7 +4,7 @@ import fs from "fs";
 import path from "path";
 
 // Import parser and generator from parser.ts (shared code).
-import {parseIconsFile} from "./parser.js";
+import {parseIconsFile} from "../parser.js";
 
 function generateIcons(
     inputFile: string = "main.iconscript",

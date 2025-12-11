@@ -3,7 +3,7 @@
 
 set -e
 
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 GRAMMAR_FILE="$PROJECT_ROOT/grammar/IconScript.g4"
 
 OUTPUT_DIR="$PROJECT_ROOT/grammar"

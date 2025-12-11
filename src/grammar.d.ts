@@ -4,16 +4,16 @@
 
 import type {CharStream} from "antlr4";
 
-declare module "./grammar/IconScriptLexer.js" {
+declare module "../grammar/IconScriptLexer.js" {
     export default class IconScriptLexer {
         constructor(input: CharStream);
     }
 }
 
 import type {TokenStream, ErrorListener} from "antlr4";
-import type {ScriptContext} from "./grammar/IconScriptParser.js";
+import type {ScriptContext} from "../grammar/IconScriptParser.js";
 
-declare module "./grammar/IconScriptParser.js" {
+declare module "../grammar/IconScriptParser.js" {
     export default class IconScriptParser {
         constructor(stream: TokenStream);
         script(): ScriptContext;

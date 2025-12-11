@@ -15,19 +15,19 @@ fi
 find "$PROJECT_ROOT/grammar" \
     -type f \( -name "*.ts" -o -name "*.interp" -o -name "*.tokens" \) \
     -delete
-rm -f "$PROJECT_ROOT/parser.bundle.js"
-rm -f "$PROJECT_ROOT/parser.bundle.min.js"
-rm -f "$PROJECT_ROOT/parser.bundle.min.js.map"
-rm -f "$PROJECT_ROOT/ui.bundle.js"
-rm -f "$PROJECT_ROOT/ui.bundle.min.js"
-rm -f "$PROJECT_ROOT/ui.bundle.min.js.map"
+rm -f "$PROJECT_ROOT/web/bundles/parser.bundle.js"
+rm -f "$PROJECT_ROOT/web/bundles/parser.bundle.min.js"
+rm -f "$PROJECT_ROOT/web/bundles/parser.bundle.min.js.map"
+rm -f "$PROJECT_ROOT/web/bundles/ui.bundle.js"
+rm -f "$PROJECT_ROOT/web/bundles/ui.bundle.min.js"
+rm -f "$PROJECT_ROOT/web/bundles/ui.bundle.min.js.map"
 rm -rf "$PROJECT_ROOT/output"
 
 
 # Check grammar generation.
 
 echo "Generating grammar..."
-"$PROJECT_ROOT/generate-grammar.sh" &> /dev/null
+"$PROJECT_ROOT/scripts/generate-grammar.sh" &> /dev/null
 if [ ! -f "$PROJECT_ROOT/grammar/IconScriptLexer.ts" ]; then
     echo "Error: grammar was not created." >&2
     exit 1
@@ -39,7 +39,7 @@ fi
 echo "Building parser..."
 npm run build:parser:min &> /dev/null
 # Check that `parser.bundle.min.js` was created.
-if [ ! -f "$PROJECT_ROOT/parser.bundle.min.js" ]; then
+if [ ! -f "$PROJECT_ROOT/web/bundles/parser.bundle.min.js" ]; then
     echo "Error: parser.bundle.min.js was not created." >&2
     exit 1
 fi

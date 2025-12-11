@@ -2,7 +2,10 @@
     "name": "iconscript",
     "version": "0.1.0",
     "description": "iconscript, a language for generating SVG icons",
-    "main": "generate-svg.ts",
+    "main": "src/parser.ts",
+    "bin": {
+        "iconscript": "./src/cli/generate-svg.ts"
+    },
     "scripts": {
         "format": "prettier --write \"**/*.{js,mjs,ts,css,html}\"",
         "format:check": "prettier --check \"**/*.{js,mjs,ts,css,html}\"",
@@ -11,11 +14,11 @@
         "lint:css": "stylelint \"**/*.css\"",
         "lint": "npm run lint:ts && npm run lint:html && npm run lint:css",
         "test": "tsx test-suite.js",
-        "generate": "tsx generate-svg.ts",
-        "build:parser": "tsx build-parser.ts",
-        "build:parser:min": "tsx build-parser.ts --minify",
-        "build:ui": "tsx build-ui.ts",
-        "build:ui:min": "tsx build-ui.ts --minify",
+        "generate": "tsx src/cli/generate-svg.ts",
+        "build:parser": "tsx scripts/build-parser.ts",
+        "build:parser:min": "tsx scripts/build-parser.ts --minify",
+        "build:ui": "tsx scripts/build-ui.ts",
+        "build:ui:min": "tsx scripts/build-ui.ts --minify",
         "build": "npm run build:parser:min && npm run build:ui:min"
     },
     "keywords": [

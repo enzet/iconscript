@@ -14,6 +14,6 @@
         "outDir": "./dist",
         "rootDir": "."
     },
-    "include": ["**/*.ts", "grammar.d.ts"],
+    "include": ["src/**/*.ts", "scripts/**/*.ts", "web/**/*.ts", "src/grammar.d.ts"],
     "exclude": ["node_modules", "dist", "**/*.js", "**/*.mjs"]
 }

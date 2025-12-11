@@ -40,14 +40,14 @@ jobs:
             - name: Clean up generated files
               run: |
                   find grammar -type f \( -name "*.ts" -o -name "*.interp" -o -name "*.tokens" \) -delete || true
-                  rm -f parser.bundle.js parser.bundle.min.js parser.bundle.min.js.map
-                  rm -f ui.bundle.js ui.bundle.min.js ui.bundle.min.js.map
+                  rm -f web/bundles/parser.bundle.js web/bundles/parser.bundle.min.js web/bundles/parser.bundle.min.js.map
+                  rm -f web/bundles/ui.bundle.js web/bundles/ui.bundle.min.js web/bundles/ui.bundle.min.js.map
                   rm -rf output
 
             - name: Generate grammar
               run: |
-                  chmod +x ./generate-grammar.sh
-                  ./generate-grammar.sh
+                  chmod +x ./scripts/generate-grammar.sh
+                  ./scripts/generate-grammar.sh
 
             - name: Verify grammar generation
               run: |
@@ -61,7 +61,7 @@ jobs:
 
             - name: Verify parser build
               run: |
-                  if [ ! -f "parser.bundle.min.js" ]; then
+                  if [ ! -f "web/bundles/parser.bundle.min.js" ]; then
                       echo "Error: parser.bundle.min.js was not created."
                       exit 1
                   fi

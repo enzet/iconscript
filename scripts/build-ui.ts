@@ -7,25 +7,24 @@ import {dirname, join, basename} from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-async function buildParser(): Promise<void> {
+async function buildUI(): Promise<void> {
     const minify =
         process.argv.includes("--minify") || process.argv.includes("-m");
+    const projectRoot = join(__dirname, "..");
     const outputFile = minify
-        ? join(__dirname, "parser.bundle.min.js")
-        : join(__dirname, "parser.bundle.js");
+        ? join(projectRoot, "web", "bundles", "ui.bundle.min.js")
+        : join(projectRoot, "web", "bundles", "ui.bundle.js");
 
     try {
         await build({
-            entryPoints: [join(__dirname, "parser.ts")],
+            entryPoints: [join(projectRoot, "web", "ui.ts")],
             bundle: true,
             platform: "browser",
             format: "iife",
-            globalName: "IconScriptParser",
             outfile: outputFile,
             minify: minify,
             sourcemap: minify,
             target: "es2020",
-            external: [],
         });
         console.log(`Created: ${basename(outputFile)}.`);
     } catch (error) {
@@ -34,4 +33,4 @@ async function buildParser(): Promise<void> {
     }
 }
 
-buildParser();
+buildUI();
