@@ -4,7 +4,7 @@ import fs from "fs";
 import path from "path";
 
 // Import parser and generator from parser.mjs (shared code).
-import {IconGenerator, parseIconsFile} from "./parser.mjs";
+import {parseIconsFile} from "./parser.mjs";
 
 function generateIcons(inputFile = "main.iconscript", outputDir = "output") {
     try {
@@ -17,17 +17,16 @@ function generateIcons(inputFile = "main.iconscript", outputDir = "output") {
             fs.mkdirSync(outputDir, {recursive: true});
         }
 
-        const generator = new IconGenerator();
         let iconCount = 0;
 
         for (let i = 0; i < icons.length; i++) {
             const icon = icons[i];
-            const svg = generator.processCommands(icon.commands);
+            const svg = icon.svg;
 
             if (svg) {
                 // Generate filename.
                 let filename;
-                if (icon.name) {
+                if (icon.name && icon.name !== "temp") {
                     filename = `${icon.name}.svg`;
                 } else {
                     filename = `icon_${i}.svg`;
@@ -94,4 +93,4 @@ const {inputFile, outputDir} = parseArgs();
 generateIcons(inputFile, outputDir);
 
 // Export for testing
-export {IconGenerator, parseIconsFile};
+export {parseIconsFile};
