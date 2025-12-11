@@ -1,0 +1,91 @@
+name: CI
+
+on:
+    push:
+        branches: [main, master]
+    pull_request:
+        branches: [main, master]
+
+jobs:
+    check:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: "npm"
+
+            - name: Setup Java
+              uses: actions/setup-java@v4
+              with:
+                  distribution: "temurin"
+                  java-version: "17"
+
+            - name: Install ANTLR
+              run: |
+                  wget -q https://www.antlr.org/download/antlr-4.13.2-complete.jar -O /tmp/antlr.jar
+                  echo '#!/bin/bash' > /tmp/antlr4
+                  echo 'java -jar /tmp/antlr.jar "$@"' >> /tmp/antlr4
+                  chmod +x /tmp/antlr4
+                  sudo mv /tmp/antlr4 /usr/local/bin/antlr4
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Clean up generated files
+              run: |
+                  find grammar -type f \( -name "*.ts" -o -name "*.interp" -o -name "*.tokens" \) -delete || true
+                  rm -f parser.bundle.js parser.bundle.min.js parser.bundle.min.js.map
+                  rm -f ui.bundle.js ui.bundle.min.js ui.bundle.min.js.map
+                  rm -rf output
+
+            - name: Generate grammar
+              run: |
+                  chmod +x ./generate-grammar.sh
+                  ./generate-grammar.sh
+
+            - name: Verify grammar generation
+              run: |
+                  if [ ! -f "grammar/IconScriptLexer.ts" ]; then
+                      echo "Error: grammar was not created."
+                      exit 1
+                  fi
+
+            - name: Build parser
+              run: npm run build:parser:min
+
+            - name: Verify parser build
+              run: |
+                  if [ ! -f "parser.bundle.min.js" ]; then
+                      echo "Error: parser.bundle.min.js was not created."
+                      exit 1
+                  fi
+
+            - name: Create SVG icons (test)
+              run: |
+                  mkdir -p output/main
+                  npm run generate -- test/main.iconscript output/main
+
+            - name: Verify SVG icons creation
+              run: |
+                  if [ ! -d "output" ] || [ -z "$(ls -A output)" ]; then
+                      echo "Error: output directory was not created or is empty."
+                      exit 1
+                  fi
+
+            - name: Check Prettier formatting
+              run: npm run format:check
+
+            - name: Check ESLint for TypeScript files
+              run: npm run lint:ts
+
+            - name: Check ESLint for HTML files
+              run: npm run lint:html
+
+            - name: Check Stylelint for CSS files
+              run: npm run lint:css
