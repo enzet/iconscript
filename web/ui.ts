@@ -66,7 +66,8 @@ interface SimplePoint {
 
         if (typeof IconScriptParser === "undefined") {
             showError(
-                "Error: bundled-parser.min.js is not loaded. Please make sure the file exists."
+                "Error: bundled-parser.min.js is not loaded. Please make " +
+                    "sure the file exists."
             );
             return;
         }

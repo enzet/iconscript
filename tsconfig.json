@@ -12,8 +12,8 @@
         "resolveJsonModule": true,
         "declaration": true,
         "outDir": "./dist",
-        "rootDir": "."
+        "rootDir": "./src"
     },
-    "include": ["src/**/*.ts", "scripts/**/*.ts", "web/**/*.ts", "src/grammar.d.ts"],
-    "exclude": ["node_modules", "dist", "**/*.js", "**/*.mjs"]
+    "include": ["src/**/*.ts", "src/grammar.d.ts"],
+    "exclude": ["node_modules", "dist", "**/*.js", "**/*.mjs", "scripts", "web"]
 }

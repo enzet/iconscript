@@ -2,10 +2,23 @@
     "name": "iconscript",
     "version": "0.1.0",
     "description": "iconscript, a language for generating SVG icons",
-    "main": "src/parser.ts",
-    "bin": {
-        "iconscript": "./src/cli/generate-svg.ts"
+    "type": "module",
+    "main": "dist/parser.js",
+    "types": "dist/parser.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/parser.js",
+            "types": "./dist/parser.d.ts"
+        }
     },
+    "bin": {
+        "iconscript": "./dist/cli/generate-svg.js"
+    },
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
     "scripts": {
         "format": "prettier --write \"**/*.{js,mjs,ts,css,html}\"",
         "format:check": "prettier --check \"**/*.{js,mjs,ts,css,html}\"",
@@ -15,11 +28,15 @@
         "lint": "npm run lint:ts && npm run lint:html && npm run lint:css",
         "test": "tsx test-suite.js",
         "generate": "tsx src/cli/generate-svg.ts",
+        "build:cli": "tsx scripts/build-cli.ts",
+        "build:lib": "tsc",
         "build:parser": "tsx scripts/build-parser.ts",
         "build:parser:min": "tsx scripts/build-parser.ts --minify",
         "build:ui": "tsx scripts/build-ui.ts",
         "build:ui:min": "tsx scripts/build-ui.ts --minify",
-        "build": "npm run build:parser:min && npm run build:ui:min"
+        "build": "npm run build:lib && npm run build:cli && npm run build:parser:min && npm run build:ui:min",
+        "prepublishOnly": "npm run generate:grammar && npm run build",
+        "generate:grammar": "./scripts/generate-grammar.sh"
     },
     "keywords": [
         "svg",

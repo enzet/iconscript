@@ -15,7 +15,7 @@ export default [
         ],
     },
     {
-        files: ["**/*.ts"],
+        files: ["src/**/*.ts"],
         languageOptions: {
             parser: typescriptParser,
             parserOptions: {
@@ -29,6 +29,43 @@ export default [
                 Buffer: "readonly",
                 __dirname: "readonly",
                 __filename: "readonly",
+            },
+        },
+        plugins: {
+            "@typescript-eslint": typescriptEslint,
+        },
+        rules: {
+            ...typescriptEslint.configs.recommended.rules,
+            "@typescript-eslint/no-explicit-any": "warn",
+            "@typescript-eslint/explicit-module-boundary-types": "off",
+            "@typescript-eslint/no-unused-vars": [
+                "error",
+                {
+                    argsIgnorePattern: "^_",
+                    varsIgnorePattern: "^_",
+                    caughtErrorsIgnorePattern: "^_",
+                },
+            ],
+            "no-console": "off",
+        },
+    },
+    {
+        files: ["scripts/**/*.ts", "web/**/*.ts"],
+        languageOptions: {
+            parser: typescriptParser,
+            parserOptions: {
+                ecmaVersion: 2020,
+                sourceType: "module",
+            },
+            globals: {
+                console: "readonly",
+                process: "readonly",
+                Buffer: "readonly",
+                __dirname: "readonly",
+                __filename: "readonly",
+                document: "readonly",
+                window: "readonly",
+                localStorage: "readonly",
             },
         },
         plugins: {

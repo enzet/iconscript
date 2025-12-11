@@ -5,6 +5,7 @@ node_modules/
 
 # Output files.
 output/
+dist/
 
 # Parsers, generated from `IconScript.g4` by ANTLR4.
 grammar/*.interp
