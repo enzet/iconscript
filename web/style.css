@@ -24,7 +24,7 @@ body {
 }
 textarea {
     width: 100%;
-    min-height: 500px;
+    min-height: 100px;
     padding: 10px;
     font-family: "JetBrains Mono", monospace;
     font-size: 14px;
@@ -33,7 +33,7 @@ textarea {
     margin: 0;
 }
 .preview-area {
-    min-height: 500px;
+    min-height: 100px;
     display: flex;
     flex-wrap: wrap;
 }
@@ -56,9 +56,23 @@ textarea {
 }
 label {
     user-select: none;
+    margin: 2px 0;
 }
 .control-point {
     fill: rgba(var(--fg-color));
     stroke: none;
     r: 0.1;
+}
+.loading-indicator {
+    display: none;
+    color: rgba(var(--fg-color));
+    font-size: 12px;
+    margin: 5px 0;
+}
+.controls {
+    margin: 5px 0;
+}
+.messages {
+    margin: 5px 0;
+    height: 45px;
 }

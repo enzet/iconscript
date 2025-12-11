@@ -31,9 +31,11 @@ the style of the \ref {#roentgen} {Röntgen} project.
                 Show control points
             </label>
         </div>
-        <div id="loading-indicator">Generating...</div>
-        <div id="error-message"></div>
-        <div id="info-message"></div>
+        <div class="messages">
+            <div id="loading-indicator">Generating...</div>
+            <div id="error-message"></div>
+            <div id="info-message"></div>
+        </div>
     </div>
     <div class="preview-panel">
         <div id="preview-area" class="preview-area">

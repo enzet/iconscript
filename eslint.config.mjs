@@ -16,12 +16,47 @@ export default [
     },
     {
         files: ["src/**/*.ts"],
+        ignores: ["src/**/*.d.ts"],
         languageOptions: {
             parser: typescriptParser,
             parserOptions: {
                 ecmaVersion: 2020,
                 sourceType: "module",
                 project: "./tsconfig.json",
+            },
+            globals: {
+                console: "readonly",
+                process: "readonly",
+                Buffer: "readonly",
+                __dirname: "readonly",
+                __filename: "readonly",
+            },
+        },
+        plugins: {
+            "@typescript-eslint": typescriptEslint,
+        },
+        rules: {
+            ...typescriptEslint.configs.recommended.rules,
+            "@typescript-eslint/no-explicit-any": "warn",
+            "@typescript-eslint/explicit-module-boundary-types": "off",
+            "@typescript-eslint/no-unused-vars": [
+                "error",
+                {
+                    argsIgnorePattern: "^_",
+                    varsIgnorePattern: "^_",
+                    caughtErrorsIgnorePattern: "^_",
+                },
+            ],
+            "no-console": "off",
+        },
+    },
+    {
+        files: ["src/**/*.d.ts"],
+        languageOptions: {
+            parser: typescriptParser,
+            parserOptions: {
+                ecmaVersion: 2020,
+                sourceType: "module",
             },
             globals: {
                 console: "readonly",

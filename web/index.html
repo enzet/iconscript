@@ -38,19 +38,11 @@
                         Show control points
                     </label>
                 </div>
-                <div
-                    id="loading-indicator"
-                    style="
-                        display: none;
-                        color: #666;
-                        font-size: 12px;
-                        margin: 5px 0;
-                    "
-                >
-                    Generating...
+                <div class="messages">
+                    <div id="loading-indicator">Generating...</div>
+                    <div id="error-message"></div>
+                    <div id="info-message"></div>
                 </div>
-                <div id="error-message"></div>
-                <div id="info-message"></div>
             </div>
             <div class="preview-panel">
                 <div id="preview-area" class="preview-area">

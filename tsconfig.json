@@ -11,9 +11,15 @@
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true,
         "declaration": true,
-        "outDir": "./dist",
-        "rootDir": "./src"
+        "outDir": "./dist"
     },
-    "include": ["src/**/*.ts", "src/grammar.d.ts"],
-    "exclude": ["node_modules", "dist", "**/*.js", "**/*.mjs", "scripts", "web"]
+    "files": [
+        "src/parser.ts",
+        "src/types.d.ts",
+        "src/cli/generate-svg.ts",
+        "grammar/IconScriptLexer.ts",
+        "grammar/IconScriptParser.ts",
+        "grammar/IconScriptListener.ts"
+    ],
+    "exclude": ["node_modules", "dist", "**/*.js", "**/*.mjs", "scripts", "web", "grammar/*.interp", "grammar/*.tokens"]
 }
