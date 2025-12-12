@@ -3,7 +3,7 @@
 import {build} from "esbuild";
 import {fileURLToPath} from "url";
 import {dirname, join, basename} from "path";
-import {existsSync, mkdirSync} from "fs";
+import {existsSync, mkdirSync, copyFileSync, chmodSync} from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -44,6 +44,23 @@ async function buildCLI(): Promise<void> {
             external: ["paper", "paperjs-offset"],
         });
         console.log(`Created: ${basename(outputFile)}.`);
+
+        // Copy the CommonJS wrapper for npm binary compatibility.
+        const wrapperSource = join(
+            projectRoot,
+            "src",
+            "cli",
+            "generate-svg-wrapper.cjs"
+        );
+        const wrapperDest = join(
+            projectRoot,
+            "dist",
+            "cli",
+            "generate-svg-wrapper.cjs"
+        );
+        copyFileSync(wrapperSource, wrapperDest);
+        chmodSync(wrapperDest, 0o755);
+        console.log(`Created: ${basename(wrapperDest)}.`);
     } catch (error) {
         console.error("Build failed:", error);
         process.exit(1);

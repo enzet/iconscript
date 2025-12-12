@@ -12,7 +12,7 @@
         }
     },
     "bin": {
-        "iconscript": "./dist/cli/generate-svg.js"
+        "iconscript": "./dist/cli/generate-svg-wrapper.cjs"
     },
     "files": [
         "dist",
@@ -63,5 +63,13 @@
         "antlr4": "^4.13.0",
         "paper": "^0.12.17",
         "paperjs-offset": "^1.0.8"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/enzet/iconscript.git"
+    },
+    "homepage": "https://github.com/enzet/iconscript",
+    "bugs": {
+        "url": "https://github.com/enzet/iconscript/issues"
     }
 }
