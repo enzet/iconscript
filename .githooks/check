@@ -9,9 +9,7 @@ if ! command -v antlr4 &> /dev/null && ! command -v antlr &> /dev/null; then
     exit 1
 fi
 
-
-# Clean up.
-
+echo "Cleaning up..."
 find "$PROJECT_ROOT/grammar" \
     -type f \( -name "*.ts" -o -name "*.interp" -o -name "*.tokens" \) \
     -delete
@@ -23,29 +21,20 @@ rm -f "$PROJECT_ROOT/web/bundles/ui.bundle.min.js"
 rm -f "$PROJECT_ROOT/web/bundles/ui.bundle.min.js.map"
 rm -rf "$PROJECT_ROOT/output"
 
-
-# Check grammar generation.
-
 echo "Generating grammar..."
-"$PROJECT_ROOT/scripts/generate-grammar.sh" &> /dev/null
+"$PROJECT_ROOT/scripts/generate-grammar.sh"
 if [ ! -f "$PROJECT_ROOT/grammar/IconScriptLexer.ts" ]; then
     echo "Error: grammar was not created." >&2
     exit 1
 fi
 
-
-# Check parser build.
-
 echo "Building parser..."
-npm run build:parser:min &> /dev/null
+npm run build:parser:min
 # Check that `parser.bundle.min.js` was created.
 if [ ! -f "$PROJECT_ROOT/web/bundles/parser.bundle.min.js" ]; then
     echo "Error: parser.bundle.min.js was not created." >&2
     exit 1
 fi
-
-
-# Check SVG icons creation.
 
 echo "Creating SVG icons..."
 mkdir -p "$PROJECT_ROOT/output"
@@ -62,39 +51,45 @@ if [ ! -s "$PROJECT_ROOT/output" ]; then
     exit 1
 fi
 
+echo "Creating command-line interface..."
+rm -rf "$PROJECT_ROOT/dist"
+npm run build:cli
+# Check that `iconscript` was created.
+if [ ! -f "$PROJECT_ROOT/dist/cli/generate-svg.js" ]; then
+    echo "Error: iconscript was not created." >&2
+    exit 1
+fi
 
-# Check Prettier formatting.
+echo "Building library..."
+rm -rf "$PROJECT_ROOT/dist"
+npm run build:lib
+# Check that `dist/` was created.
+if [ ! -f "$PROJECT_ROOT/dist/src/parser.js" ]; then
+    echo "Error: dist/src/parser.js was not created." >&2
+    exit 1
+fi
 
 echo "Checking Prettier formatting..."
-if ! npm run format:check &> /dev/null; then
+if ! npm run format:check; then
     echo "Error: Prettier formatting check failed." >&2
     echo "Run 'npm run format' to fix formatting issues." >&2
     exit 1
 fi
 
-
-# Check ESLint for TypeScript files.
-
 echo "Checking ESLint for TypeScript files..."
-if ! npm run lint:ts &> /dev/null; then
+if ! npm run lint:ts; then
     echo "Error: ESLint check for TypeScript files failed." >&2
     exit 1
 fi
 
-
-# Check ESLint for HTML files.
-
 echo "Checking ESLint for HTML files..."
-if ! npm run lint:html &> /dev/null; then
+if ! npm run lint:html; then
     echo "Error: ESLint check for HTML files failed." >&2
     exit 1
 fi
 
-
-# Check Stylelint for CSS files.
-
 echo "Checking Stylelint for CSS files..."
-if ! npm run lint:css &> /dev/null; then
+if ! npm run lint:css; then
     echo "Error: Stylelint check for CSS files failed." >&2
     exit 1
 fi

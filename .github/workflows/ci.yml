@@ -78,6 +78,34 @@ jobs:
                       exit 1
                   fi
 
+            - name: Build CLI
+              run: |
+                  rm -rf dist
+                  npm run build:cli
+
+            - name: Verify CLI build
+              run: |
+                  if [ ! -f "dist/cli/generate-svg.js" ]; then
+                      echo "Error: dist/cli/generate-svg.js was not created."
+                      exit 1
+                  fi
+
+            - name: Build library
+              run: |
+                  rm -rf dist
+                  npm run build:lib
+
+            - name: Verify library build
+              run: |
+                  if [ ! -f "dist/src/parser.js" ]; then
+                      echo "Error: dist/src/parser.js was not created."
+                      exit 1
+                  fi
+                  if [ ! -f "dist/src/parser.d.ts" ]; then
+                      echo "Error: dist/src/parser.d.ts was not created."
+                      exit 1
+                  fi
+
             - name: Check Prettier formatting
               run: npm run format:check
 
