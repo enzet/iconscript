@@ -5,14 +5,12 @@
 import type {CharStream, TokenStream, ErrorListener} from "antlr4";
 
 // Prevent TypeScript from trying to compile the actual grammar files.
-// @ts-expect-error - Grammar files are generated and not part of the TypeScript project.
 declare module "../grammar/IconScriptLexer.js" {
     export default class IconScriptLexer {
         constructor(input: CharStream);
     }
 }
 
-// @ts-expect-error - Grammar files are generated and not part of the TypeScript project.
 declare module "../grammar/IconScriptParser.js" {
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     export interface ScriptContext {
@@ -27,7 +25,6 @@ declare module "../grammar/IconScriptParser.js" {
     }
 }
 
-// @ts-expect-error - Grammar files are generated and not part of the TypeScript project.
 declare module "../grammar/IconScriptListener.js" {
     export default class IconScriptListener {
         // Type placeholder for the generated listener.
