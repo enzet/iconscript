@@ -34,8 +34,8 @@
         "build:parser:min": "tsx scripts/build-parser.ts --minify",
         "build:ui": "tsx scripts/build-ui.ts",
         "build:ui:min": "tsx scripts/build-ui.ts --minify",
-        "build": "npm run build:lib && npm run build:cli && npm run build:parser:min && npm run build:ui:min",
-        "prepublishOnly": "npm run generate:grammar && npm run build",
+        "build": "npm run generate:grammar && npm run build:lib && npm run build:cli && npm run build:parser:min && npm run build:ui:min",
+        "prepublishOnly": "npm run build",
         "generate:grammar": "./scripts/generate-grammar.sh"
     },
     "keywords": [

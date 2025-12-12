@@ -20,7 +20,7 @@ npm install
 Generate grammar files:
 
 ```shell
-./scripts/generate-grammar.sh
+npm run generate:grammar
 ```
 
 Build all components (library, CLI, and web bundles):
@@ -30,6 +30,7 @@ npm run build
 ```
 
 Build individually:
+- `npm run generate:grammar` — generate grammar files,
 - `npm run build:lib` — build TypeScript library,
 - `npm run build:cli` — build CLI tool,
 - `npm run build:parser:min` — build parser bundle for web,
