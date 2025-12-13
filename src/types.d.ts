@@ -16,7 +16,7 @@ export type AntlrContext = any;
 
 declare global {
     const IconScriptParser: {
-        parseIconsFile(content: string): Icon[];
+        parseIconsFile(content: string, sketchMode?: boolean): Icon[];
     };
 }
 

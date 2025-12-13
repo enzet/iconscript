@@ -216,8 +216,9 @@ class IconScriptListener extends GeneratedIconScriptListener {
     modes: boolean[];
     scopes: Scope[];
     currentPoint: Point;
+    sketchMode: boolean;
 
-    constructor() {
+    constructor(sketchMode: boolean = false) {
         super();
         this.variables = {};
         this.icons = [];
@@ -225,6 +226,7 @@ class IconScriptListener extends GeneratedIconScriptListener {
         this.paths = [];
         this.modes = [];
         this.currentPoint = new Point(0, 0);
+        this.sketchMode = sketchMode;
 
         this.scopes = [new Scope()];
     }
@@ -262,10 +264,19 @@ class IconScriptListener extends GeneratedIconScriptListener {
     // Exit a parse tree produced by IconScriptParser#icon.
     exitIcon = (_ctx: IconContext): void => {
         if (this.currentIcon) {
-            // Combine all paths into a single SVG path.
-            const combinedPath = unionPathsWithModes(this.paths, this.modes);
-
-            if (combinedPath) {
+            if (this.sketchMode) {
+                // In sketch mode, output raw path elements without uniting.
+                let pathElements = "";
+                for (let i = 0; i < this.paths.length; i++) {
+                    const path = this.paths[i];
+                    const mode = this.modes[i];
+                    if (mode) {
+                        pathElements += `<path d="${path}" class="sketch-path-union" />`;
+                    } else {
+                        // For remove mode, use stroke to make it visible.
+                        pathElements += `<path d="${path}" class="sketch-path-subtract" />`;
+                    }
+                }
                 this.currentIcon.svg =
                     `<?xml version="1.0" encoding="utf-8" ?>` +
                     `<svg baseProfile="tiny" ` +
@@ -273,7 +284,24 @@ class IconScriptListener extends GeneratedIconScriptListener {
                     `xmlns="http://www.w3.org/2000/svg" ` +
                     `xmlns:ev="http://www.w3.org/2001/xml-events" ` +
                     `xmlns:xlink="http://www.w3.org/1999/xlink"><defs />` +
-                    `<path d="${combinedPath}" fill="black" stroke="none" /></svg>`;
+                    `${pathElements}</svg>`;
+            } else {
+                // In final mode, combine all paths into a single SVG path using PaperJS.
+                const combinedPath = unionPathsWithModes(
+                    this.paths,
+                    this.modes
+                );
+
+                if (combinedPath) {
+                    this.currentIcon.svg =
+                        `<?xml version="1.0" encoding="utf-8" ?>` +
+                        `<svg baseProfile="tiny" ` +
+                        `height="16px" version="1.2" width="16px" viewBox="0 0 16 16" ` +
+                        `xmlns="http://www.w3.org/2000/svg" ` +
+                        `xmlns:ev="http://www.w3.org/2001/xml-events" ` +
+                        `xmlns:xlink="http://www.w3.org/1999/xlink"><defs />` +
+                        `<path d="${combinedPath}" fill="black" stroke="none" /></svg>`;
+                }
             }
 
             this.icons.push(this.currentIcon);
@@ -478,7 +506,7 @@ class IconScriptListener extends GeneratedIconScriptListener {
     };
 }
 
-function parseIconsFile(content: string): Icon[] {
+function parseIconsFile(content: string, sketchMode: boolean = false): Icon[] {
     const input = new antlr4.InputStream(content) as antlr4.CharStream;
     const lexer = new IconScriptLexer(input);
     const stream = new antlr4.CommonTokenStream(lexer);
@@ -498,12 +526,16 @@ function parseIconsFile(content: string): Icon[] {
             console.error(`Syntax error at line ${line}:${column} - ${msg}`);
         },
     });
+    const t0 = performance.now();
 
     const tree = parser.script();
 
-    const listener = new IconScriptListener();
+    const listener = new IconScriptListener(sketchMode);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ParseTreeWalker.DEFAULT.walk(listener as any, tree);
+
+    const t1 = performance.now();
+    console.log(`Parsing time: ${t1 - t0}ms`);
 
     return listener.icons;
 }

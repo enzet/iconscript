@@ -76,3 +76,11 @@ label {
     margin: 5px 0;
     height: 45px;
 }
+.sketch-path-union {
+    fill: rgba(var(--fg-color));
+    stroke: none;
+}
+.sketch-path-subtract {
+    fill: rgba(var(--bg-color));
+    stroke: none;
+}

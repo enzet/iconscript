@@ -1,0 +1,13 @@
+:root {
+    --bg-color: 0, 0, 0;
+    --fg-color: 255, 255, 255;
+}
+body {
+    background-color: rgba(var(--bg-color));
+    color: rgba(var(--fg-color));
+}
+textarea {
+    background-color: rgba(var(--bg-color));
+    color: rgba(var(--fg-color));
+    border: none;
+}

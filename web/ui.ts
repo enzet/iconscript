@@ -50,6 +50,9 @@ interface SimplePoint {
         const showControlPointsCheckbox = document.getElementById(
             "show-control-points"
         ) as HTMLInputElement;
+        const sketchModeCheckbox = document.getElementById(
+            "sketch-mode"
+        ) as HTMLInputElement;
 
         const previewArea = document.getElementById(
             "preview-area"
@@ -77,6 +80,7 @@ interface SimplePoint {
         const AUTO_GENERATE_KEY = "iconscript-auto-generate";
         const SHOW_GRID_KEY = "iconscript-show-grid";
         const SHOW_CONTROL_POINTS_KEY = "iconscript-show-control-points";
+        const SKETCH_MODE_KEY = "iconscript-sketch-mode";
 
         const savedCode = localStorage.getItem(STORAGE_KEY);
         if (savedCode) {
@@ -102,13 +106,18 @@ interface SimplePoint {
                 savedShowControlPoints === "true";
         }
 
+        const savedSketchMode = localStorage.getItem(SKETCH_MODE_KEY);
+        if (savedSketchMode !== null) {
+            sketchModeCheckbox.checked = savedSketchMode === "true";
+        }
+
         if (autoGenerateCheckbox.checked && savedCode) {
             setTimeout(() => generateIcons(), 100);
         }
 
         let debounceTimer: number | null = null;
         let saveTimer: number | null = null;
-        const DEBOUNCE_DELAY = 500; // Milliseconds.
+        const DEBOUNCE_DELAY = 50; // Milliseconds.
         const SAVE_DELAY = 1000; // Save to localStorage after 1 second of no changes.
 
         generateBtn.addEventListener("click", function () {
@@ -166,6 +175,13 @@ interface SimplePoint {
             toggleControlPointsVisibility(this.checked);
         });
 
+        sketchModeCheckbox.addEventListener("change", function () {
+            localStorage.setItem(SKETCH_MODE_KEY, this.checked.toString());
+            if (autoGenerateCheckbox.checked) {
+                generateIcons();
+            }
+        });
+
         clearBtn.addEventListener("click", function () {
             codeTextarea.value = "";
             localStorage.removeItem(STORAGE_KEY);
@@ -200,8 +216,12 @@ interface SimplePoint {
             }
 
             try {
-                const parsedIcons =
-                    IconScriptParser.parseIconsFile(iconscriptCode);
+                const t0 = performance.now();
+                const sketchMode = sketchModeCheckbox.checked;
+                const parsedIcons = IconScriptParser.parseIconsFile(
+                    iconscriptCode,
+                    sketchMode
+                );
 
                 if (!parsedIcons || parsedIcons.length === 0) {
                     showInfo("No icons found in the code.");
@@ -248,6 +268,8 @@ interface SimplePoint {
                         `Failed to generate ${errorCount} icon${errorCount !== 1 ? "s" : ""}.`
                     );
                 }
+                const t1 = performance.now();
+                console.log(`Icon generation time: ${t1 - t0}ms`);
             } catch (error) {
                 const errorMessage =
                     error instanceof Error ? error.message : String(error);
@@ -650,14 +672,18 @@ interface SimplePoint {
                 // polygons/polylines.
                 const allPoints: SimplePoint[] = [];
 
-                // Change fill color from black to blue for all path elements.
                 const pathElements = svgElement.querySelectorAll("path");
                 const controlPointsVisible = showControlPointsCheckbox.checked;
-                const pathOpacity = controlPointsVisible ? 0.2 : 1;
+                const pathOpacity = controlPointsVisible ? 0.1 : 1;
                 pathElements.forEach(path => {
+                    const color = path.classList.contains(
+                        "sketch-path-subtract"
+                    )
+                        ? "bg"
+                        : "fg";
                     path.setAttribute(
                         "fill",
-                        `rgba(var(--fg-color), ${pathOpacity})`
+                        `rgba(var(--${color}-color), ${pathOpacity})`
                     );
                 });
 
@@ -747,10 +773,6 @@ interface SimplePoint {
                     );
                     circle.setAttribute("cx", String(point.x));
                     circle.setAttribute("cy", String(point.y));
-                    // Make the circle radius relative to viewBox (0.125 = 2px at 16px viewBox)
-                    circle.setAttribute("r", "0.125");
-                    circle.setAttribute("fill", "red");
-                    circle.setAttribute("stroke", "none");
                     circle.setAttribute("class", "control-point");
                     if (!showControlPointsCheckbox.checked) {
                         circle.style.display = "none";
@@ -818,11 +840,16 @@ interface SimplePoint {
                         : "none";
                 });
                 const pathElements = svg.querySelectorAll("path");
-                const pathOpacity = visible ? 0.2 : 1;
+                const pathOpacity = visible ? 0.1 : 1;
                 pathElements.forEach(path => {
+                    const color = path.classList.contains(
+                        "sketch-path-subtract"
+                    )
+                        ? "bg"
+                        : "fg";
                     path.setAttribute(
                         "fill",
-                        `rgba(var(--fg-color), ${pathOpacity})`
+                        `rgba(var(--${color}-color), ${pathOpacity})`
                     );
                 });
             });
