@@ -16,6 +16,9 @@ body {
     min-width: 400px;
     padding: 16px;
     border-right: 1px solid rgba(var(--fg-color), var(--border-opacity));
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 .preview-panel {
     flex: 1;
@@ -25,6 +28,7 @@ body {
 textarea {
     width: 100%;
     min-height: 100px;
+    height: 100%;
     padding: 10px;
     font-family: "JetBrains Mono", monospace;
     font-size: 14px;
@@ -74,7 +78,7 @@ label {
 }
 .messages {
     margin: 5px 0;
-    height: 45px;
+    min-height: 45px;
 }
 .sketch-path-union {
     fill: rgba(var(--fg-color));

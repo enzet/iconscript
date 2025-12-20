@@ -8,27 +8,37 @@ iconscript is a simple language for describing simple pixel-wise pictograms in
 the style of the \ref {#roentgen} {Röntgen} project.
 
 \html {
-<link rel="stylesheet" href="iconscript.css">
 <div class="container">
     <div class="editor-panel">
         <textarea
             id="iconscript-code"
             spellcheck="false"
-            placeholder="Enter iconscript code here..."></textarea>
+            placeholder="Enter iconscript code here..."
+        ></textarea>
         <div class="controls">
             <button id="generate-btn">Generate Icons</button>
             <button id="clear-btn">Clear</button>
+        </div>
+        <div class="controls">
             <label class="checkbox-control">
-                <input type="checkbox" id="auto-generate" checked>
-                Auto-generate while typing
+                <input type="checkbox" id="auto-generate" checked />
+                Auto-generate
             </label>
             <label class="checkbox-control">
-                <input type="checkbox" id="show-grid" checked>
-                Show grid
+                <input type="checkbox" id="show-grid" checked />
+                Grid
             </label>
             <label class="checkbox-control">
-                <input type="checkbox" id="show-control-points" checked>
-                Show control points
+                <input
+                    type="checkbox"
+                    id="show-control-points"
+                    checked
+                />
+                Control points
+            </label>
+            <label class="checkbox-control">
+                <input type="checkbox" id="sketch-mode" />
+                Sketch
             </label>
         </div>
         <div class="messages">
