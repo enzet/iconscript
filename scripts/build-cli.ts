@@ -16,7 +16,7 @@ async function buildCLI(): Promise<void> {
     // Check if grammar files exist.
     if (!existsSync(grammarLexer)) {
         console.error(
-            "Error: Grammar files not found. Please run './scripts/generate-grammar.sh' first."
+            "Error: Grammar files not found. Please run './scripts/generate-grammar.sh' first.",
         );
         process.exit(1);
     }
@@ -50,13 +50,13 @@ async function buildCLI(): Promise<void> {
             projectRoot,
             "src",
             "cli",
-            "generate-svg-wrapper.cjs"
+            "generate-svg-wrapper.cjs",
         );
         const wrapperDest = join(
             projectRoot,
             "dist",
             "cli",
-            "generate-svg-wrapper.cjs"
+            "generate-svg-wrapper.cjs",
         );
         copyFileSync(wrapperSource, wrapperDest);
         chmodSync(wrapperDest, 0o755);

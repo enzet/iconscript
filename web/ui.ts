@@ -32,45 +32,45 @@ interface SimplePoint {
 
     function init(): void {
         const codeTextarea = document.getElementById(
-            "iconscript-code"
+            "iconscript-code",
         ) as HTMLTextAreaElement;
         const generateBtn = document.getElementById(
-            "generate-btn"
+            "generate-btn",
         ) as HTMLButtonElement;
         const clearBtn = document.getElementById(
-            "clear-btn"
+            "clear-btn",
         ) as HTMLButtonElement;
 
         const autoGenerateCheckbox = document.getElementById(
-            "auto-generate"
+            "auto-generate",
         ) as HTMLInputElement;
         const showGridCheckbox = document.getElementById(
-            "show-grid"
+            "show-grid",
         ) as HTMLInputElement;
         const showControlPointsCheckbox = document.getElementById(
-            "show-control-points"
+            "show-control-points",
         ) as HTMLInputElement;
         const sketchModeCheckbox = document.getElementById(
-            "sketch-mode"
+            "sketch-mode",
         ) as HTMLInputElement;
 
         const previewArea = document.getElementById(
-            "preview-area"
+            "preview-area",
         ) as HTMLDivElement;
         const errorMessage = document.getElementById(
-            "error-message"
+            "error-message",
         ) as HTMLDivElement;
         const infoMessage = document.getElementById(
-            "info-message"
+            "info-message",
         ) as HTMLDivElement;
         const loadingIndicator = document.getElementById(
-            "loading-indicator"
+            "loading-indicator",
         ) as HTMLDivElement;
 
         if (typeof IconScriptParser === "undefined") {
             showError(
                 "Error: bundled-parser.min.js is not loaded. Please make " +
-                    "sure the file exists."
+                    "sure the file exists.",
             );
             return;
         }
@@ -99,7 +99,7 @@ interface SimplePoint {
         }
 
         const savedShowControlPoints = localStorage.getItem(
-            SHOW_CONTROL_POINTS_KEY
+            SHOW_CONTROL_POINTS_KEY,
         );
         if (savedShowControlPoints !== null) {
             showControlPointsCheckbox.checked =
@@ -170,7 +170,7 @@ interface SimplePoint {
         showControlPointsCheckbox.addEventListener("change", function () {
             localStorage.setItem(
                 SHOW_CONTROL_POINTS_KEY,
-                this.checked.toString()
+                this.checked.toString(),
             );
             toggleControlPointsVisibility(this.checked);
         });
@@ -220,7 +220,7 @@ interface SimplePoint {
                 const sketchMode = sketchModeCheckbox.checked;
                 const parsedIcons = IconScriptParser.parseIconsFile(
                     iconscriptCode,
-                    sketchMode
+                    sketchMode,
                 );
 
                 if (!parsedIcons || parsedIcons.length === 0) {
@@ -254,18 +254,18 @@ interface SimplePoint {
                                 : String(error);
                         console.error(`Error generating icon ${index}:`, error);
                         showError(
-                            `Error generating icon ${index}: ${errorMessage}`
+                            `Error generating icon ${index}: ${errorMessage}`,
                         );
                     }
                 });
                 if (successCount > 0) {
                     showInfo(
-                        `Successfully generated ${successCount} icon${successCount !== 1 ? "s" : ""}.`
+                        `Successfully generated ${successCount} icon${successCount !== 1 ? "s" : ""}.`,
                     );
                 }
                 if (errorCount > 0) {
                     showError(
-                        `Failed to generate ${errorCount} icon${errorCount !== 1 ? "s" : ""}.`
+                        `Failed to generate ${errorCount} icon${errorCount !== 1 ? "s" : ""}.`,
                     );
                 }
                 const t1 = performance.now();
@@ -286,7 +286,7 @@ interface SimplePoint {
 
             const commands =
                 pathData.match(
-                    /[MLHVCSQTAZmlhvcsqtaz]|[+-]?\d*\.?\d+(?:[eE][+-]?\d+)?/g
+                    /[MLHVCSQTAZmlhvcsqtaz]|[+-]?\d*\.?\d+(?:[eE][+-]?\d+)?/g,
                 ) || [];
             if (commands.length === 0)
                 return points.map(p => ({x: p.x, y: p.y}));
@@ -422,7 +422,7 @@ interface SimplePoint {
                                 points.push(
                                     {x: absX1, y: absY1, type: "control"},
                                     {x: absX2, y: absY2, type: "control"},
-                                    {x, y, type: "curve"}
+                                    {x, y, type: "curve"},
                                 );
                                 controlX = x;
                                 controlY = y;
@@ -456,7 +456,7 @@ interface SimplePoint {
                                             type: "control",
                                         },
                                         {x: absX2s, y: absY2s, type: "control"},
-                                        {x, y, type: "curve"}
+                                        {x, y, type: "curve"},
                                     );
                                 } else {
                                     prevControlX = 2 * x - controlX;
@@ -470,7 +470,7 @@ interface SimplePoint {
                                             type: "control",
                                         },
                                         {x: x2s, y: y2s, type: "control"},
-                                        {x, y, type: "curve"}
+                                        {x, y, type: "curve"},
                                     );
                                 }
                                 controlX = x;
@@ -506,7 +506,7 @@ interface SimplePoint {
                                 }
                                 points.push(
                                     {x: absQx1, y: absQy1, type: "control"},
-                                    {x, y, type: "quadratic"}
+                                    {x, y, type: "quadratic"},
                                 );
                                 controlX = x;
                                 controlY = y;
@@ -545,7 +545,7 @@ interface SimplePoint {
                                         y: qPrevControlY,
                                         type: "control",
                                     },
-                                    {x, y, type: "quadratic"}
+                                    {x, y, type: "quadratic"},
                                 );
                                 controlX = x;
                                 controlY = y;
@@ -616,7 +616,7 @@ interface SimplePoint {
                 if (pointsAttr) {
                     // Points: `x1,y1 x2,y2 x3,y3` or `x1,y1, x2,y2, x3,y3`.
                     const coords = pointsAttr.match(
-                        /[-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?/g
+                        /[-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?/g,
                     );
                     if (coords && coords.length >= 2) {
                         for (let i = 0; i < coords.length - 1; i += 2) {
@@ -635,7 +635,7 @@ interface SimplePoint {
                 const pointsAttr = polyline.getAttribute("points");
                 if (pointsAttr) {
                     const coords = pointsAttr.match(
-                        /[-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?/g
+                        /[-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?/g,
                     );
                     if (coords && coords.length >= 2) {
                         for (let i = 0; i < coords.length - 1; i += 2) {
@@ -659,7 +659,7 @@ interface SimplePoint {
             const svgWrapper = document.createElement("div");
             svgWrapper.innerHTML = svgString;
             const svgElement = svgWrapper.querySelector(
-                "svg"
+                "svg",
             ) as SVGElement | null;
 
             if (svgElement) {
@@ -677,13 +677,13 @@ interface SimplePoint {
                 const pathOpacity = controlPointsVisible ? 0.1 : 1;
                 pathElements.forEach(path => {
                     const color = path.classList.contains(
-                        "sketch-path-subtract"
+                        "sketch-path-subtract",
                     )
                         ? "bg"
                         : "fg";
                     path.setAttribute(
                         "fill",
-                        `rgba(var(--${color}-color), ${pathOpacity})`
+                        `rgba(var(--${color}-color), ${pathOpacity})`,
                     );
                 });
 
@@ -723,15 +723,15 @@ interface SimplePoint {
                     for (let j = 1; j <= gridSize; j++) {
                         const dot = document.createElementNS(
                             "http://www.w3.org/2000/svg",
-                            "circle"
+                            "circle",
                         );
                         dot.setAttribute(
                             "cx",
-                            String(viewBoxX + i * dotSpacingX)
+                            String(viewBoxX + i * dotSpacingX),
                         );
                         dot.setAttribute(
                             "cy",
-                            String(viewBoxY + j * dotSpacingY)
+                            String(viewBoxY + j * dotSpacingY),
                         );
                         dot.setAttribute("r", "0.1");
                         dot.setAttribute("fill", "rgba(var(--fg-color), 0.3)");
@@ -769,7 +769,7 @@ interface SimplePoint {
                 uniquePoints.forEach(point => {
                     const circle = document.createElementNS(
                         "http://www.w3.org/2000/svg",
-                        "circle"
+                        "circle",
                     );
                     circle.setAttribute("cx", String(point.x));
                     circle.setAttribute("cy", String(point.y));
@@ -843,13 +843,13 @@ interface SimplePoint {
                 const pathOpacity = visible ? 0.1 : 1;
                 pathElements.forEach(path => {
                     const color = path.classList.contains(
-                        "sketch-path-subtract"
+                        "sketch-path-subtract",
                     )
                         ? "bg"
                         : "fg";
                     path.setAttribute(
                         "fill",
-                        `rgba(var(--${color}-color), ${pathOpacity})`
+                        `rgba(var(--${color}-color), ${pathOpacity})`,
                     );
                 });
             });

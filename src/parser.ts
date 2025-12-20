@@ -1,5 +1,5 @@
 /**
- * Browser-compatible entry point for IconScript parser.
+ * Browser-compatible entry point for iconscript parser.
  * This file exports only the functions needed for browser use,
  * excluding Node.js-specific code (file system, command-line args).
  */
@@ -8,7 +8,6 @@ import * as antlr4 from "antlr4";
 import {ParseTreeWalker} from "antlr4";
 import paper from "paper";
 
-// Import the generated parser (ES6 modules).
 import IconScriptLexer from "../grammar/IconScriptLexer";
 import IconScriptParser from "../grammar/IconScriptParser";
 import GeneratedIconScriptListener from "../grammar/IconScriptListener";
@@ -50,7 +49,7 @@ class Point {
 /**
  * Combine paths using Paper.js.
  *
- * @param paths paths to combine (union or subtract)
+ * @param paths SVG paths to combine (union or subtract)
  * @param modes modes to apply to paths (true for add, false for remove)
  * @returns combined path
  */
@@ -73,7 +72,7 @@ function unionPathsWithModes(paths: string[], modes: boolean[]): string | null {
                     console.warn(
                         "Failed to parse path:",
                         pathData,
-                        errorMessage
+                        errorMessage,
                     );
                     return null;
                 }
@@ -122,7 +121,7 @@ function createThickLinePath(
     y1: number,
     x2: number,
     y2: number,
-    thickness: number
+    thickness: number,
 ): string | null {
     // Create a thick line by offsetting the line perpendicular to its direction.
     const dx = x2 - x1;
@@ -176,7 +175,7 @@ class Scope {
     constructor(
         uniting = true,
         width = defaultWidth,
-        position = new Point(0, 0)
+        position = new Point(0, 0),
     ) {
         this.uniting = uniting;
         this.width = width;
@@ -202,7 +201,7 @@ class Scope {
         return new Scope(
             this.uniting,
             this.width,
-            new Point(this.position.x, this.position.y)
+            new Point(this.position.x, this.position.y),
         );
     }
 }
@@ -273,7 +272,6 @@ class IconScriptListener extends GeneratedIconScriptListener {
                     if (mode) {
                         pathElements += `<path d="${path}" class="sketch-path-union" />`;
                     } else {
-                        // For remove mode, use stroke to make it visible.
                         pathElements += `<path d="${path}" class="sketch-path-subtract" />`;
                     }
                 }
@@ -286,10 +284,11 @@ class IconScriptListener extends GeneratedIconScriptListener {
                     `xmlns:xlink="http://www.w3.org/1999/xlink"><defs />` +
                     `${pathElements}</svg>`;
             } else {
-                // In final mode, combine all paths into a single SVG path using PaperJS.
+                // In final mode, combine all paths into a single SVG path using
+                // Paper.js.
                 const combinedPath = unionPathsWithModes(
                     this.paths,
-                    this.modes
+                    this.modes,
                 );
 
                 if (combinedPath) {
@@ -321,7 +320,6 @@ class IconScriptListener extends GeneratedIconScriptListener {
         }
     };
 
-    // Exit a parse tree produced by IconScriptParser#line.
     exitLine = (ctx: LineContext): void => {
         const isFilled = ctx.getText().includes("lf");
         const positions = ctx.position_list();
@@ -338,7 +336,7 @@ class IconScriptListener extends GeneratedIconScriptListener {
             const circlePath = createCirclePath(
                 coord.x,
                 coord.y,
-                this.getScope().width / 2
+                this.getScope().width / 2,
             );
             if (circlePath) {
                 this.paths.push(circlePath);
@@ -355,7 +353,7 @@ class IconScriptListener extends GeneratedIconScriptListener {
                 from.y,
                 to.x,
                 to.y,
-                this.getScope().width
+                this.getScope().width,
             );
             if (linePath) {
                 this.paths.push(linePath);
@@ -375,7 +373,6 @@ class IconScriptListener extends GeneratedIconScriptListener {
         }
     };
 
-    // Exit a parse tree produced by IconScriptParser#circle.
     exitCircle = (ctx: CircleContext): void => {
         const center = this.getScope().getPosition(ctx.position());
         const radius = parseFloat(ctx.FLOAT().getText());
@@ -387,7 +384,6 @@ class IconScriptListener extends GeneratedIconScriptListener {
         }
     };
 
-    // Exit a parse tree produced by IconScriptParser#arc.
     exitArc = (ctx: ArcContext): void => {
         const pos = ctx.position();
         const x = parseFloat(pos._x.text);
@@ -420,14 +416,14 @@ class IconScriptListener extends GeneratedIconScriptListener {
             const currentPoint = this.arcPoint(
                 center,
                 currentAngle,
-                radius * scale
+                radius * scale,
             );
             const linePath = createThickLinePath(
                 lastPoint.x,
                 lastPoint.y,
                 currentPoint.x,
                 currentPoint.y,
-                this.getScope().width
+                this.getScope().width,
             );
             if (linePath) {
                 this.paths.push(linePath);
@@ -440,11 +436,10 @@ class IconScriptListener extends GeneratedIconScriptListener {
     arcPoint(center: Point, angle: number, radius: number): Point {
         return new Point(
             center.x + Math.cos(angle) * radius,
-            center.y - Math.sin(angle) * radius
+            center.y - Math.sin(angle) * radius,
         );
     }
 
-    // Exit a parse tree produced by IconScriptParser#rectangle.
     exitRectangle = (ctx: RectangleContext): void => {
         const point1 = this.getScope().getPosition(ctx.position(0));
         const point2 = this.getScope().getPosition(ctx.position(1));
@@ -457,7 +452,7 @@ class IconScriptListener extends GeneratedIconScriptListener {
             const circlePath = createCirclePath(
                 corner.x,
                 corner.y,
-                this.getScope().width / 2
+                this.getScope().width / 2,
             );
             if (circlePath) {
                 this.paths.push(circlePath);
@@ -521,7 +516,7 @@ function parseIconsFile(content: string, sketchMode: boolean = false): Icon[] {
             line: number,
             column: number,
             msg: string,
-            _e: unknown
+            _e: unknown,
         ) => {
             console.error(`Syntax error at line ${line}:${column} - ${msg}`);
         },

@@ -6,7 +6,7 @@ import {parseIconsFile} from "../parser.js";
 
 function generateIcons(
     inputFile: string = "main.iconscript",
-    outputDir: string = "output"
+    outputDir: string = "output",
 ): void {
     try {
         // Read the specified file or default to `main.iconscript`..
@@ -39,7 +39,7 @@ function generateIcons(
         }
 
         console.log(
-            `\nGenerated ${iconCount} SVG files in the ${outputDir} directory.`
+            `\nGenerated ${iconCount} SVG files in the ${outputDir} directory.`,
         );
     } catch (error) {
         const errorMessage =
