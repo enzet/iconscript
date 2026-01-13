@@ -20,7 +20,7 @@ scope : '{' commands '}' ;
 commands : ( command | scope )+ ;
 icon : 'icon' name '=' '{' commands '}' | 'icon' name '=' command ;
 command
-    : name 
+    : name
     | VARIABLE
     | arc
     | circle
@@ -36,10 +36,10 @@ circle : 'c' position FLOAT ;
 line : ('l' | 'lf') position+ ;
 rectangle : 's' position position ;
 
-/** Icon name. */
+// Icon name.
 name : IDENTIFIER ;
 
 // Set context.
-setPosition : 'p' position ;
+setPosition : 'm' position ;
 setWidth : 'w' FLOAT ;
 setRemove : 'r' ;

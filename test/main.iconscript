@@ -32,8 +32,8 @@ person =
     {r s +-5,-2 +1,4 s +4,-4 +1,4 l +-3,-2 +0,4}
     l +-3,-1 +0,2 l +2,-2 +0,2
 
-icon temp = {p 5,4 @person p 10,4 @person}
-icon temp = {p 7,4 @person}
+icon persons = {m 5,4 @person m 10,4 @person}
+icon person = {m 7,4 @person}
 
 icon smoke_2 = {
     l 6,6 +5,0 l +-4,2 +1,0
@@ -74,32 +74,32 @@ icon temp = {
 
 icon temp = {lf 5,11 +0,-9 +5,3 +-5,3}
 
-triangle_ul = lf +0,-3 +3,5 +-6,0 +3,-5 p +0,3
-triangle_us = lf +0,-2 +2,3 +-4,0 +2,-3 p +0,2
-triangle_dl = lf +0,3 +3,-5 +-6,0 +3,5 p +0,-3
-triangle_ds = lf +0,2 +2,-3 +-4,0 +2,3 p +0,-2
+triangle_ul = lf +0,-3 +3,5 +-6,0 +3,-5 m +0,3
+triangle_us = lf +0,-2 +2,3 +-4,0 +2,-3 m +0,2
+triangle_dl = lf +0,3 +3,-5 +-6,0 +3,5 m +0,-3
+triangle_ds = lf +0,2 +2,-3 +-4,0 +2,3 m +0,-2
 
-icon temp = {p 7,7 @triangle_ul}
-icon temp = {p 7,7 @triangle_us}
-icon temp = {p 7,7 @triangle_dl}
-icon temp = {p 7,7 @triangle_ds}
+icon temp = {m 7,7 @triangle_ul}
+icon temp = {m 7,7 @triangle_us}
+icon temp = {m 7,7 @triangle_dl}
+icon temp = {m 7,7 @triangle_ds}
 
-seamark_ns = @triangle_us p +0,3 @triangle_us
-seamark_ss = @triangle_ds p +0,3 @triangle_ds
-seamark_ws = @triangle_us p +0,2 @triangle_ds
-seamark_es = @triangle_ds p +0,4 @triangle_us
+seamark_ns = @triangle_us m +0,3 @triangle_us
+seamark_ss = @triangle_ds m +0,3 @triangle_ds
+seamark_ws = @triangle_us m +0,2 @triangle_ds
+seamark_es = @triangle_ds m +0,4 @triangle_us
 
-icon temp = {p 7,6 @seamark_ns}
-icon temp = {p 7,5 @seamark_ss}
-icon temp = {p 7,6 @seamark_ws}
-icon temp = {p 7,5 @seamark_es}
+icon temp = {m 7,6 @seamark_ns}
+icon temp = {m 7,5 @seamark_ss}
+icon temp = {m 7,6 @seamark_ws}
+icon temp = {m 7,5 @seamark_es}
 
-seamark_nl = @triangle_ul p +0,5 @triangle_ul
-seamark_sl = @triangle_dl p +0,5 @triangle_dl
-seamark_wl = @triangle_ul p +0,4 @triangle_dl
-seamark_el = @triangle_dl p +0,6 @triangle_ul
+seamark_nl = @triangle_ul m +0,5 @triangle_ul
+seamark_sl = @triangle_dl m +0,5 @triangle_dl
+seamark_wl = @triangle_ul m +0,4 @triangle_dl
+seamark_el = @triangle_dl m +0,6 @triangle_ul
 
-icon temp = {p 7,5 @seamark_nl}
-icon temp = {p 7,4 @seamark_sl}
-icon temp = {p 7,5 @seamark_wl}
-icon temp = {p 7,4 @seamark_el}
+icon temp = {m 7,5 @seamark_nl}
+icon temp = {m 7,4 @seamark_sl}
+icon temp = {m 7,5 @seamark_wl}
+icon temp = {m 7,4 @seamark_el}
