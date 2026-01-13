@@ -54,7 +54,10 @@ class Point {
  * @returns combined path
  */
 function unionPathsWithModes(paths: string[], modes: boolean[]): string | null {
-    if (paths.length === 0) return null;
+    if (paths.length === 0) {
+        console.warn("No paths to combine.");
+        return null;
+    }
     if (paths.length === 1) return paths[0];
 
     // Initialize Paper.js.
@@ -79,7 +82,10 @@ function unionPathsWithModes(paths: string[], modes: boolean[]): string | null {
             })
             .filter((path): path is paper.Path => path !== null);
 
-        if (paperPaths.length === 0) return null;
+        if (paperPaths.length === 0) {
+            console.warn("No paper paths to combine.");
+            return null;
+        }
         if (paperPaths.length === 1) return paperPaths[0].pathData;
 
         // Perform operations based on individual path modes.
@@ -105,6 +111,10 @@ function unionPathsWithModes(paths: string[], modes: boolean[]): string | null {
         paperPaths.forEach(path => path.remove());
         result.remove();
 
+        if (combinedPathData.length === 0) {
+            console.warn("No combined path data constructed.");
+            return null;
+        }
         return combinedPathData;
     } catch (e) {
         const errorMessage = e instanceof Error ? e.message : String(e);
@@ -300,6 +310,11 @@ class IconScriptListener extends GeneratedIconScriptListener {
                         `xmlns:ev="http://www.w3.org/2001/xml-events" ` +
                         `xmlns:xlink="http://www.w3.org/1999/xlink"><defs />` +
                         `<path d="${combinedPath}" fill="black" stroke="none" /></svg>`;
+                } else {
+                    console.warn(
+                        `No combined path constructed for icon ` +
+                            `\`${this.currentIcon.name}\`.`,
+                    );
                 }
             }
 

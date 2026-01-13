@@ -39,7 +39,7 @@ function generateIcons(
         }
 
         console.log(
-            `\nGenerated ${iconCount} SVG files in the ${outputDir} directory.`,
+            `\nGenerated ${iconCount} SVG files in the \`${outputDir}\` directory.`,
         );
     } catch (error) {
         const errorMessage =
