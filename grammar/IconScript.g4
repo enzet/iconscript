@@ -34,7 +34,7 @@ command
 arc : 'a' position FLOAT FLOAT FLOAT ;
 circle : 'c' position FLOAT ;
 line : ('l' | 'lf') position+ ;
-rectangle : 's' position position ;
+rectangle : 'r' position position ;
 
 // Icon name.
 name : IDENTIFIER ;
@@ -42,4 +42,4 @@ name : IDENTIFIER ;
 // Set context.
 setPosition : 'm' position ;
 setWidth : 'w' FLOAT ;
-setRemove : 'r' ;
+setRemove : 'subtract' ;
