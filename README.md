@@ -74,18 +74,15 @@ Or use any other static file server pointing to the `web/` directory.
 `<position>` is 2D coordinates in the form `<x>,<y>` or `+<x>,<y>` (`+` means
 that the position is relative to the __position__).
 
-| Context command | Description                 |
-|-----------------|-----------------------------|
-| `r`             | Set removing mode           |
-| `w <float>`     | Set __width__ to a value    |
-| `p <position>`  | Set __position__ to a value |
-
-| Action command | Description |
+| Command | Description |
 |---|---|
+| `subtract` | Set subtraction mode |
+| `w <float>` | Set __width__ to a value |
+| `m <position>` | Set __position__ to a value |
 | `l [<position>]` | Draw lines between positions |
 | `lf [<position>]` | Draw filled lines between positions |
 | `c <position> <float>` | Draw circle specified by center point and radius |
-| `s <position> <position>` | Draw rectangle specified by top left and bottom right points |
+| `r <position> <position>` | Draw rectangle specified by top left and bottom right points |
 | `a <position> <float> <float> <float>` | Draw arc specified by center point, radius, and two angles in radians |
 
 ### Variables
@@ -103,8 +100,8 @@ to incapsulate context changes.
 ```iconscript
 square = lf +0,0 +2,0 +0,2 +-2,0 +0,-2
 icon glider = {
-    p 6,2   @square p +4,4 @square
-    p +-8,4 @square p +4,0 @square p +4,0 @square
+    m 6,2   @square m +4,4 @square
+    m +-8,4 @square m +4,0 @square m +4,0 @square
 }
 ```
 
