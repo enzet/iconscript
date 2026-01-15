@@ -81,7 +81,7 @@ that the position is relative to the __position__).
 | `m <position>` | Set __position__ to a value |
 | `l [<position>]` | Draw lines between positions |
 | `lf [<position>]` | Draw filled lines between positions |
-| `c <position> <float>` | Draw circle specified by center point and radius |
+| `e <position> <float>` | Draw circle specified by center point and radius |
 | `r <position> <position>` | Draw rectangle specified by top left and bottom right points |
 | `a <position> <float> <float> <float>` | Draw arc specified by center point, radius, and two angles in radians |
 
