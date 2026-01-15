@@ -32,7 +32,7 @@ command
 
 // Figures.
 arc : 'a' position FLOAT FLOAT FLOAT ;
-circle : 'c' position FLOAT ;
+circle : 'e' position FLOAT ;
 line : ('l' | 'lf') position+ ;
 rectangle : 'r' position position ;
 
