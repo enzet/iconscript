@@ -415,36 +415,76 @@ class IconScriptListener extends GeneratedIconScriptListener {
         center = center.add(new Point(0.5, 0.5));
         this.currentPoint = center.add(new Point(-0.5, -0.5));
 
-        const radius = parseFloat(ctx.FLOAT(0).getText());
+        const radius = parseFloat(ctx.FLOAT(0).getText()) * scale;
         const startAngle = parseFloat(ctx.FLOAT(1).getText());
         const endAngle = parseFloat(ctx.FLOAT(2).getText());
 
-        // Create multiple line segments to approximate the arc.
-        const segments = 10;
-        const angleStep = (endAngle - startAngle) / segments;
-
-        let currentAngle = startAngle;
-        let lastPoint = this.arcPoint(center, currentAngle, radius * scale);
-
-        for (let i = 1; i <= segments; i++) {
-            currentAngle += angleStep;
-            const currentPoint = this.arcPoint(
-                center,
-                currentAngle,
-                radius * scale,
+        if (![radius, startAngle, endAngle].every(Number.isFinite)) {
+            console.warn(
+                "Invalid arc parameters:",
+                radius,
+                startAngle,
+                endAngle,
             );
-            const linePath = createThickLinePath(
-                lastPoint.x,
-                lastPoint.y,
-                currentPoint.x,
-                currentPoint.y,
-                this.getScope().width,
-            );
-            if (linePath) {
-                this.paths.push(linePath);
+            return;
+        }
+
+        // Normalize delta into [-2π, 2π] to pick correct SVG arc flags.
+        const tau = Math.PI * 2;
+        let delta = endAngle - startAngle;
+        if (!Number.isFinite(delta)) return;
+        if (Math.abs(delta) < 1e-9) return;
+        if (Math.abs(delta) > tau) {
+            const wrapped = ((delta % tau) + tau) % tau; // In [0, 2π).
+            delta = delta < 0 ? wrapped - tau : wrapped;
+            if (Math.abs(delta) < 1e-9) return;
+        }
+
+        const halfWidth = this.getScope().width / 2;
+        const outerRadius = radius + halfWidth;
+        const innerRadius = Math.max(radius - halfWidth, 0);
+
+        // SVG arc flags.
+        const largeArcFlag = Math.abs(delta) > Math.PI ? 1 : 0;
+        const sweepFlag = delta < 0 ? 1 : 0; // 1 is clockwise in SVG coordinates.
+
+        // Draw the thick arc as a closed ring segment: outer arc + inner arc.
+        const startOuter = this.arcPoint(center, startAngle, outerRadius);
+        const endOuter = this.arcPoint(center, endAngle, outerRadius);
+
+        let arcPath =
+            `M ${startOuter.x} ${startOuter.y} ` +
+            `A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} ${sweepFlag} ${endOuter.x} ${endOuter.y} `;
+
+        if (innerRadius === 0) {
+            // Degenerate case: thickness reaches center, close as a sector.
+            arcPath += `L ${center.x} ${center.y} Z`;
+        } else {
+            const endInner = this.arcPoint(center, endAngle, innerRadius);
+            const startInner = this.arcPoint(center, startAngle, innerRadius);
+            const sweepInner = sweepFlag ? 0 : 1;
+            arcPath +=
+                `L ${endInner.x} ${endInner.y} ` +
+                `A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} ${sweepInner} ${startInner.x} ${startInner.y} Z`;
+        }
+
+        this.paths.push(arcPath);
+        this.modes.push(this.getScope().uniting);
+
+        // Add round end caps, consistent with how `line` is drawn.
+        if (halfWidth > 0) {
+            const capStart = this.arcPoint(center, startAngle, radius);
+            const capEnd = this.arcPoint(center, endAngle, radius);
+            const cap1 = createCirclePath(capStart.x, capStart.y, halfWidth);
+            const cap2 = createCirclePath(capEnd.x, capEnd.y, halfWidth);
+            if (cap1) {
+                this.paths.push(cap1);
                 this.modes.push(this.getScope().uniting);
             }
-            lastPoint = currentPoint;
+            if (cap2) {
+                this.paths.push(cap2);
+                this.modes.push(this.getScope().uniting);
+            }
         }
     };
 
