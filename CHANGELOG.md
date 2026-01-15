@@ -1,4 +1,4 @@
-# Unreleased
+# 0.2.0
 
   - **Breaking change**: use SVG path commands format
     ([#2](https://github.com/enzet/iconscript/issues/2)).
