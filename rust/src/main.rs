@@ -22,8 +22,8 @@ struct Args {
     input: Option<PathBuf>,
 
     /// Output directory for SVG files.
-    #[arg(short, long, value_name = "DIR", default_value = "output")]
-    output: PathBuf,
+    #[arg(value_name = "DIR")]
+    output: Option<PathBuf>,
 
     /// Enable sketch mode (output raw paths without combining).
     #[arg(short, long)]
@@ -48,7 +48,7 @@ fn main() -> Result<()> {
     let input_file = args
         .input
         .unwrap_or_else(|| PathBuf::from("main.iconscript"));
-    let output_dir = args.output;
+    let output_dir = args.output.unwrap_or_else(|| PathBuf::from("output"));
     let sketch_mode = args.sketch;
 
     // Build optimization options from CLI flags.

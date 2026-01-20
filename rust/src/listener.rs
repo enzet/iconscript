@@ -5,6 +5,7 @@ use antlr_rust::{
 };
 use anyhow::Result;
 use std::collections::HashMap;
+use std::rc::Rc;
 
 use crate::generator::{create_circle_path, create_thick_line_path};
 use crate::parser::iconscriptparser::*;
@@ -18,7 +19,6 @@ pub fn parse_iconscript(
     content: &str,
     sketch_mode: bool,
 ) -> Result<Vec<(Icon, Vec<PathWithMode>)>> {
-
     let input = InputStream::new(content);
     let lexer = IconScriptLexer::new(input);
     let token_stream = CommonTokenStream::new(lexer);
@@ -34,16 +34,16 @@ pub fn parse_iconscript(
     Ok(listener.into_icons())
 }
 
-struct IconScriptListenerImpl {
+struct IconScriptListenerImpl<'input> {
     sketch_mode: bool,
-    variables: HashMap<String, String>,
+    variables: HashMap<String, Rc<CommandsContextAll<'input>>>,
     icons: Vec<(Icon, Vec<PathWithMode>)>,
     current_icon: Option<Icon>,
     paths: Vec<PathWithMode>,
     scopes: Vec<Scope>,
 }
 
-impl IconScriptListenerImpl {
+impl<'input> IconScriptListenerImpl<'input> {
     fn new(sketch_mode: bool) -> Self {
         Self {
             sketch_mode,
@@ -93,14 +93,65 @@ impl IconScriptListenerImpl {
             center.y - angle.sin() * radius,
         )
     }
+
+    /// Walk a CommandsContext to process variable expansion.
+    /// This manually triggers the listener methods for each child command.
+    fn walk_commands(&mut self, commands_ctx: &CommandsContext<'input>) {
+        // Process each command in the commands context
+        for command in commands_ctx.command_all() {
+            self.process_command(&command);
+        }
+
+        // Process nested scopes
+        for scope in commands_ctx.scope_all() {
+            self.enter_scope(&scope);
+            if let Some(inner_commands) = scope.commands() {
+                self.walk_commands(&inner_commands);
+            }
+            self.exit_scope(&scope);
+        }
+    }
+
+    /// Process a single command, handling variable expansion.
+    fn process_command(&mut self, ctx: &CommandContext<'input>) {
+        use crate::parser::iconscriptparser::CommandContextAttrs;
+
+        // Check if this is a variable reference
+        if let Some(var_token) = ctx.VARIABLE() {
+            let var_name = &var_token.get_text()[1..]; // Remove '@' prefix
+            if let Some(commands_ctx) = self.variables.get(var_name).cloned() {
+                self.walk_commands(&commands_ctx);
+            }
+            return;
+        }
+
+        // Handle other command types by calling their exit methods
+        if let Some(line_ctx) = ctx.line() {
+            self.exit_line(&line_ctx);
+        } else if let Some(circle_ctx) = ctx.circle() {
+            self.exit_circle(&circle_ctx);
+        } else if let Some(arc_ctx) = ctx.arc() {
+            self.exit_arc(&arc_ctx);
+        } else if let Some(rect_ctx) = ctx.rectangle() {
+            self.exit_rectangle(&rect_ctx);
+        } else if let Some(pos_ctx) = ctx.setPosition() {
+            self.exit_setPosition(&pos_ctx);
+        } else if let Some(width_ctx) = ctx.setWidth() {
+            self.exit_setWidth(&width_ctx);
+        } else if let Some(remove_ctx) = ctx.setRemove() {
+            self.exit_setRemove(&remove_ctx);
+        } else if let Some(name_ctx) = ctx.name() {
+            self.exit_name(&name_ctx);
+        }
+    }
 }
 
-impl antlr_rust::tree::ParseTreeListener<'_, IconScriptParserContextType>
-    for IconScriptListenerImpl
+impl<'input> antlr_rust::tree::ParseTreeListener<'input, IconScriptParserContextType>
+    for IconScriptListenerImpl<'input>
 {
 }
 
-impl<'input> IconScriptListener<'input> for IconScriptListenerImpl {
+impl<'input> IconScriptListener<'input> for IconScriptListenerImpl<'input> {
     fn enter_icon(&mut self, _ctx: &IconContext<'input>) {
         self.current_icon = Some(Icon::new());
         self.paths.clear();
@@ -117,8 +168,18 @@ impl<'input> IconScriptListener<'input> for IconScriptListenerImpl {
     fn enter_assignment(&mut self, ctx: &AssignmentContext<'input>) {
         if let (Some(left), Some(right)) = (&ctx.left, &ctx.right) {
             let var_name = left.get_text().to_string();
-            let var_value = right.get_text().to_string();
-            self.variables.insert(var_name, var_value);
+            // Store the CommandsContext for later expansion
+            self.variables.insert(var_name, right.clone());
+        }
+    }
+
+    fn enter_command(&mut self, ctx: &CommandContext<'input>) {
+        // Check if this is a variable reference
+        if let Some(var_token) = ctx.VARIABLE() {
+            let var_name = &var_token.get_text()[1..]; // Remove '@' prefix
+            if let Some(commands_ctx) = self.variables.get(var_name).cloned() {
+                self.walk_commands(&commands_ctx);
+            }
         }
     }
 
