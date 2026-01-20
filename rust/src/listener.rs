@@ -19,6 +19,7 @@ pub fn parse_iconscript(
     content: &str,
     sketch_mode: bool,
 ) -> Result<Vec<(Icon, Vec<PathWithMode>)>> {
+
     let input = InputStream::new(content);
     let lexer = IconScriptLexer::new(input);
     let token_stream = CommonTokenStream::new(lexer);
@@ -94,21 +95,36 @@ impl<'input> IconScriptListenerImpl<'input> {
         )
     }
 
-    /// Walk a CommandsContext to process variable expansion.
-    /// This manually triggers the listener methods for each child command.
+    /// Walk a `CommandsContext` to process variable expansion. This manually
+    /// triggers the listener methods for each child command.
     fn walk_commands(&mut self, commands_ctx: &CommandsContext<'input>) {
-        // Process each command in the commands context
-        for command in commands_ctx.command_all() {
-            self.process_command(&command);
-        }
+        use antlr_rust::tree::Tree;
 
-        // Process nested scopes
-        for scope in commands_ctx.scope_all() {
-            self.enter_scope(&scope);
-            if let Some(inner_commands) = scope.commands() {
-                self.walk_commands(&inner_commands);
+        // Process children in order (commands and scopes interleaved).
+        // We track indices separately because command_all() and scope_all()
+        // return them in order within their own type.
+        let mut command_idx = 0;
+        let mut scope_idx = 0;
+
+        for i in 0..commands_ctx.get_child_count() {
+            if let Some(child) = commands_ctx.get_child(i) {
+                let rule_index = child.get_rule_index();
+                if rule_index == RULE_command {
+                    if let Some(cmd) = commands_ctx.command(command_idx) {
+                        self.process_command(&cmd);
+                    }
+                    command_idx += 1;
+                } else if rule_index == RULE_scope {
+                    if let Some(scope) = commands_ctx.scope(scope_idx) {
+                        self.enter_scope(&scope);
+                        if let Some(inner_commands) = scope.commands() {
+                            self.walk_commands(&inner_commands);
+                        }
+                        self.exit_scope(&scope);
+                    }
+                    scope_idx += 1;
+                }
             }
-            self.exit_scope(&scope);
         }
     }
 
@@ -116,7 +132,7 @@ impl<'input> IconScriptListenerImpl<'input> {
     fn process_command(&mut self, ctx: &CommandContext<'input>) {
         use crate::parser::iconscriptparser::CommandContextAttrs;
 
-        // Check if this is a variable reference
+        // Check if this is a variable reference.
         if let Some(var_token) = ctx.VARIABLE() {
             let var_name = &var_token.get_text()[1..]; // Remove '@' prefix
             if let Some(commands_ctx) = self.variables.get(var_name).cloned() {
@@ -125,7 +141,7 @@ impl<'input> IconScriptListenerImpl<'input> {
             return;
         }
 
-        // Handle other command types by calling their exit methods
+        // Handle other command types by calling their exit methods.
         if let Some(line_ctx) = ctx.line() {
             self.exit_line(&line_ctx);
         } else if let Some(circle_ctx) = ctx.circle() {
@@ -168,13 +184,14 @@ impl<'input> IconScriptListener<'input> for IconScriptListenerImpl<'input> {
     fn enter_assignment(&mut self, ctx: &AssignmentContext<'input>) {
         if let (Some(left), Some(right)) = (&ctx.left, &ctx.right) {
             let var_name = left.get_text().to_string();
-            // Store the CommandsContext for later expansion
+            // Store the CommandsContext for later expansion.
             self.variables.insert(var_name, right.clone());
         }
     }
 
     fn enter_command(&mut self, ctx: &CommandContext<'input>) {
-        // Check if this is a variable reference
+
+        // Check if this is a variable reference.
         if let Some(var_token) = ctx.VARIABLE() {
             let var_name = &var_token.get_text()[1..]; // Remove '@' prefix
             if let Some(commands_ctx) = self.variables.get(var_name).cloned() {

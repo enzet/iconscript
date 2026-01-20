@@ -53,7 +53,7 @@ fn test_path_simplification() {
         let input_path = lines[0].trim();
         let expected_output = lines[1].trim();
 
-        // Skip empty lines
+        // Skip empty lines.
         if input_path.is_empty() || expected_output.is_empty() {
             continue;
         }
@@ -72,9 +72,9 @@ fn test_path_simplification() {
 
         let actual_output = simplified.to_svg();
 
-        println!("  Actual:   {}.", actual_output);
+        println!("  Actual:   {}", actual_output);
 
-        // Compare outputs
+        // Compare outputs.
         assert_eq!(
             normalize_path(&actual_output),
             normalize_path(expected_output),
