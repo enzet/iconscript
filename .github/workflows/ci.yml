@@ -117,3 +117,17 @@ jobs:
 
             - name: Check Stylelint for CSS files
               run: npm run lint:css
+
+    rust:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Rust
+              uses: dtolnay/rust-toolchain@stable
+
+            - name: Run Rust tests
+              run: cargo test
+              working-directory: rust
