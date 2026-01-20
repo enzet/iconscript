@@ -165,9 +165,11 @@ pub fn deduplicate_path_elements(path: &kurbo::BezPath) -> kurbo::BezPath {
     let mut result = BezPath::new();
     let mut last_point: Option<Point> = None;
     let mut subpath_start: Option<Point> = None;
+
     // Use epsilon of 0.01 to merge points within 0.01 pixels. This catches
     // floating point precision issues from boolean operations.
     const EPSILON: f64 = 0.01;
+
     // Use stricter epsilon for detecting truly degenerate curves. We only want
     // to convert curves to lines when control points are VERY close to
     // endpoint.  0.0015 catches differences up to ~0.001 while preserving
