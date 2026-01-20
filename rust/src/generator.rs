@@ -431,10 +431,10 @@ pub fn simplify_path_collinear(path: &kurbo::BezPath) -> kurbo::BezPath {
 /// Round a number to a maximum of 4 decimal places, removing trailing zeros.
 fn round_coordinate(value: f64) -> f64 {
     // Round to 4 decimal places.
-    let rounded = (value * 10000.0).round() / 10000.0;
+    let rounded = (value * 1000.0).round() / 1000.0;
 
     // Check if it's very close to an integer.
-    if (rounded - rounded.round()).abs() < 0.0001 {
+    if (rounded - rounded.round()).abs() < 0.001 {
         rounded.round()
     } else {
         rounded
