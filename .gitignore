@@ -21,3 +21,14 @@ web/bundles/*.bundle.min.js.map
 # WIP.
 webassembly/
 work/
+
+# Rust.
+rust/target/
+rust/Cargo.lock
+**/*.rs.bk
+*.pdb
+*.long-type-*.txt
+
+# ANTLR generated files for Rust.
+rust/src/parser/iconscript*.rs
+rust/src/parser/generated/
