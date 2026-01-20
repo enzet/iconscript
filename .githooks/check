@@ -93,3 +93,9 @@ if ! npm run lint:css; then
     echo "Error: Stylelint check for CSS files failed." >&2
     exit 1
 fi
+
+echo "Running Rust tests..."
+if ! cargo test --manifest-path "$PROJECT_ROOT/rust/Cargo.toml"; then
+    echo "Error: Rust tests failed." >&2
+    exit 1
+fi
