@@ -635,11 +635,13 @@ pub fn icon_to_svg(
     };
 
     format!(
-        r#"<?xml version="1.0" encoding="utf-8" ?>"#
-        r#"<svg baseProfile="tiny" height="16px" version="1.2" width="16px" "#
-        r#"viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" "#
-        r#"xmlns:ev="http://www.w3.org/2001/xml-events" "#
-        r#"xmlns:xlink="http://www.w3.org/1999/xlink"><defs />{}</svg>"#,
+        concat!(
+            r#"<?xml version="1.0" encoding="utf-8" ?>"#,
+            r#"<svg baseProfile="tiny" height="16px" version="1.2" width="16px" "#,
+            r#"viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" "#,
+            r#"xmlns:ev="http://www.w3.org/2001/xml-events" "#,
+            r#"xmlns:xlink="http://www.w3.org/1999/xlink"><defs />{}</svg>"#
+        ),
         svg_content
     )
 }

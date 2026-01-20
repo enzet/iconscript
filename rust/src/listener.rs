@@ -339,8 +339,10 @@ impl<'input> IconScriptListener<'input> for IconScriptListenerImpl {
                     Self::arc_point(center, start_angle, inner_radius);
                 let sweep_inner = if sweep_flag == 1 { 0 } else { 1 };
                 format!(
-                    "M {} {} A {} {} 0 {} {} {} {} L {} {} "
-                    "A {} {} 0 {} {} {} {} Z",
+                    concat!(
+                        "M {} {} A {} {} 0 {} {} {} {} L {} {} ",
+                        "A {} {} 0 {} {} {} {} Z"
+                    ),
                     start_outer.x,
                     start_outer.y,
                     outer_radius,
