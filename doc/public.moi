@@ -54,3 +54,5 @@ the style of the \ref {#roentgen} {Röntgen} project.
     </div>
 </div>
 }
+
+\include {syntax.moi}
