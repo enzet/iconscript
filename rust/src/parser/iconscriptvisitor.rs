@@ -104,6 +104,12 @@ pub trait IconScriptVisitor<'input>: ParseTreeVisitor<'input,IconScriptParserCon
 	 */
 	fn visit_setRemove(&mut self, ctx: &SetRemoveContext<'input>) { self.visit_children(ctx) }
 
+	/**
+	 * Visit a parse tree produced by {@link IconScriptParser#setFill}.
+	 * @param ctx the parse tree
+	 */
+	fn visit_setFill(&mut self, ctx: &SetFillContext<'input>) { self.visit_children(ctx) }
+
 }
 
 pub trait IconScriptVisitorCompat<'input>:ParseTreeVisitorCompat<'input, Node= IconScriptParserContextType>{
@@ -235,6 +241,14 @@ pub trait IconScriptVisitorCompat<'input>:ParseTreeVisitorCompat<'input, Node= I
 			self.visit_children(ctx)
 		}
 
+	/**
+	 * Visit a parse tree produced by {@link IconScriptParser#setFill}.
+	 * @param ctx the parse tree
+	 */
+		fn visit_setFill(&mut self, ctx: &SetFillContext<'input>) -> Self::Return {
+			self.visit_children(ctx)
+		}
+
 }
 
 impl<'input,T> IconScriptVisitor<'input> for T
@@ -318,6 +332,11 @@ where
 
 	fn visit_setRemove(&mut self, ctx: &SetRemoveContext<'input>){
 		let result = <Self as IconScriptVisitorCompat>::visit_setRemove(self, ctx);
+        *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
+	}
+
+	fn visit_setFill(&mut self, ctx: &SetFillContext<'input>){
+		let result = <Self as IconScriptVisitorCompat>::visit_setFill(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
 	}
 

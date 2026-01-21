@@ -21,6 +21,7 @@ pub struct Scope {
     pub uniting: bool,
     pub width: f64,
     pub position: Point,
+    pub is_filled: bool,
 }
 
 impl Scope {
@@ -29,6 +30,7 @@ impl Scope {
             uniting: true,
             width: 1.0,
             position: Point::new(0.0, 0.0),
+            is_filled: false,
         }
     }
 
