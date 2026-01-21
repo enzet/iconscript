@@ -1,4 +1,4 @@
-use iconscript_rust::generator::round_path_coordinates;
+use iconscript::generator::round_path_coordinates;
 use kurbo::BezPath;
 
 #[test]
