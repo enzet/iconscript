@@ -36,4 +36,4 @@ mv src/grammar/iconscript*.rs "$OUTPUT_DIR/" 2>/dev/null || true
 
 echo "Parser generated successfully!"
 echo "Generated files:"
-ls -lh "$OUTPUT_DIR/"/*.rs
+ls -lh "$OUTPUT_DIR"/*.rs

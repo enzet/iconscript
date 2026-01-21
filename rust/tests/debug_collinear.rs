@@ -1,4 +1,4 @@
-use iconscript_rust::generator::{
+use iconscript::generator::{
     deduplicate_path_elements, simplify_path_collinear,
 };
 use kurbo::BezPath;

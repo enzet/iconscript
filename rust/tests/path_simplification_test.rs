@@ -3,7 +3,7 @@ use std::fs;
 use std::path::Path;
 
 // Import the functions we want to test.
-use iconscript_rust::generator::{
+use iconscript::generator::{
     deduplicate_path_elements, round_path_coordinates, simplify_path_collinear,
 };
 
