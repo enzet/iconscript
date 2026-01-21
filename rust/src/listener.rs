@@ -154,6 +154,8 @@ impl<'input> IconScriptListenerImpl<'input> {
             self.exit_setWidth(&width_ctx);
         } else if let Some(remove_ctx) = ctx.setRemove() {
             self.exit_setRemove(&remove_ctx);
+        } else if let Some(fill_ctx) = ctx.setFill() {
+            self.exit_setFill(&fill_ctx);
         } else if let Some(name_ctx) = ctx.name() {
             self.exit_name(&name_ctx);
         }
@@ -232,7 +234,7 @@ impl<'input> IconScriptListener<'input> for IconScriptListenerImpl<'input> {
     }
 
     fn exit_line(&mut self, ctx: &LineContext<'input>) {
-        let is_filled = ctx.get_text().contains("lf");
+        let is_filled = ctx.get_text().contains("lf") || self.get_scope().is_filled;
         let positions: Vec<Point> = ctx
             .position_all()
             .iter()
@@ -482,5 +484,9 @@ impl<'input> IconScriptListener<'input> for IconScriptListenerImpl<'input> {
 
     fn exit_setRemove(&mut self, _ctx: &SetRemoveContext<'input>) {
         self.get_scope_mut().uniting = false;
+    }
+
+    fn exit_setFill(&mut self, _ctx: &SetFillContext<'input>) {
+        self.get_scope_mut().is_filled = true;
     }
 }

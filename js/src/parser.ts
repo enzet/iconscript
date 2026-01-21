@@ -23,6 +23,7 @@ import type {
     SetPositionContext,
     SetWidthContext,
     SetRemoveContext,
+    SetFillContext,
     CommandContext,
     ScopeContext,
     PositionContext,
@@ -181,15 +182,18 @@ class Scope {
     uniting: boolean;
     width: number;
     position: Point;
+    isFilled: boolean;
 
     constructor(
         uniting = true,
         width = defaultWidth,
         position = new Point(0, 0),
+        isFilled = false,
     ) {
         this.uniting = uniting;
         this.width = width;
         this.position = position;
+        this.isFilled = isFilled;
     }
 
     getPosition(pos: PositionContext): Point {
@@ -212,6 +216,7 @@ class Scope {
             this.uniting,
             this.width,
             new Point(this.position.x, this.position.y),
+            this.isFilled,
         );
     }
 }
@@ -336,7 +341,8 @@ class IconScriptListener extends GeneratedIconScriptListener {
     };
 
     exitLine = (ctx: LineContext): void => {
-        const isFilled = ctx.getText().includes("lf");
+        const isFilled =
+            ctx.getText().includes("lf") || this.getScope().isFilled;
         const positions = ctx.position_list();
         const coordinates: Point[] = [];
 
@@ -540,6 +546,10 @@ class IconScriptListener extends GeneratedIconScriptListener {
 
     exitSetRemove = (_ctx: SetRemoveContext): void => {
         this.getScope().uniting = false;
+    };
+
+    exitSetFill = (_ctx: SetFillContext): void => {
+        this.getScope().isFilled = true;
     };
 
     enterCommand = (ctx: CommandContext): void => {

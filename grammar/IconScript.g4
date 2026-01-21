@@ -28,7 +28,8 @@ command
     | rectangle
     | setPosition
     | setRemove
-    | setWidth ;
+    | setWidth
+    | setFill ;
 
 // Figures.
 arc : 'a' position FLOAT FLOAT FLOAT ;
@@ -43,3 +44,4 @@ name : IDENTIFIER ;
 setPosition : 'm' position ;
 setWidth : 'w' FLOAT ;
 setRemove : 'subtract' ;
+setFill : 'fill' ;

@@ -164,6 +164,16 @@ fn enter_setRemove(&mut self, _ctx: &SetRemoveContext<'input>) { }
  * @param ctx the parse tree
  */
 fn exit_setRemove(&mut self, _ctx: &SetRemoveContext<'input>) { }
+/**
+ * Enter a parse tree produced by {@link IconScriptParser#setFill}.
+ * @param ctx the parse tree
+ */
+fn enter_setFill(&mut self, _ctx: &SetFillContext<'input>) { }
+/**
+ * Exit a parse tree produced by {@link IconScriptParser#setFill}.
+ * @param ctx the parse tree
+ */
+fn exit_setFill(&mut self, _ctx: &SetFillContext<'input>) { }
 
 }
 
