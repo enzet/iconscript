@@ -14,18 +14,10 @@ name = "iconscript"
 path = "src/main.rs"
 
 [dependencies]
-# SVG library - linesweeper for path boolean operations
-linesweeper = "0.1.2"
-# Kurbo for bezier path manipulation
-kurbo = "0.12.0"
-# CLI argument parsing
-clap = { version = "4.5", features = ["derive"] }
-# Error handling
-anyhow = "1.0"
-thiserror = "1.0"
-# ANTLR runtime for Rust
 antlr-rust = "0.3.0-beta"
+anyhow = "1.0"
+clap = { version = "4.5", features = ["derive"] }
+kurbo = "0.12.0"
 lazy_static = "1.4"
-
-[build-dependencies]
-# No build dependencies needed - parser is pre-generated
+linesweeper = "0.1.2"
+thiserror = "1.0"
