@@ -36,7 +36,6 @@ pub fn parse_iconscript(
 }
 
 struct IconScriptListenerImpl<'input> {
-    sketch_mode: bool,
     variables: HashMap<String, Rc<CommandsContextAll<'input>>>,
     icons: Vec<(Icon, Vec<PathWithMode>)>,
     current_icon: Option<Icon>,
@@ -45,9 +44,8 @@ struct IconScriptListenerImpl<'input> {
 }
 
 impl<'input> IconScriptListenerImpl<'input> {
-    fn new(sketch_mode: bool) -> Self {
+    fn new(_sketch_mode: bool) -> Self {
         Self {
-            sketch_mode,
             variables: HashMap::new(),
             icons: Vec::new(),
             current_icon: None,
