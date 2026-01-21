@@ -10,7 +10,7 @@ use std::rc::Rc;
 use crate::generator::{create_circle_path, create_thick_line_path};
 use crate::parser::iconscriptparser::*;
 use crate::parser::*;
-use crate::types::{Icon, PathWithMode, Point, Scope};
+use crate::types::{Icon, PathWithMode, Scope};
 
 const SCALE: f64 = 1.0;
 
@@ -19,7 +19,6 @@ pub fn parse_iconscript(
     content: &str,
     sketch_mode: bool,
 ) -> Result<Vec<(Icon, Vec<PathWithMode>)>> {
-
     let input = InputStream::new(content);
     let lexer = IconScriptLexer::new(input);
     let token_stream = CommonTokenStream::new(lexer);
@@ -66,7 +65,7 @@ impl<'input> IconScriptListenerImpl<'input> {
         self.icons
     }
 
-    fn parse_position(&mut self, ctx: &PositionContext) -> Point {
+    fn parse_position(&mut self, ctx: &PositionContext) -> kurbo::Point {
         let x_text = ctx.x.as_ref().unwrap().get_text();
         let y_text = ctx.y.as_ref().unwrap().get_text();
 
@@ -77,17 +76,21 @@ impl<'input> IconScriptListenerImpl<'input> {
 
         let position = if is_relative {
             let current = self.get_scope().position;
-            current.add(&Point::new(x, y))
+            kurbo::Point::new(current.x + x, current.y + y)
         } else {
-            Point::new(x + 0.5, y + 0.5)
+            kurbo::Point::new(x + 0.5, y + 0.5)
         };
 
         self.get_scope_mut().position = position;
         position
     }
 
-    fn arc_point(center: Point, angle: f64, radius: f64) -> Point {
-        Point::new(
+    fn arc_point(
+        center: kurbo::Point,
+        angle: f64,
+        radius: f64,
+    ) -> kurbo::Point {
+        kurbo::Point::new(
             center.x + angle.cos() * radius,
             center.y - angle.sin() * radius,
         )
@@ -162,7 +165,8 @@ impl<'input> IconScriptListenerImpl<'input> {
     }
 }
 
-impl<'input> antlr_rust::tree::ParseTreeListener<'input, IconScriptParserContextType>
+impl<'input>
+    antlr_rust::tree::ParseTreeListener<'input, IconScriptParserContextType>
     for IconScriptListenerImpl<'input>
 {
 }
@@ -190,7 +194,6 @@ impl<'input> IconScriptListener<'input> for IconScriptListenerImpl<'input> {
     }
 
     fn enter_command(&mut self, ctx: &CommandContext<'input>) {
-
         // Check if this is a variable reference.
         if let Some(var_token) = ctx.VARIABLE() {
             let var_name = &var_token.get_text()[1..]; // Remove '@' prefix
@@ -234,8 +237,9 @@ impl<'input> IconScriptListener<'input> for IconScriptListenerImpl<'input> {
     }
 
     fn exit_line(&mut self, ctx: &LineContext<'input>) {
-        let is_filled = ctx.get_text().contains("lf") || self.get_scope().is_filled;
-        let positions: Vec<Point> = ctx
+        let is_filled =
+            ctx.get_text().contains("lf") || self.get_scope().is_filled;
+        let positions: Vec<kurbo::Point> = ctx
             .position_all()
             .iter()
             .map(|pos| self.parse_position(pos))
@@ -263,9 +267,7 @@ impl<'input> IconScriptListener<'input> for IconScriptListenerImpl<'input> {
         for i in 0..positions.len() - 1 {
             let from = positions[i];
             let to = positions[i + 1];
-            if let Some(path) =
-                create_thick_line_path(from.x, from.y, to.x, to.y, width)
-            {
+            if let Some(path) = create_thick_line_path(from, to, width) {
                 self.paths.push(PathWithMode {
                     path,
                     mode: uniting,
@@ -300,8 +302,8 @@ impl<'input> IconScriptListener<'input> for IconScriptListenerImpl<'input> {
         let width = scope.width;
         let uniting = scope.uniting;
 
-        let p1 = Point::new(point2.x, point1.y);
-        let p2 = Point::new(point1.x, point2.y);
+        let p1 = kurbo::Point::new(point2.x, point1.y);
+        let p2 = kurbo::Point::new(point1.x, point2.y);
 
         // Add circles at all four corners.
         let corners = [point1, p1, point2, p2];
@@ -318,38 +320,65 @@ impl<'input> IconScriptListener<'input> for IconScriptListenerImpl<'input> {
 
         let half_width = width / 2.0;
 
-        // Add filled rectangles.
-        let rect_path1 = format!(
-            "M {} {} L {} {} L {} {} L {} {} Z",
-            point1.x - half_width,
-            point1.y,
-            p1.x + half_width,
-            p1.y,
-            point2.x + half_width,
-            point2.y,
-            p2.x - half_width,
-            p2.y
-        );
-        let rect_path2 = format!(
-            "M {} {} L {} {} L {} {} L {} {} Z",
-            point1.x,
-            point1.y - half_width,
-            p1.x,
-            p1.y - half_width,
-            point2.x,
-            point2.y + half_width,
-            p2.x,
-            p2.y + half_width
-        );
+        if self.get_scope_mut().is_filled {
+            // Add filled rectangles.
+            let rect_path1 = format!(
+                "M {} {} L {} {} L {} {} L {} {} Z",
+                point1.x - half_width,
+                point1.y,
+                p1.x + half_width,
+                p1.y,
+                point2.x + half_width,
+                point2.y,
+                p2.x - half_width,
+                p2.y
+            );
+            let rect_path2 = format!(
+                "M {} {} L {} {} L {} {} L {} {} Z",
+                point1.x,
+                point1.y - half_width,
+                p1.x,
+                p1.y - half_width,
+                point2.x,
+                point2.y + half_width,
+                p2.x,
+                p2.y + half_width
+            );
 
-        self.paths.push(PathWithMode {
-            path: rect_path1,
-            mode: uniting,
-        });
-        self.paths.push(PathWithMode {
-            path: rect_path2,
-            mode: uniting,
-        });
+            self.paths.push(PathWithMode {
+                path: rect_path1,
+                mode: uniting,
+            });
+            self.paths.push(PathWithMode {
+                path: rect_path2,
+                mode: uniting,
+            });
+        } else {
+            if let Some(path) = create_thick_line_path(point1, p1, width) {
+                self.paths.push(PathWithMode {
+                    path,
+                    mode: uniting,
+                });
+            }
+            if let Some(path) = create_thick_line_path(p1, point2, width) {
+                self.paths.push(PathWithMode {
+                    path,
+                    mode: uniting,
+                });
+            }
+            if let Some(path) = create_thick_line_path(point2, p2, width) {
+                self.paths.push(PathWithMode {
+                    path,
+                    mode: uniting,
+                });
+            }
+            if let Some(path) = create_thick_line_path(p2, point1, width) {
+                self.paths.push(PathWithMode {
+                    path,
+                    mode: uniting,
+                });
+            }
+        }
     }
 
     fn exit_arc(&mut self, ctx: &ArcContext<'input>) {
@@ -368,7 +397,7 @@ impl<'input> IconScriptListener<'input> for IconScriptListenerImpl<'input> {
             let start_angle: f64 = floats[1].get_text().parse().unwrap_or(0.0);
             let end_angle: f64 = floats[2].get_text().parse().unwrap_or(0.0);
 
-            let center = Point::new(pos.x + 0.5, pos.y + 0.5);
+            let center = kurbo::Point::new(pos.x + 0.5, pos.y + 0.5);
 
             let tau = 2.0 * PI;
             let mut delta = end_angle - start_angle;

@@ -1,26 +1,9 @@
-/// Represents a point in 2D space.
-#[derive(Debug, Clone, Copy)]
-pub struct Point {
-    pub x: f64,
-    pub y: f64,
-}
-
-impl Point {
-    pub fn new(x: f64, y: f64) -> Self {
-        Self { x, y }
-    }
-
-    pub fn add(&self, other: &Point) -> Point {
-        Point::new(self.x + other.x, self.y + other.y)
-    }
-}
-
 /// Represents a scope with current drawing state.
 #[derive(Debug, Clone)]
 pub struct Scope {
     pub uniting: bool,
     pub width: f64,
-    pub position: Point,
+    pub position: kurbo::Point,
     pub is_filled: bool,
 }
 
@@ -29,7 +12,7 @@ impl Scope {
         Self {
             uniting: true,
             width: 1.0,
-            position: Point::new(0.0, 0.0),
+            position: kurbo::Point::new(0.0, 0.0),
             is_filled: false,
         }
     }

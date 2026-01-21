@@ -1,4 +1,5 @@
 use anyhow::Result;
+use kurbo::Point;
 use std::fs;
 use std::path::Path;
 
@@ -47,14 +48,12 @@ pub fn create_circle_path(cx: f64, cy: f64, r: f64) -> Option<String> {
 
 /// Create a thick line path as a rectangle.
 pub fn create_thick_line_path(
-    x1: f64,
-    y1: f64,
-    x2: f64,
-    y2: f64,
+    from: Point,
+    to: Point,
     thickness: f64,
 ) -> Option<String> {
-    let dx = x2 - x1;
-    let dy = y2 - y1;
+    let dx = to.x - from.x;
+    let dy = to.y - from.y;
     let length = (dx * dx + dy * dy).sqrt();
 
     if length == 0.0 {
@@ -71,14 +70,14 @@ pub fn create_thick_line_path(
 
     // Create a rectangle path.
     let half_thickness = thickness / 2.0;
-    let x1a = x1 + px * half_thickness;
-    let y1a = y1 + py * half_thickness;
-    let x1b = x1 - px * half_thickness;
-    let y1b = y1 - py * half_thickness;
-    let x2a = x2 + px * half_thickness;
-    let y2a = y2 + py * half_thickness;
-    let x2b = x2 - px * half_thickness;
-    let y2b = y2 - py * half_thickness;
+    let x1a = from.x + px * half_thickness;
+    let y1a = from.y + py * half_thickness;
+    let x1b = from.x - px * half_thickness;
+    let y1b = from.y - py * half_thickness;
+    let x2a = to.x + px * half_thickness;
+    let y2a = to.y + py * half_thickness;
+    let x2b = to.x - px * half_thickness;
+    let y2b = to.y - py * half_thickness;
 
     Some(format!(
         "M {} {} L {} {} L {} {} L {} {} Z",
