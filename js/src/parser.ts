@@ -8,9 +8,9 @@ import * as antlr4 from "antlr4";
 import {ParseTreeWalker} from "antlr4";
 import paper from "paper";
 
-import IconScriptLexer from "../grammar/IconScriptLexer";
-import IconScriptParser from "../grammar/IconScriptParser";
-import GeneratedIconScriptListener from "../grammar/IconScriptListener";
+import IconScriptLexer from "../../grammar/IconScriptLexer";
+import IconScriptParser from "../../grammar/IconScriptParser";
+import GeneratedIconScriptListener from "../../grammar/IconScriptListener";
 import type {Icon} from "./types.js";
 import type {
     AssignmentContext,
@@ -27,7 +27,7 @@ import type {
     ScopeContext,
     PositionContext,
     CommandsContext,
-} from "../grammar/IconScriptParser.js";
+} from "../../grammar/IconScriptParser.js";
 
 const scale = 1.0;
 const defaultWidth = 1.0;

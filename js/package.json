@@ -3,12 +3,12 @@
     "version": "0.2.0",
     "description": "iconscript, a language for generating SVG icons",
     "type": "module",
-    "main": "dist/parser.js",
-    "types": "dist/parser.d.ts",
+    "main": "dist/js/src/parser.js",
+    "types": "dist/js/src/parser.d.ts",
     "exports": {
         ".": {
-            "import": "./dist/parser.js",
-            "types": "./dist/parser.d.ts"
+            "import": "./dist/js/src/parser.js",
+            "types": "./dist/js/src/parser.d.ts"
         }
     },
     "bin": {

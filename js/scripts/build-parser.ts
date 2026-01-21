@@ -27,6 +27,7 @@ async function buildParser(): Promise<void> {
             sourcemap: minify,
             target: "es2020",
             external: [],
+            nodePaths: [join(projectRoot, "node_modules")],
         });
         console.log(`Created: ${basename(outputFile)}.`);
     } catch (error) {
