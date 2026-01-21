@@ -23,6 +23,9 @@ webassembly/
 work/
 
 # Rust.
+rust/antlr4rust.jar
+rust/src/grammar/
+rust/src/parser/
 rust/target/
 rust/Cargo.lock
 **/*.rs.bk

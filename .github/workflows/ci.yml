@@ -125,8 +125,24 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v4
 
+            - name: Setup Java
+              uses: actions/setup-java@v4
+              with:
+                  distribution: "temurin"
+                  java-version: "17"
+
+            - name: Install ANTLR
+              run: |
+                  curl -L -o rust/antlr4rust.jar https://github.com/rrevenantt/antlr4rust/releases/download/antlr4-4.8-2-Rust0.3.0-beta/antlr4-4.8-2-SNAPSHOT-complete.jar
+
             - name: Setup Rust
               uses: dtolnay/rust-toolchain@stable
+
+            - name: Generate grammar
+              run: |
+                  chmod +x ./generate_parser.sh
+                  ./generate_parser.sh
+              working-directory: rust
 
             - name: Run Rust tests
               run: cargo test
