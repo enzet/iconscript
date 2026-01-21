@@ -43,19 +43,15 @@ impl Default for Scope {
     }
 }
 
-/// Represents an icon with its name and SVG content.
+/// Represents an icon with its name.
 #[derive(Debug, Clone)]
 pub struct Icon {
     pub name: Option<String>,
-    pub svg: String,
 }
 
 impl Icon {
     pub fn new() -> Self {
-        Self {
-            name: None,
-            svg: String::new(),
-        }
+        Self { name: None }
     }
 }
 
