@@ -128,15 +128,13 @@ function unionPathsWithModes(paths: string[], modes: boolean[]): string | null {
  * Create a thick line path.
  */
 function createThickLinePath(
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
+    from: Point,
+    to: Point,
     thickness: number,
 ): string | null {
     // Create a thick line by offsetting the line perpendicular to its direction.
-    const dx = x2 - x1;
-    const dy = y2 - y1;
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
     const length = Math.sqrt(dx * dx + dy * dy);
 
     if (length === 0) return null;
@@ -151,14 +149,14 @@ function createThickLinePath(
 
     // Create a rectangle path.
     const halfThickness = thickness / 2;
-    const x1a = x1 + px * halfThickness;
-    const y1a = y1 + py * halfThickness;
-    const x1b = x1 - px * halfThickness;
-    const y1b = y1 - py * halfThickness;
-    const x2a = x2 + px * halfThickness;
-    const y2a = y2 + py * halfThickness;
-    const x2b = x2 - px * halfThickness;
-    const y2b = y2 - py * halfThickness;
+    const x1a = from.x + px * halfThickness;
+    const y1a = from.y + py * halfThickness;
+    const x1b = from.x - px * halfThickness;
+    const y1b = from.y - py * halfThickness;
+    const x2a = to.x + px * halfThickness;
+    const y2a = to.y + py * halfThickness;
+    const x2b = to.x - px * halfThickness;
+    const y2b = to.y - py * halfThickness;
 
     return `M ${x1a} ${y1a} L ${x2a} ${y2a} L ${x2b} ${y2b} L ${x1b} ${y1b} Z`;
 }
@@ -340,6 +338,14 @@ class IconScriptListener extends GeneratedIconScriptListener {
         }
     };
 
+    line = (from: Point, to: Point): void => {
+        const linePath = createThickLinePath(from, to, this.getScope().width);
+        if (linePath) {
+            this.paths.push(linePath);
+            this.modes.push(this.getScope().uniting);
+        }
+    };
+
     exitLine = (ctx: LineContext): void => {
         const isFilled =
             ctx.getText().includes("lf") || this.getScope().isFilled;
@@ -370,10 +376,8 @@ class IconScriptListener extends GeneratedIconScriptListener {
             const from = coordinates[i];
             const to = coordinates[i + 1];
             const linePath = createThickLinePath(
-                from.x,
-                from.y,
-                to.x,
-                to.y,
+                from,
+                to,
                 this.getScope().width,
             );
             if (linePath) {
@@ -522,18 +526,25 @@ class IconScriptListener extends GeneratedIconScriptListener {
         }
         const halfWidth = this.getScope().width / 2;
 
-        // Add filled rectangle as a filled polyline.
-        const rectanglePath1 =
-            `M ${point1.x - halfWidth} ${point1.y} L ${p1.x + halfWidth} ${p1.y} ` +
-            `L ${point2.x + halfWidth} ${point2.y} L ${p2.x - halfWidth} ${p2.y} Z`;
-        const rectanglePath2 =
-            `M ${point1.x} ${point1.y - halfWidth} L ${p1.x} ${p1.y - halfWidth} ` +
-            `L ${point2.x} ${point2.y + halfWidth} L ${p2.x} ${p2.y + halfWidth} Z`;
+        if (this.getScope().isFilled) {
+            // Add filled rectangle as a filled polyline.
+            const rectanglePath1 =
+                `M ${point1.x - halfWidth} ${point1.y} L ${p1.x + halfWidth} ${p1.y} ` +
+                `L ${point2.x + halfWidth} ${point2.y} L ${p2.x - halfWidth} ${p2.y} Z`;
+            const rectanglePath2 =
+                `M ${point1.x} ${point1.y - halfWidth} L ${p1.x} ${p1.y - halfWidth} ` +
+                `L ${point2.x} ${point2.y + halfWidth} L ${p2.x} ${p2.y + halfWidth} Z`;
 
-        this.paths.push(rectanglePath1);
-        this.modes.push(this.getScope().uniting);
-        this.paths.push(rectanglePath2);
-        this.modes.push(this.getScope().uniting);
+            this.paths.push(rectanglePath1);
+            this.modes.push(this.getScope().uniting);
+            this.paths.push(rectanglePath2);
+            this.modes.push(this.getScope().uniting);
+        } else {
+            this.line(point1, p1);
+            this.line(p1, point2);
+            this.line(point2, p2);
+            this.line(p2, point1);
+        }
     };
 
     exitSetPosition = (ctx: SetPositionContext): void => {
