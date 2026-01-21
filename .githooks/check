@@ -31,6 +31,11 @@ fi
 
 cd "$JS_DIR" || exit 1
 
+# Create grammar symlink if it doesn't exist.
+if [ ! -L "$JS_DIR/grammar" ]; then
+    ln -s ../grammar "$JS_DIR/grammar"
+fi
+
 echo "Building parser..."
 npm run build:parser:min
 # Check that `parser.bundle.min.js` was created.
@@ -39,27 +44,26 @@ if [ ! -f "$JS_DIR/web/bundles/parser.bundle.min.js" ]; then
     exit 1
 fi
 
-echo "Creating SVG icons..."
-mkdir -p "$JS_DIR/output"
-mkdir -p "$JS_DIR/output/main"
-npm run generate -- \
-    "$JS_DIR/test/main.iconscript" \
-    "$JS_DIR/output/main" &> /dev/null
-if [ ! -d "$JS_DIR/output" ]; then
-    echo "Error: output directory was not created." >&2
-    exit 1
-fi
-if [ ! -s "$JS_DIR/output" ]; then
-    echo "Error: output directory is empty." >&2
+echo "Building command-line interface..."
+rm -rf "$JS_DIR/dist"
+npm run build:cli
+# Check that CLI was created.
+if [ ! -f "$JS_DIR/dist/cli/generate-svg.js" ]; then
+    echo "Error: dist/cli/generate-svg.js was not created." >&2
     exit 1
 fi
 
-echo "Creating command-line interface..."
-rm -rf "$JS_DIR/dist"
-npm run build:cli
-# Check that `iconscript` was created.
-if [ ! -f "$JS_DIR/dist/cli/generate-svg.js" ]; then
-    echo "Error: iconscript was not created." >&2
+echo "Creating SVG icons (testing CLI)..."
+mkdir -p "$JS_DIR/output"
+mkdir -p "$JS_DIR/output/main"
+if ! npm run generate -- \
+    "$JS_DIR/test/main.iconscript" \
+    "$JS_DIR/output/main"; then
+    echo "Error: SVG icon generation failed." >&2
+    exit 1
+fi
+if [ ! -d "$JS_DIR/output/main" ] || [ -z "$(ls -A "$JS_DIR/output/main")" ]; then
+    echo "Error: output directory was not created or is empty." >&2
     exit 1
 fi
 
@@ -67,8 +71,8 @@ echo "Building library..."
 rm -rf "$JS_DIR/dist"
 npm run build:lib
 # Check that `dist/` was created.
-if [ ! -f "$JS_DIR/dist/js/src/parser.js" ]; then
-    echo "Error: dist/js/src/parser.js was not created." >&2
+if [ ! -f "$JS_DIR/dist/src/parser.js" ]; then
+    echo "Error: dist/src/parser.js was not created." >&2
     exit 1
 fi
 

@@ -42,6 +42,9 @@ jobs:
             - name: Install dependencies
               run: npm ci
 
+            - name: Create grammar symlink
+              run: ln -s ../grammar grammar
+
             - name: Clean up generated files
               working-directory: .
               run: |
@@ -73,18 +76,6 @@ jobs:
                       exit 1
                   fi
 
-            - name: Create SVG icons (test)
-              run: |
-                  mkdir -p output/main
-                  npm run generate -- test/main.iconscript output/main
-
-            - name: Verify SVG icons creation
-              run: |
-                  if [ ! -d "output" ] || [ -z "$(ls -A output)" ]; then
-                      echo "Error: output directory was not created or is empty."
-                      exit 1
-                  fi
-
             - name: Build CLI
               run: |
                   rm -rf dist
@@ -97,6 +88,18 @@ jobs:
                       exit 1
                   fi
 
+            - name: Create SVG icons (test)
+              run: |
+                  mkdir -p output/main
+                  npm run generate -- test/main.iconscript output/main
+
+            - name: Verify SVG icons creation
+              run: |
+                  if [ ! -d "output/main" ] || [ -z "$(ls -A output/main)" ]; then
+                      echo "Error: output directory was not created or is empty."
+                      exit 1
+                  fi
+
             - name: Build library
               run: |
                   rm -rf dist
@@ -104,12 +107,12 @@ jobs:
 
             - name: Verify library build
               run: |
-                  if [ ! -f "dist/js/src/parser.js" ]; then
-                      echo "Error: dist/js/src/parser.js was not created."
+                  if [ ! -f "dist/src/parser.js" ]; then
+                      echo "Error: dist/src/parser.js was not created."
                       exit 1
                   fi
-                  if [ ! -f "dist/js/src/parser.d.ts" ]; then
-                      echo "Error: dist/js/src/parser.d.ts was not created."
+                  if [ ! -f "dist/src/parser.d.ts" ]; then
+                      echo "Error: dist/src/parser.d.ts was not created."
                       exit 1
                   fi
 
