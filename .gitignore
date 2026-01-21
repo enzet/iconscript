@@ -1,12 +1,13 @@
 *.egg-info/
-.npmrc
+.env
 __pycache__/
 grammar/.antlr/
-node_modules/
 
-# Output files.
-dist/
-output/
+# JavaScript implementation.
+js/.npmrc
+js/node_modules/
+js/dist/
+js/output/
 
 # Parsers, generated from `IconScript.g4` by ANTLR4.
 grammar/*.interp
@@ -14,9 +15,9 @@ grammar/*.tokens
 grammar/*.ts
 
 # Bundled JavaScript files.
-web/bundles/*.bundle.js
-web/bundles/*.bundle.min.js
-web/bundles/*.bundle.min.js.map
+js/web/bundles/*.bundle.js
+js/web/bundles/*.bundle.min.js
+js/web/bundles/*.bundle.min.js.map
 
 # WIP.
 webassembly/

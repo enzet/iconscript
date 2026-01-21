@@ -7,8 +7,11 @@ on:
         branches: [main, master]
 
 jobs:
-    check:
+    js:
         runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: js
 
         steps:
             - name: Checkout code
@@ -19,6 +22,7 @@ jobs:
               with:
                   node-version: "20"
                   cache: "npm"
+                  cache-dependency-path: js/package-lock.json
 
             - name: Setup Java
               uses: actions/setup-java@v4
@@ -27,6 +31,7 @@ jobs:
                   java-version: "17"
 
             - name: Install ANTLR
+              working-directory: .
               run: |
                   wget -q https://www.antlr.org/download/antlr-4.13.2-complete.jar -O /tmp/antlr.jar
                   echo '#!/bin/bash' > /tmp/antlr4
@@ -37,12 +42,16 @@ jobs:
             - name: Install dependencies
               run: npm ci
 
+            - name: Create grammar symlink
+              run: ln -s ../grammar grammar
+
             - name: Clean up generated files
+              working-directory: .
               run: |
                   find grammar -type f \( -name "*.ts" -o -name "*.interp" -o -name "*.tokens" \) -delete || true
-                  rm -f web/bundles/parser.bundle.js web/bundles/parser.bundle.min.js web/bundles/parser.bundle.min.js.map
-                  rm -f web/bundles/ui.bundle.js web/bundles/ui.bundle.min.js web/bundles/ui.bundle.min.js.map
-                  rm -rf output
+                  rm -f js/web/bundles/parser.bundle.js js/web/bundles/parser.bundle.min.js js/web/bundles/parser.bundle.min.js.map
+                  rm -f js/web/bundles/ui.bundle.js js/web/bundles/ui.bundle.min.js js/web/bundles/ui.bundle.min.js.map
+                  rm -rf js/output
 
             - name: Generate grammar
               run: |
@@ -50,6 +59,7 @@ jobs:
                   ./scripts/generate-grammar.sh
 
             - name: Verify grammar generation
+              working-directory: .
               run: |
                   if [ ! -f "grammar/IconScriptLexer.ts" ]; then
                       echo "Error: grammar was not created."
@@ -66,18 +76,6 @@ jobs:
                       exit 1
                   fi
 
-            - name: Create SVG icons (test)
-              run: |
-                  mkdir -p output/main
-                  npm run generate -- test/main.iconscript output/main
-
-            - name: Verify SVG icons creation
-              run: |
-                  if [ ! -d "output" ] || [ -z "$(ls -A output)" ]; then
-                      echo "Error: output directory was not created or is empty."
-                      exit 1
-                  fi
-
             - name: Build CLI
               run: |
                   rm -rf dist
@@ -87,6 +85,18 @@ jobs:
               run: |
                   if [ ! -f "dist/cli/generate-svg.js" ]; then
                       echo "Error: dist/cli/generate-svg.js was not created."
+                      exit 1
+                  fi
+
+            - name: Create SVG icons (test)
+              run: |
+                  mkdir -p output/main
+                  npm run generate -- test/main.iconscript output/main
+
+            - name: Verify SVG icons creation
+              run: |
+                  if [ ! -d "output/main" ] || [ -z "$(ls -A output/main)" ]; then
+                      echo "Error: output directory was not created or is empty."
                       exit 1
                   fi
 

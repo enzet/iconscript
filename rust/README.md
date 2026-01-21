@@ -17,16 +17,15 @@ The binary will be available at `target/release/iconscript`.
 ## Usage
 
 ```shell
-./target/release/iconscript $OPTIONS $ICONSCRIPT_FILE
+./target/release/iconscript $OPTIONS $ICONSCRIPT_FILE $OUTPUT_DIRECTORY
 ```
 
-| Option               | Description                                        |
-| -------------------- | -------------------------------------------------- |
-| `-o`, `--output`     | Output directory for SVG files (default: `output`) |
-| `-s`, `--sketch`     | Output raw paths without combining                 |
-| `--no-rounding`      | Disable coordinate rounding                        |
-| `--no-deduplication` | Disable duplicate point removal                    |
-| `--no-collinear`     | Disable collinear point simplification             |
+| Option               | Description                            |
+| -------------------- | -------------------------------------- |
+| `-s`, `--sketch`     | Output raw paths without combining     |
+| `--no-rounding`      | Disable coordinate rounding            |
+| `--no-deduplication` | Disable duplicate point removal        |
+| `--no-collinear`     | Disable collinear point simplification |
 
 ## Testing
 

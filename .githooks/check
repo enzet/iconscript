@@ -2,6 +2,7 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+JS_DIR="$PROJECT_ROOT/js"
 
 if ! command -v antlr4 &> /dev/null && ! command -v antlr &> /dev/null; then
     echo "Error: ANTLR is not installed or not in PATH." >&2
@@ -13,58 +14,64 @@ echo "Cleaning up..."
 find "$PROJECT_ROOT/grammar" \
     -type f \( -name "*.ts" -o -name "*.interp" -o -name "*.tokens" \) \
     -delete
-rm -f "$PROJECT_ROOT/web/bundles/parser.bundle.js"
-rm -f "$PROJECT_ROOT/web/bundles/parser.bundle.min.js"
-rm -f "$PROJECT_ROOT/web/bundles/parser.bundle.min.js.map"
-rm -f "$PROJECT_ROOT/web/bundles/ui.bundle.js"
-rm -f "$PROJECT_ROOT/web/bundles/ui.bundle.min.js"
-rm -f "$PROJECT_ROOT/web/bundles/ui.bundle.min.js.map"
-rm -rf "$PROJECT_ROOT/output"
+rm -f "$JS_DIR/web/bundles/parser.bundle.js"
+rm -f "$JS_DIR/web/bundles/parser.bundle.min.js"
+rm -f "$JS_DIR/web/bundles/parser.bundle.min.js.map"
+rm -f "$JS_DIR/web/bundles/ui.bundle.js"
+rm -f "$JS_DIR/web/bundles/ui.bundle.min.js"
+rm -f "$JS_DIR/web/bundles/ui.bundle.min.js.map"
+rm -rf "$JS_DIR/output"
 
 echo "Generating grammar..."
-"$PROJECT_ROOT/scripts/generate-grammar.sh"
+"$JS_DIR/scripts/generate-grammar.sh"
 if [ ! -f "$PROJECT_ROOT/grammar/IconScriptLexer.ts" ]; then
     echo "Error: grammar was not created." >&2
     exit 1
 fi
 
+cd "$JS_DIR" || exit 1
+
+# Create grammar symlink if it doesn't exist.
+if [ ! -L "$JS_DIR/grammar" ]; then
+    ln -s ../grammar "$JS_DIR/grammar"
+fi
+
 echo "Building parser..."
 npm run build:parser:min
 # Check that `parser.bundle.min.js` was created.
-if [ ! -f "$PROJECT_ROOT/web/bundles/parser.bundle.min.js" ]; then
+if [ ! -f "$JS_DIR/web/bundles/parser.bundle.min.js" ]; then
     echo "Error: parser.bundle.min.js was not created." >&2
     exit 1
 fi
 
-echo "Creating SVG icons..."
-mkdir -p "$PROJECT_ROOT/output"
-mkdir -p "$PROJECT_ROOT/output/main"
-npm run generate -- \
-    "$PROJECT_ROOT/test/main.iconscript" \
-    "$PROJECT_ROOT/output/main" &> /dev/null
-if [ ! -d "$PROJECT_ROOT/output" ]; then
-    echo "Error: output directory was not created." >&2
-    exit 1
-fi
-if [ ! -s "$PROJECT_ROOT/output" ]; then
-    echo "Error: output directory is empty." >&2
+echo "Building command-line interface..."
+rm -rf "$JS_DIR/dist"
+npm run build:cli
+# Check that CLI was created.
+if [ ! -f "$JS_DIR/dist/cli/generate-svg.js" ]; then
+    echo "Error: dist/cli/generate-svg.js was not created." >&2
     exit 1
 fi
 
-echo "Creating command-line interface..."
-rm -rf "$PROJECT_ROOT/dist"
-npm run build:cli
-# Check that `iconscript` was created.
-if [ ! -f "$PROJECT_ROOT/dist/cli/generate-svg.js" ]; then
-    echo "Error: iconscript was not created." >&2
+echo "Creating SVG icons (testing CLI)..."
+mkdir -p "$JS_DIR/output"
+mkdir -p "$JS_DIR/output/main"
+if ! npm run generate -- \
+    "$JS_DIR/test/main.iconscript" \
+    "$JS_DIR/output/main"; then
+    echo "Error: SVG icon generation failed." >&2
+    exit 1
+fi
+if [ ! -d "$JS_DIR/output/main" ] || [ -z "$(ls -A "$JS_DIR/output/main")" ]; then
+    echo "Error: output directory was not created or is empty." >&2
     exit 1
 fi
 
 echo "Building library..."
-rm -rf "$PROJECT_ROOT/dist"
+rm -rf "$JS_DIR/dist"
 npm run build:lib
 # Check that `dist/` was created.
-if [ ! -f "$PROJECT_ROOT/dist/src/parser.js" ]; then
+if [ ! -f "$JS_DIR/dist/src/parser.js" ]; then
     echo "Error: dist/src/parser.js was not created." >&2
     exit 1
 fi

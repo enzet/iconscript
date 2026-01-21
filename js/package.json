@@ -3,12 +3,12 @@
     "version": "0.2.0",
     "description": "iconscript, a language for generating SVG icons",
     "type": "module",
-    "main": "dist/parser.js",
-    "types": "dist/parser.d.ts",
+    "main": "dist/src/parser.js",
+    "types": "dist/src/parser.d.ts",
     "exports": {
         ".": {
-            "import": "./dist/parser.js",
-            "types": "./dist/parser.d.ts"
+            "import": "./dist/src/parser.js",
+            "types": "./dist/src/parser.d.ts"
         }
     },
     "bin": {
@@ -27,7 +27,7 @@
         "lint:css": "stylelint \"**/*.css\"",
         "lint": "npm run lint:ts && npm run lint:html && npm run lint:css",
         "test": "tsx test-suite.js",
-        "generate": "tsx src/cli/generate-svg.ts",
+        "generate": "node dist/cli/generate-svg.js",
         "build:cli": "tsx scripts/build-cli.ts",
         "build:lib": "tsc",
         "build:parser": "tsx scripts/build-parser.ts",

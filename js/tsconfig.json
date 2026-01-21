@@ -11,7 +11,11 @@
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true,
         "declaration": true,
-        "outDir": "./dist"
+        "outDir": "./dist",
+        "baseUrl": ".",
+        "paths": {
+            "antlr4": ["node_modules/antlr4"]
+        }
     },
     "files": [
         "src/parser.ts",
@@ -21,5 +25,5 @@
         "grammar/IconScriptParser.ts",
         "grammar/IconScriptListener.ts"
     ],
-    "exclude": ["node_modules", "dist", "**/*.js", "**/*.mjs", "scripts", "web", "grammar/*.interp", "grammar/*.tokens"]
+    "exclude": ["node_modules", "dist", "**/*.js", "**/*.mjs", "scripts", "web"]
 }

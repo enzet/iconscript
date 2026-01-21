@@ -38,10 +38,11 @@ async function buildCLI(): Promise<void> {
             banner: {
                 js: "#!/usr/bin/env node",
             },
-            // Mark paper and paperjs-offset as external since they have complex
-            // Node.js dependencies (jsdom) that are difficult to bundle.
+            // Mark dependencies as external since they have complex
+            // Node.js dependencies that are difficult to bundle.
             // These will need to be installed when using the CLI.
-            external: ["paper", "paperjs-offset"],
+            external: ["paper", "paperjs-offset", "antlr4"],
+            nodePaths: [join(projectRoot, "node_modules")],
         });
         console.log(`Created: ${basename(outputFile)}.`);
 
