@@ -5,8 +5,8 @@ grammar/.antlr/
 node_modules/
 
 # Output files.
-output/
 dist/
+output/
 
 # Parsers, generated from `IconScript.g4` by ANTLR4.
 grammar/*.interp
@@ -23,15 +23,10 @@ webassembly/
 work/
 
 # Rust.
+**/*.rs.bk
+*.long-type-*.txt
+*.pdb
+rust/Cargo.lock
 rust/antlr4rust.jar
 rust/src/grammar/
-rust/src/parser/
 rust/target/
-rust/Cargo.lock
-**/*.rs.bk
-*.pdb
-*.long-type-*.txt
-
-# ANTLR generated files for Rust.
-rust/src/parser/iconscript*.rs
-rust/src/parser/generated/
