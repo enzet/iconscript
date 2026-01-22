@@ -1,3 +1,11 @@
+# Unreleased
+
+  - **Breaking change**: unify syntax
+    ([#2](https://github.com/enzet/iconscript/issues/9)).
+      - Add `fill` command.
+      - Remove `lf` command.
+      - Make `r` and `e` respect fill and width scope parameters.
+
 # 0.2.0
 
   - **Breaking change**: use SVG path commands format
