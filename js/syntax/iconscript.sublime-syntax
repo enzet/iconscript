@@ -6,7 +6,7 @@ contexts:
   main:
     - match: '\\[\\{}:]'
       scope: markup.raw
-    - match: '\b(c|p|l|lf|w)\b'
+    - match: '\b(c|p|l|w)\b'
       scope: keyword
     - match: "@[a-zA-Z0-9_]*"
       scope: variable.member

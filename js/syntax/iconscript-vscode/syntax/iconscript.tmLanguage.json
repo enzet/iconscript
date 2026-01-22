@@ -22,7 +22,7 @@
         },
         "commands": {
             "name": "keyword.other.iconscript",
-            "match": "\\b(l|lf|c|s|a|p|w|r)\\b"
+            "match": "\\b(l|c|s|a|p|w|r)\\b"
         },
         "variables": {
             "name": "variable.other.readwrite.iconscript",

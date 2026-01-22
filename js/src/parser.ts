@@ -347,8 +347,6 @@ class IconScriptListener extends GeneratedIconScriptListener {
     };
 
     exitLine = (ctx: LineContext): void => {
-        const isFilled =
-            ctx.getText().includes("lf") || this.getScope().isFilled;
         const positions = ctx.position_list();
         const coordinates: Point[] = [];
 
@@ -387,7 +385,7 @@ class IconScriptListener extends GeneratedIconScriptListener {
         }
 
         // If filled, add a filled polyline.
-        if (isFilled && coordinates.length >= 2) {
+        if (this.getScope().isFilled && coordinates.length >= 2) {
             let filledPath = `M ${coordinates[0].x} ${coordinates[0].y}`;
             for (let i = 1; i < coordinates.length; i++) {
                 filledPath += ` L ${coordinates[i].x} ${coordinates[i].y}`;
