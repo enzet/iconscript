@@ -1,45 +1,53 @@
 flag = l 1,13 1,3 13,3 13,11 1,11
-flag_fill = lf 1,13 1,3 13,3 13,11 1,11
-triangle_lf = lf 1,3 7,7 1,11
+flag_fill = {fill l 1,13 1,3 13,3 13,11 1,11}
+triangle_lf = {fill l 1,3 7,7 1,11}
 line = l +0,0 +12,0
 line_h = l +0,0 +0,8
-line_w = lf +0,0 +12,0 +0,2 +-12,0
+line_w = {fill l +0,0 +12,0 +0,2 +-12,0}
 
 icon flag_solid = {@flag_fill}
-icon flag_canton = {@flag lf 1,3 +6,0 +0,4 +-6,0}
+icon flag_canton = {@flag fill l 1,3 +6,0 +0,4 +-6,0}
 icon flag_usa = {
-    @flag m 1,5 @line m 1,7 @line m 1,9 @line r 1,3 +6,4
-    {subtract e 2,4 1 e 4,4 1 e 6,4 1 e 2,6 1 e 4,6 1 e 6,6 1}
+    @flag m 1,5 @line m 1,7 @line m 1,9 @line
+    fill r 1,3 +6,4
+    {
+        subtract w 0
+        e 2,4 0.5 e 4,4 0.5 e 6,4 0.5 e 2,6 0.5 e 4,6 0.5 e 6,6 0.5
+    }
 }
 icon flag_triangle_flanche = {@flag @triangle_lf}
 icon flag_symmetric_cross = {@flag m 1,7 @line m 7,3 @line_h}
 icon flag_saltire = {@flag l 1,3 13,11 l 1,11 13,3}
-icon flag_horizontal_bisection = {@flag lf 1,3 +12,0 +0,4 +-12,0}
+icon flag_horizontal_bisection = {@flag fill l 1,3 +12,0 +0,4 +-12,0}
 icon flag_horizontal_triband = {@flag m 1,6 @line_w}
-icon flag_vertical_bisection = {@flag lf 1,3 +6,0 +0,8 +-6,0}
-icon flag_vertical_triband = {@flag r 5,3 +4,8}
+icon flag_vertical_bisection = {@flag fill l 1,3 +6,0 +0,8 +-6,0}
+icon flag_vertical_triband = {@flag fill r 5,3 +4,8}
 icon flag_stripes = {@flag m 1,5 @line m 1,7 @line m 1,9 @line}
-icon flag_bend_dexter = {@flag lf 2,3 13,10 12,11 1,4}
-icon flag_bend_sinister = {@flag lf 1,10 12,3 13,4 2,11}
-icon flag_quadrisection = {@flag r 1,3 +6,4 r 7,7 +6,4}
+icon flag_bend_dexter = {@flag fill l 2,3 13,10 12,11 1,4}
+icon flag_bend_sinister = {@flag fill l 1,10 12,3 13,4 2,11}
+icon flag_quadrisection = {@flag fill r 1,3 +6,4 r 7,7 +6,4}
 icon flag_gusset = {@flag @triangle_lf m 1,6 @line_w}
-icon flag_diagonal_bisection_sinister = {@flag lf 1,3 +12,0 +-12,8}
-icon flag_diagonal_bisection = {@flag lf 1,3 +12,8 +0,-8}
+icon flag_diagonal_bisection_sinister = {@flag fill l 1,3 +12,0 +-12,8}
+icon flag_diagonal_bisection = {@flag fill l 1,3 +12,8 +0,-8}
 icon flag_europe = {
     @flag_fill {
-        subtract m 7,4
-        e +0,0 1 e +2,1 1 e +1,2 1 e +-1,2 1
-        e +-2,1 1 e +-2,-1 1 e +-1,-2 1 e +1,-2 1
+        subtract m 7,4 fill w 0
+        e +0,0 0.5 e +2,1 0.5 e +1,2 0.5 e +-1,2 0.5
+        e +-2,1 0.5 e +-2,-1 0.5 e +-1,-2 0.5 e +1,-2 0.5
     }
 }
 icon flag_philippines = {
-    @flag @triangle_lf m 1,7 @line {subtract e 3,7 1.41 e 2,9 1 e 2,5 1 e 5,7 1}
+    @flag @triangle_lf m 1,7 @line
+    {subtract fill w 0 e 3,7 0.707 e 2,9 0.5 e 2,5 0.5 e 5,7 0.5}
 }
 icon flag_china = {
-    @flag_fill {subtract e 3,6 1.41 e 4.5,8 1 e 4.5,4 1 e 6,7 1 e 6,5 1}
+    @flag_fill {
+        subtract fill w 0
+        e 3,6 0.707 e 4.5,8 0.5 e 4.5,4 0.5 e 6,7 0.5 e 6,5 0.5
+    }
 }
 icon flag_horizontal_triband_light_dark_light_dot = {
-    @flag m 1,9 @line_w m 1,3 @line_w e 7,7 1.41
+    @flag m 1,9 @line_w m 1,3 @line_w fill w 0 e 7,7 0.707
 }
 icon flag_nordic_cross = {@flag m 1,7 @line m 5,3 @line_h}
 icon flag_nordic_cross_v1 = {
@@ -51,22 +59,27 @@ icon flag_nordic_cross_double = {
     m 1,7 @line m 5,3 @line_h
     @flag
 }
-icon flag_canada = {@flag r 1,3 +3,8 r 10,3 +3,8 e 7,7 3}
-icon flag_chile = {@flag r 1,7 13,11 r 1,3 5,7 {subtract e 3,5 1.41 }}
+icon flag_canada = {@flag fill r 1,3 +3,8 r 10,3 +3,8 w 0 e 7,7 1.5}
+icon flag_chile = {@flag fill r 1,7 13,11 r 1,3 5,7 {subtract w 0 e 3,5 0.707}}
 icon flag_chicago = {
     @flag m 1,5 @line m 1,9 @line
-    e 4,7 1.41 e +2,0 1.41 e +2,0 1.41 e +2,0 1.41
+    fill w 0
+    e 4,7 0.707 e +2,0 0.707 e +2,0 0.707 e +2,0 0.707
 }
 icon flag_spain = {
-    @flag m 1,9 @line_w m 1,3 @line_w e 4,7 1.41
+    @flag m 1,9 @line_w m 1,3 @line_w fill w 0 e 4,7 0.707
 }
 icon flag_australia = {
-    @flag r 1,7 13,11 r 7,3 +5,4 l 1,5 +6,0 l 4,3 +0,4
-    {subtract e 8,6 1 e +2,-2 1 e +1.5,2 1 e +-1,1.5 1 e +-0.5,2.5 1 e 4,9 1.41}
+    @flag fill r 1,7 13,11 r 7,3 +5,4 l 1,5 +6,0 l 4,3 +0,4
+    {
+        subtract w 0
+        e 8,6 0.5 e +2,-2 0.5 e +1.5,2 0.5
+        e +-1,1.5 0.5 e +-0.5,2.5 0.5 e 4,9 0.707
+    }
 }
-icon flag_circle = {@flag_fill {subtract e 7,7 5}}
-icon flag_circle_alt = {@flag e 7,7 5}
-icon flag_turkmenistan = {@flag r 4,3 +1,8 e 7,5 1}
+icon flag_circle = {@flag_fill {subtract fill w 0 e 7,7 2.5}}
+icon flag_circle_alt = {@flag fill w 0 e 7,7 2.5}
+icon flag_turkmenistan = {@flag fill r 4,3 +1,8 w 0 e 7,5 0.5}
 icon flag_saltire_symmetric_cross = {
     @flag m 1,7 @line m 7,3 @line_h l 1,3 13,11 l 1,11 13,3
 }
