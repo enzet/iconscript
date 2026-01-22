@@ -2,12 +2,26 @@
     --border-opacity: 0.1;
 }
 body {
-    font-family: sans;
+    font-family: Inter;
     margin: 0;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: Inter;
+}
+h1 {
+    font-size: 72pt;
+    font-variation-settings:
+        "opsz" 32,
+        "wght" 700;
 }
 .container {
     display: flex;
-    margin: 0;
+    margin: 25px 0;
     border-top: 1px solid rgba(var(--fg-color), var(--border-opacity));
     border-bottom: 1px solid rgba(var(--fg-color), var(--border-opacity));
 }

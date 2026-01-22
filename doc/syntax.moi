@@ -1,0 +1,62 @@
+\2 {Syntax} {iconscript_syntax}
+
+Syntax slightly resembles the syntax of path commands in \abbr {SVG}. Positions
+on the plane are coded as two floating point number separated by comma:
+\c {\formal {x},\formal {y}} or \c {+\formal {x},\formal {y}}.
+\c {+} means that the position is relative to the \c {position}.
+
+If current position is (5, 5), `+1,2` will give (6, 7) and update current
+position to (6, 7) as well.
+
+\3 {Global context} {iconscript_global_context}
+
+\list
+    {\c {position} — vector of two floats, current position of the cursor.}
+    {\c {width} — float, stroke width.}
+    {\c {fill} — Boolean, whether objects should be filled.}
+
+\3 {Commands} {iconscript_commands}
+
+\table
+    {{\b {Command}} {\b {Description}}}
+    {{\c {\skw {subtract}}} {Set subtraction mode}}
+    {{\c {\skw {fill}}} {Set fill mode}}
+    {{\c {\skw {w} \formal {float}}} {Set \c {width} to a value}}
+    {{\c {\skw {m} \formal {position}}} {Set \c {position} to a value}}
+    {{\c {\skw {l} [\formal {position}]}} {Draw lines between positions}}
+    {
+        {\c {\skw {e} \formal {position} \formal {float}}}
+        {Draw circle specified by center point and radius}
+    }
+    {
+        {\c {\skw {r} \formal {position} \formal {position}}}
+        {Draw rectangle specified by top left and bottom right points}
+    }
+    {
+        {\c {\skw {a} \formal {position} \formal {float} \formal {float}
+            \formal {float}}}
+        {Draw arc specified by center point, radius, and two angles in radians}
+    }
+
+\3 {Variables} {iconscript_variables}
+
+Variables can be defined with \c {<variable> = [<command>]} and accessed with
+\c {@<variable>}.
+
+\3 {Scopes} {iconscript_scopes}
+
+Scopes group commands together using \c {\{} and \c {\}}. They can be nested and
+are used to incapsulate context changes.
+
+\3 {Example} {iconscript_example}
+
+\code {iconscript} {
+square = \skw {fill} \skw{r} +0,0 +2,2
+\skw {icon} glider = \{
+    \skw {m} 6,2   @square \skw {m} +4,4 @square
+    \skw {m} +-8,4 @square \skw {m} +4,0 @square \skw {m} +4,0 @square
+\}
+}
+
+This code defines a square (\c {lf}, filled line — polygon with 5 points). It
+then reuses \c {square} variable 5 times to draw a glider.

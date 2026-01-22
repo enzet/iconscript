@@ -401,7 +401,7 @@ class IconScriptListener extends GeneratedIconScriptListener {
         const radius = parseFloat(ctx.FLOAT().getText());
 
         const radiusOuter = radius + this.getScope().width / 2.0;
-        const radiusInner = radius + this.getScope().width / 2.0;
+        const radiusInner = radius - this.getScope().width / 2.0;
 
         const circlePathOuter = createCirclePath(
             center.x,
@@ -412,7 +412,7 @@ class IconScriptListener extends GeneratedIconScriptListener {
             this.paths.push(circlePathOuter);
             this.modes.push(this.getScope().uniting);
         }
-        if (this.getScope().isFilled && radiusInner > 0.0) {
+        if (!this.getScope().isFilled && radiusInner > 0.0) {
             const circlePathInner = createCirclePath(
                 center.x,
                 center.y,
@@ -420,7 +420,7 @@ class IconScriptListener extends GeneratedIconScriptListener {
             );
             if (circlePathInner) {
                 this.paths.push(circlePathInner);
-                this.modes.push(this.getScope().uniting);
+                this.modes.push(!this.getScope().uniting);
             }
         }
     };
