@@ -399,11 +399,29 @@ class IconScriptListener extends GeneratedIconScriptListener {
     exitCircle = (ctx: CircleContext): void => {
         const center = this.getScope().getPosition(ctx.position());
         const radius = parseFloat(ctx.FLOAT().getText());
-        const circlePath = createCirclePath(center.x, center.y, radius / 2);
 
-        if (circlePath) {
-            this.paths.push(circlePath);
+        const radiusOuter = radius + this.getScope().width / 2.0;
+        const radiusInner = radius + this.getScope().width / 2.0;
+
+        const circlePathOuter = createCirclePath(
+            center.x,
+            center.y,
+            radiusOuter,
+        );
+        if (circlePathOuter) {
+            this.paths.push(circlePathOuter);
             this.modes.push(this.getScope().uniting);
+        }
+        if (this.getScope().isFilled && radiusInner > 0.0) {
+            const circlePathInner = createCirclePath(
+                center.x,
+                center.y,
+                radiusInner,
+            );
+            if (circlePathInner) {
+                this.paths.push(circlePathInner);
+                this.modes.push(this.getScope().uniting);
+            }
         }
     };
 

@@ -27,7 +27,7 @@ impl Default for OptimizationOptions {
 /// Create a circle path using SVG arc commands.
 pub fn create_circle_path(cx: f64, cy: f64, r: f64) -> Option<String> {
     if !cx.is_finite() || !cy.is_finite() || !r.is_finite() {
-        eprintln!("Invalid circle coordinates: ({}, {}, {})", cx, cy, r);
+        eprintln!("Invalid circle coordinates: ({}, {}, {}).", cx, cy, r);
         return None;
     }
 
