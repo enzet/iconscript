@@ -237,8 +237,6 @@ impl<'input> IconScriptListener<'input> for IconScriptListenerImpl<'input> {
     }
 
     fn exit_line(&mut self, ctx: &LineContext<'input>) {
-        let is_filled =
-            ctx.get_text().contains("lf") || self.get_scope().is_filled;
         let positions: Vec<kurbo::Point> = ctx
             .position_all()
             .iter()
@@ -276,7 +274,7 @@ impl<'input> IconScriptListener<'input> for IconScriptListenerImpl<'input> {
         }
 
         // If filled, add a filled polyline.
-        if is_filled && positions.len() >= 2 {
+        if self.get_scope_mut().is_filled && positions.len() >= 2 {
             let mut path = format!("M {} {}", positions[0].x, positions[0].y);
             for pos in &positions[1..] {
                 path.push_str(&format!(" L {} {}", pos.x, pos.y));

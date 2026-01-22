@@ -9,7 +9,7 @@ syn case match
 
 syn match iconscriptComment "^#.*$"
 syn keyword iconscriptKeyword icon
-syn keyword iconscriptCommand l lf c s a p w r
+syn keyword iconscriptCommand l c s a p w r
 syn match iconscriptVariable "@[a-zA-Z_][a-zA-Z0-9_]*"
 syn match iconscriptNumber "-\?\d\+\(\.\d*\)\?"
 syn match iconscriptPosition "\+\?\d\+\(\.\d*\)\?,\s*\d\+\(\.\d*\)\?"

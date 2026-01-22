@@ -34,7 +34,7 @@ command
 // Figures.
 arc : 'a' position FLOAT FLOAT FLOAT ;
 circle : 'e' position FLOAT ;
-line : ('l' | 'lf') position+ ;
+line : 'l' position+ ;
 rectangle : 'r' position position ;
 
 // Icon name.

@@ -25,24 +25,25 @@ Syntax slightly resembles the syntax of path commands in SVG.
 
 ### Global context
 
-  - `width` — stroke width.
-  - `position` — current position of the cursor.
+  - `width` — float, stroke width.
+  - `position` — vector (float, float), current position of the cursor.
+  - `fill` -- Boolean, whether objects should be filled.
 
 ### Commands
 
 `<vector>` is 2D coordinates in the form `<x>,<y>` or `+<x>,<y>` (`+` means
 that the position is relative to the __position__).
 
-| Command                              | Description                                                                       |
-| ------------------------------------ | --------------------------------------------------------------------------------- |
-| `subtract`                           | Set subtraction mode                                                              |
-| `w <float>`                          | Set `width` to a value                                                            |
-| `m <vector>`                         | Set `position` to a value                                                         |
-| `l [<vector>]`                       | Draw lines between positions                                                      |
-| `lf [<vector>]`                      | Draw filled lines between positions                                               |
-| `e <vector> <float>`                 | Draw circle specified by center point and radius                                  |
-| `r <vector> <vector>`                | Draw rectangle specified by top left and bottom right points                      |
-| `a <vector> <float> <float> <float>` | Draw arc specified by center point, radius, start angle, and end angle in radians |
+| Command                                         | Description               |
+| ----------------------------------------------- | ------------------------- |
+| `subtract`                                      | Set subtraction mode      |
+| `fill`                                          | Set fill mode             |
+| `m <point>`                                     | Set `position` to a value |
+| `w <width>`                                     | Set `width` to a value    |
+| `l [<point>]`                                   | Draw polyline             |
+| `r <top left point> <bottom right point>`       | Draw rectangle            |
+| `e <center> <radius>`                           | Draw circle               |
+| `a <center> <radius> <start angle> <end angle>` | Draw arc                  |
 
 ### Variables
 
@@ -57,12 +58,12 @@ used to incapsulate context changes.
 ### Example
 
 ```iconscript
-square = lf +0,0 +2,0 +0,2 +-2,0 +0,-2
+square = {fill r +0,0 +2,2}
 icon glider = {
     m 6,2   @square m +4,4 @square
     m +-8,4 @square m +4,0 @square m +4,0 @square
 }
 ```
 
-This code defines a square (`lf`, filled line — polygon with 5 points). It then
-reuses `square` variable 5 times to draw a glider.
+This code defines a square (filled rectangle). It then reuses `square` variable
+5 times to draw a glider.
