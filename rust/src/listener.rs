@@ -225,13 +225,26 @@ impl<'input> IconScriptListener<'input> for IconScriptListenerImpl<'input> {
             let radius_text = ctx.FLOAT().unwrap().get_text();
             let radius: f64 = radius_text.parse().unwrap_or(0.0);
 
+            let radius_outer: f64 = radius + self.get_scope_mut().width / 2.0;
+            let radius_inner: f64 = radius - self.get_scope_mut().width / 2.0;
+
             if let Some(path) =
-                create_circle_path(center.x, center.y, radius / 2.0)
+                create_circle_path(center.x, center.y, radius_outer)
             {
                 self.paths.push(PathWithMode {
                     path,
                     mode: self.get_scope().uniting,
                 });
+            }
+            if !self.get_scope_mut().is_filled && radius_inner > 0.0 {
+                if let Some(path) =
+                    create_circle_path(center.x, center.y, radius_inner)
+                {
+                    self.paths.push(PathWithMode {
+                        path,
+                        mode: !self.get_scope().uniting,
+                    });
+                }
             }
         }
     }
