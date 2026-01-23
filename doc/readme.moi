@@ -1,0 +1,27 @@
+\1 {iconscript} {iconscript}
+
+iconscript is a language for describing pixel-wise pictograms in the style of
+the \ref {https://github.com/enzet/Roentgen} {Röntgen} project.
+
+The grammar of the language is described in the ANTLR4
+\c {grammar/IconScript.g4} file.
+
+\2 {SVG generation} {svg-generation}
+
+There are two implementations of iconscript for parsing and generating SVG
+files.
+\list
+    {
+        \s {Rust}: \c {cargo install iconscript}. Rust implementation is
+        \e {faster} and \e {more reliable}. It uses
+        \ref
+            {https://docs.rs/linesweeper/latest/linesweeper/} {\c {linesweeper}}
+        library for Boolean path operations and SVG optimizations.
+    }
+    {
+        \s {JavaScript} (TypeScript): \c {npm install iconscript}. JavaScript
+        implementation uses \ref {http://paperjs.org/} {Paper.js} library, that
+        may produce wrong outputs.
+    }
+
+\include {syntax.moi}

@@ -51,12 +51,12 @@ are used to incapsulate context changes.
 \3 {Example} {iconscript_example}
 
 \code {iconscript} {
-square = \skw {fill} \skw{r} +0,0 +2,2
+square = \{\skw {fill} \skw{r} +0,0 +2,2\}
 \skw {icon} glider = \{
     \skw {m} 6,2   @square \skw {m} +4,4 @square
     \skw {m} +-8,4 @square \skw {m} +4,0 @square \skw {m} +4,0 @square
 \}
 }
 
-This code defines a square (\c {lf}, filled line — polygon with 5 points). It
-then reuses \c {square} variable 5 times to draw a glider.
+This code defines a square (filled rectangle). It then reuses \c {square}
+variable 5 times to draw a glider.
