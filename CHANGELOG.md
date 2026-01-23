@@ -1,4 +1,4 @@
-# Unreleased
+# 0.3.0
 
   - **Breaking change**: unify syntax
     ([#2](https://github.com/enzet/iconscript/issues/9)).
