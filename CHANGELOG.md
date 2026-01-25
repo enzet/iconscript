@@ -1,7 +1,12 @@
+# Unreleased
+
+  - Add `--version` opiton to CLI
+    ([#1](https://github.com/enzet/iconscript/issues/1)).
+
 # 0.3.0
 
   - **Breaking change**: unify syntax
-    ([#2](https://github.com/enzet/iconscript/issues/9)).
+    ([#9](https://github.com/enzet/iconscript/issues/9)).
       - Add `fill` command.
       - Remove `lf` command.
       - Make `r` and `e` respect fill and width scope parameters.

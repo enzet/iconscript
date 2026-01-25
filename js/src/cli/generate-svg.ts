@@ -4,6 +4,8 @@ import path from "path";
 // Import parser and generator from parser.ts (shared code).
 import {parseIconsFile} from "../parser.js";
 
+const VERSION = "0.3.0";
+
 function generateIcons(
     inputFile: string = "main.iconscript",
     outputDir: string = "output",
@@ -49,8 +51,15 @@ function generateIcons(
     }
 }
 
-const inputFile = process.argv[2];
-const outputDir = process.argv[3];
+const args = process.argv.slice(2);
+
+if (args.includes("-v") || args.includes("--version")) {
+    console.log(`iconscript ${VERSION}`);
+    process.exit(0);
+}
+
+const inputFile = args[0];
+const outputDir = args[1];
 
 generateIcons(inputFile, outputDir);
 

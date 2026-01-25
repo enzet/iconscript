@@ -6,6 +6,14 @@
 git config core.hooksPath .githooks
 ```
 
+## Make Release
+
+1. Update version in
+   - `js/package.json`,
+   - `rust/Cargo.toml`,
+   - `CHANGELOG.md`,
+   - `js/src/generate-svg.ts`.
+
 ## Publishing as an npm Package
 
 ### Build Process
