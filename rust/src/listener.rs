@@ -396,30 +396,31 @@ impl<'input> IconScriptListener<'input> for IconScriptListenerImpl<'input> {
         use std::f64::consts::PI;
 
         if let Some(pos_ctx) = ctx.position() {
-            let pos = self.parse_position(&pos_ctx);
-
             let floats = ctx.FLOAT_all();
-            if floats.len() < 3 {
+            if floats.len() != 4 {
+                eprintln!("Not enough arc parameters.");
                 return;
             }
 
             let radius: f64 =
-                floats[0].get_text().parse().unwrap_or(0.0) * SCALE;
-            let start_angle: f64 = floats[1].get_text().parse().unwrap_or(0.0);
-            let end_angle: f64 = floats[2].get_text().parse().unwrap_or(0.0);
+                floats[1].get_text().parse().unwrap_or(0.0) * SCALE;
+            let start_angle: f64 = floats[2].get_text().parse().unwrap_or(0.0);
+            let end_angle: f64 = floats[3].get_text().parse().unwrap_or(0.0);
 
-            let center = kurbo::Point::new(pos.x + 0.5, pos.y + 0.5);
+            let center = self.parse_position(&pos_ctx);
 
             let tau = 2.0 * PI;
             let mut delta = end_angle - start_angle;
 
             if delta.abs() < 1e-9 {
+                eprintln!("Angle delta is zero.");
                 return;
             }
             if delta.abs() > tau {
                 let wrapped = ((delta % tau) + tau) % tau;
                 delta = if delta < 0.0 { wrapped - tau } else { wrapped };
                 if delta.abs() < 1e-9 {
+                    eprintln!("Angle delta is zero.");
                     return;
                 }
             }

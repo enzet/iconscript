@@ -492,7 +492,6 @@ pub fn combine_paths(
     let mut seen_union: HashSet<String> = HashSet::new();
     let mut seen_difference: HashSet<String> = HashSet::new();
     let mut deduplicated_paths: Vec<PathWithMode> = Vec::new();
-    let mut skipped_count = 0;
 
     for path_with_mode in paths {
         let seen = if path_with_mode.mode {
@@ -503,16 +502,11 @@ pub fn combine_paths(
 
         if seen.contains(&path_with_mode.path) {
             // Skip duplicate path with same mode.
-            skipped_count += 1;
             continue;
         }
 
         seen.insert(path_with_mode.path.clone());
         deduplicated_paths.push(path_with_mode.clone());
-    }
-
-    if skipped_count > 0 {
-        eprintln!("Skipped {} duplicate path(s)", skipped_count);
     }
 
     if deduplicated_paths.is_empty() {
