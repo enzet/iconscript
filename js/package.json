@@ -1,7 +1,7 @@
 {
     "name": "iconscript",
     "version": "0.3.0",
-    "description": "iconscript, a language for generating SVG icons",
+    "description": "language for generating SVG icons",
     "type": "module",
     "main": "dist/src/parser.js",
     "types": "dist/src/parser.d.ts",
