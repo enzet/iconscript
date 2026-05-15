@@ -8,9 +8,11 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 mod generator;
 mod listener;
 mod parser;
+mod sketch_importer;
 mod types;
 
 use generator::{generate_icons, OptimizationOptions};
+use sketch_importer::generate_icons_from_svg;
 
 /// Parse version string into (major, minor, patch) tuple.
 /// Minor and patch default to 0 if not provided.
@@ -74,6 +76,10 @@ struct Args {
     #[arg(value_name = "DIR")]
     output: Option<PathBuf>,
 
+    /// Input SVG file (alternative to iconscript file).
+    #[arg(long, value_name = "SVG")]
+    from_svg: Option<PathBuf>,
+
     /// Enable sketch mode (output raw paths without combining).
     #[arg(short, long)]
     sketch: bool,
@@ -94,10 +100,19 @@ struct Args {
 fn main() -> Result<()> {
     let args = Args::parse();
 
-    let input_file = args
-        .input
-        .unwrap_or_else(|| PathBuf::from("main.iconscript"));
-    let output_dir = args.output.unwrap_or_else(|| PathBuf::from("output"));
+    // When --from-sketch is used, INPUT positional serves as the output
+    // directory (since the sketch file is already given via the flag).
+    let (input_file, output_dir) = match (&args.from_svg, args.output, args.input) {
+        (Some(_), None, Some(dir)) => (PathBuf::from("main.iconscript"), dir),
+        (Some(_), out, inp) => (
+            PathBuf::from("main.iconscript"),
+            out.or(inp).unwrap_or_else(|| PathBuf::from("output")),
+        ),
+        (None, out, inp) => (
+            inp.unwrap_or_else(|| PathBuf::from("main.iconscript")),
+            out.unwrap_or_else(|| PathBuf::from("output")),
+        ),
+    };
     let sketch_mode = args.sketch;
 
     // Build optimization options from CLI flags.
@@ -107,19 +122,16 @@ fn main() -> Result<()> {
         enable_collinear_simplification: !args.no_collinear,
     };
 
-    // Read input file.
-    let content = fs::read_to_string(&input_file)?;
-
-    // Check version compatibility.
-    check_version_compatibility(&content)?;
-
-    // Parse and generate icons.
-    let icon_count = generate_icons(
-        &content,
-        &output_dir,
-        sketch_mode,
-        &optimization_options,
-    )?;
+    let icon_count = if let Some(sketch_file) = args.from_svg {
+        // Generate from SVG sketch file.
+        let content = fs::read_to_string(&sketch_file)?;
+        generate_icons_from_svg(&content, &output_dir, &optimization_options)?
+    } else {
+        // Generate from iconscript file.
+        let content = fs::read_to_string(&input_file)?;
+        check_version_compatibility(&content)?;
+        generate_icons(&content, &output_dir, sketch_mode, &optimization_options)?
+    };
 
     println!(
         "\nGenerated {} SVG files in the `{}` directory.",

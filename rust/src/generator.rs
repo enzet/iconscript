@@ -600,6 +600,7 @@ pub fn icon_to_svg(
     sketch_mode: bool,
     paths: &[PathWithMode],
     options: &OptimizationOptions,
+    view_box: &str,
 ) -> String {
     let svg_content = if sketch_mode {
         // In sketch mode, output raw path elements without combining.
@@ -633,10 +634,11 @@ pub fn icon_to_svg(
         concat!(
             r#"<?xml version="1.0" encoding="utf-8" ?>"#,
             r#"<svg baseProfile="tiny" height="16px" version="1.2" width="16px" "#,
-            r#"viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" "#,
+            r#"viewBox="{}" xmlns="http://www.w3.org/2000/svg" "#,
             r#"xmlns:ev="http://www.w3.org/2001/xml-events" "#,
             r#"xmlns:xlink="http://www.w3.org/1999/xlink"><defs />{}</svg>"#
         ),
+        view_box,
         svg_content
     )
 }
@@ -657,7 +659,7 @@ pub fn generate_icons(
     let mut icon_count = 0;
 
     for (i, (icon, paths)) in icons.iter().enumerate() {
-        let svg = icon_to_svg(icon, sketch_mode, paths, options);
+        let svg = icon_to_svg(icon, sketch_mode, paths, options, "0 0 16 16");
 
         if !svg.is_empty() {
             let filename = if let Some(ref name) = icon.name {

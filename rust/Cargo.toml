@@ -20,4 +20,5 @@ clap = { version = "4.5", features = ["derive"] }
 kurbo = "0.12.0"
 lazy_static = "1.4"
 linesweeper = "0.1.2"
+roxmltree = "0.19"
 thiserror = "1.0"
