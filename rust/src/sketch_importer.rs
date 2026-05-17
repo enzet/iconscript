@@ -589,8 +589,18 @@ fn stroke_approx(bezpath: &BezPath, stroke_width: f64) -> Vec<BezPath> {
             if let Some(p) = build_offset_closed(&segs, signed_d) {
                 result.push(p);
             }
-        } else if let Some(p) = build_stroke_open(&segs, d) {
-            result.push(p);
+            for seg in &segs {
+                result.push(Circle::new(seg.end(), d).to_path(0.1));
+            }
+        } else {
+            if let Some(p) = build_stroke_open(&segs, d) {
+                result.push(p);
+            }
+            // Round caps at endpoints and round joins at interior joints.
+            result.push(Circle::new(segs[0].start(), d).to_path(0.1));
+            for seg in &segs {
+                result.push(Circle::new(seg.end(), d).to_path(0.1));
+            }
         }
     }
 
