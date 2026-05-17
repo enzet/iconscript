@@ -1,7 +1,10 @@
-# Unreleased
+# 0.4.0
 
-  - Add `--version` opiton to CLI
+  - Add `--version` option to CLI
     ([#1](https://github.com/enzet/iconscript/issues/1)).
+  - Check input file version in CLI and reject incompatible files
+    ([#12](https://github.com/enzet/iconscript/issues/12)).
+  - Support icon generating from SVG sketches (Rust).
 
 # 0.3.0
 
