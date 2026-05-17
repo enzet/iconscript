@@ -93,6 +93,35 @@ fn parse_transform(s: &str) -> Affine {
             let ty = vals.get(1).copied().unwrap_or(0.0);
             return Affine::translate((tx, ty));
         }
+    } else if let Some(inner) = s.strip_prefix("scale(").and_then(|s| s.strip_suffix(')')) {
+        let vals: Vec<f64> = inner
+            .split(|c: char| c == ',' || c.is_ascii_whitespace())
+            .filter(|s| !s.is_empty())
+            .map(|s| s.parse().unwrap_or(1.0))
+            .collect();
+        if !vals.is_empty() {
+            let sx = vals[0];
+            let sy = vals.get(1).copied().unwrap_or(sx);
+            return Affine::new([sx, 0.0, 0.0, sy, 0.0, 0.0]);
+        }
+    } else if let Some(inner) = s.strip_prefix("rotate(").and_then(|s| s.strip_suffix(')')) {
+        let vals: Vec<f64> = inner
+            .split(|c: char| c == ',' || c.is_ascii_whitespace())
+            .filter(|s| !s.is_empty())
+            .map(|s| s.parse().unwrap_or(0.0))
+            .collect();
+        if !vals.is_empty() {
+            let angle = vals[0].to_radians();
+            let (sin, cos) = angle.sin_cos();
+            if vals.len() >= 3 {
+                // rotate(angle, cx, cy) = translate(cx,cy) * rotate(angle) * translate(-cx,-cy)
+                let cx = vals[1]; let cy = vals[2];
+                return Affine::translate((cx, cy))
+                    * Affine::new([cos, sin, -sin, cos, 0.0, 0.0])
+                    * Affine::translate((-cx, -cy));
+            }
+            return Affine::new([cos, sin, -sin, cos, 0.0, 0.0]);
+        }
     }
 
     Affine::IDENTITY
