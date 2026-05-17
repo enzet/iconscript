@@ -4,7 +4,7 @@ import path from "path";
 // Import parser and generator from parser.ts (shared code).
 import {parseIconsFile} from "../parser.js";
 
-const VERSION = "0.4.0";
+const VERSION = "0.4.1";
 
 /**
  * Parse version string into [major, minor, patch] tuple.
