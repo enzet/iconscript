@@ -575,7 +575,10 @@ fn build_stroke_open(segs: &[Seg], d: f64) -> Option<BezPath> {
 /// (Tiller-Hanson for segments, cubic arc approximation for convex joins).
 /// No polyline sampling — the output contains only `LineTo` for straight
 /// input edges and `CurveTo` for curved edges and join arcs.
-fn stroke_approx(bezpath: &BezPath, stroke_width: f64) -> Vec<BezPath> {
+/// Returns `(path, is_inner)` pairs. `is_inner = true` marks the inner
+/// boundary of a closed-path stroke ring; callers must subtract it when
+/// there is no fill covering the interior.
+fn stroke_approx(bezpath: &BezPath, stroke_width: f64) -> Vec<(BezPath, bool)> {
     let d = stroke_width / 2.0;
     let mut result = Vec::new();
 
@@ -587,19 +590,22 @@ fn stroke_approx(bezpath: &BezPath, stroke_width: f64) -> Vec<BezPath> {
             }).sum::<f64>() / 2.0;
             let signed_d = if area >= 0.0 { d } else { -d };
             if let Some(p) = build_offset_closed(&segs, signed_d) {
-                result.push(p);
+                result.push((p, false));
+            }
+            if let Some(p) = build_offset_closed(&segs, -signed_d) {
+                result.push((p, true));
             }
             for seg in &segs {
-                result.push(Circle::new(seg.end(), d).to_path(0.1));
+                result.push((Circle::new(seg.end(), d).to_path(0.1), false));
             }
         } else {
             if let Some(p) = build_stroke_open(&segs, d) {
-                result.push(p);
+                result.push((p, false));
             }
             // Round caps at endpoints and round joins at interior joints.
-            result.push(Circle::new(segs[0].start(), d).to_path(0.1));
+            result.push((Circle::new(segs[0].start(), d).to_path(0.1), false));
             for seg in &segs {
-                result.push(Circle::new(seg.end(), d).to_path(0.1));
+                result.push((Circle::new(seg.end(), d).to_path(0.1), false));
             }
         }
     }
@@ -661,9 +667,15 @@ fn element_path_entries(
                     results.push((p, fill_is_union));
                 }
                 if has_stroke {
-                    let mut p = make_rect_path(style.stroke_width / 2.0);
-                    p.apply_affine(combined_transform);
-                    results.push((p, stroke_is_union));
+                    let d = style.stroke_width / 2.0;
+                    let mut outer = make_rect_path(d);
+                    outer.apply_affine(combined_transform);
+                    results.push((outer, stroke_is_union));
+                    if !has_fill && w > style.stroke_width && h > style.stroke_width {
+                        let mut inner = make_rect_path(-d);
+                        inner.apply_affine(combined_transform);
+                        results.push((inner, !stroke_is_union));
+                    }
                 }
             }
         }
@@ -690,9 +702,15 @@ fn element_path_entries(
                     results.push((p, fill_is_union));
                 }
                 if has_stroke {
-                    let mut p = make_circle(style.stroke_width / 2.0);
-                    p.apply_affine(combined_transform);
-                    results.push((p, stroke_is_union));
+                    let d = style.stroke_width / 2.0;
+                    let mut outer = make_circle(d);
+                    outer.apply_affine(combined_transform);
+                    results.push((outer, stroke_is_union));
+                    if !has_fill && r > d {
+                        let mut inner = make_circle(-d);
+                        inner.apply_affine(combined_transform);
+                        results.push((inner, !stroke_is_union));
+                    }
                 }
             }
         }
@@ -720,9 +738,15 @@ fn element_path_entries(
                     results.push((p, fill_is_union));
                 }
                 if has_stroke {
-                    let mut p = make_ellipse(style.stroke_width / 2.0);
-                    p.apply_affine(combined_transform);
-                    results.push((p, stroke_is_union));
+                    let d = style.stroke_width / 2.0;
+                    let mut outer = make_ellipse(d);
+                    outer.apply_affine(combined_transform);
+                    results.push((outer, stroke_is_union));
+                    if !has_fill && rx > d && ry > d {
+                        let mut inner = make_ellipse(-d);
+                        inner.apply_affine(combined_transform);
+                        results.push((inner, !stroke_is_union));
+                    }
                 }
             }
         }
@@ -745,10 +769,12 @@ fn element_path_entries(
             }
 
             if has_stroke {
-                // Approximate the stroke outline using thick line rectangles
-                // along each segment (chord approximation for curves).
-                for thick in stroke_approx(&global_path, style.stroke_width) {
-                    results.push((thick, stroke_is_union));
+                for (thick, is_inner) in stroke_approx(&global_path, style.stroke_width) {
+                    if is_inner && has_fill {
+                        continue;
+                    }
+                    let mode = if is_inner { !stroke_is_union } else { stroke_is_union };
+                    results.push((thick, mode));
                 }
             }
         }

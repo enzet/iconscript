@@ -31,4 +31,5 @@ work/
 rust/Cargo.lock
 rust/antlr4rust.jar
 rust/src/grammar/
+rust/output/
 rust/target/
